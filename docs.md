@@ -85,20 +85,18 @@ php artisan route:list
 
 6. Cấu trúc thư mục làm việc theo yêu cầu:
 project-2/
-├── app/                  <-- QUAN TRỌNG NHẤT (Logic code nằm đây)
-│   ├── Http/
-│   │   └── Controllers/  <-- "Lễ tân": Chỉ nhận yêu cầu và trả kết quả
-│   ├── Models/           <-- "Bản vẽ": Đại diện cho Database
-│   │
-│   ├── Repositories/     <-- (MỚI) "Thủ kho": Chỉ chuyên truy xuất Database (CRUD)
-│   │   ├── UserRepository.php
-│   │   └── ProductRepository.php
-│   │
-│   ├── Services/         <-- (MỚI) "Quản lý": Chứa Logic nghiệp vụ phức tạp
-│   │   ├── UserService.php
-│   │   └── OrderService.php
-│   │
-│   └── Providers/        <-- Nơi đăng ký Service/Repository (nếu dùng Interface)
+├── app/
+│    ├── Http/
+│    │   ├── Controllers/       # Skinny Controllers (Chỉ điều phối)
+│    │   ├── Requests/          # FormRequest (Validate dữ liệu đầu vào)
+│    │   └── Resources/         # API Resource (Format JSON đầu ra chuẩn)
+│    ├── Models/                # Eloquent Models (Quan hệ DB, Scopes)
+│    ├── Services/              # TRÁI TIM CỦA HỆ THỐNG (Business Logic)
+│    │   ├── BaseService.php    # Class cha (nếu cần xử lý chung)
+│    │   ├── OrderService.php   # Xử lý logic đặt hàng, tính tiền, trừ kho
+│    │   ├── ProductService.php
+│    │   └── AuthService.php
+│    └── Exceptions/            # Custom Exception (Ví dụ: OutOfStockException)          
 ├── bootstrap/            <-- (Kệ nó - Bộ khởi động hệ thống)
 ├── config/               <-- Nơi chứa các cài đặt chung (ít khi sửa)
 ├── database/             <-- QUAN TRỌNG
@@ -160,6 +158,7 @@ PHP
 class ProductService {
     protected $productRepo;
 
+    
     public function __construct(ProductRepository $productRepo) {
         $this->productRepo = $productRepo;
     }
