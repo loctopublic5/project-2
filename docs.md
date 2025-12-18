@@ -29,6 +29,8 @@ php artisan migrate
 # 6. Chạy dự án
 npm run dev       # Tab 1: Build giao diện
 php artisan serve # Tab 2: Chạy Server Laravel
+# 7. Xem log error của api
+tail -f storage/logs/laravel.log
 ```
 ---------------------------------------------------------------------------
 
@@ -85,18 +87,22 @@ php artisan route:list
 
 6. Cấu trúc thư mục làm việc theo yêu cầu:
 project-2/
-├── app/
-│    ├── Http/
-│    │   ├── Controllers/       # Skinny Controllers (Chỉ điều phối)
-│    │   ├── Requests/          # FormRequest (Validate dữ liệu đầu vào)
-│    │   └── Resources/         # API Resource (Format JSON đầu ra chuẩn)
-│    ├── Models/                # Eloquent Models (Quan hệ DB, Scopes)
-│    ├── Services/              # TRÁI TIM CỦA HỆ THỐNG (Business Logic)
-│    │   ├── BaseService.php    # Class cha (nếu cần xử lý chung)
-│    │   ├── OrderService.php   # Xử lý logic đặt hàng, tính tiền, trừ kho
-│    │   ├── ProductService.php
-│    │   └── AuthService.php
-│    └── Exceptions/            # Custom Exception (Ví dụ: OutOfStockException)          
+app/
+├── Exceptions/
+│   └── BusinessException.php    <-- Custom Exception cho logic nghiệp vụ
+├── Http/
+│   ├── Controllers/
+│   │   └── Api/
+│   │       └── OrderController.php
+│   ├── Requests/
+│   │   ├── BaseFormRequest.php  <-- Base Request (Validation)
+│   │   └── OrderRequest.php
+│   ├── Resources/
+│   │   └── OrderResource.php
+├── Services/                    <-- Service Layer
+│   └── OrderService.php
+├── Traits/
+│   └── ApiResponse.php          <-- Trait chuẩn hóa JSON output         
 ├── bootstrap/            <-- (Kệ nó - Bộ khởi động hệ thống)
 ├── config/               <-- Nơi chứa các cài đặt chung (ít khi sửa)
 ├── database/             <-- QUAN TRỌNG
@@ -107,7 +113,12 @@ project-2/
 │   ├── js/               <-- File JS gốc
 │   └── views/            <-- Các file HTML (đuôi .blade.php)
 ├── routes/               <-- QUAN TRỌNG (Định nghĩa đường link)
-│   └── web.php           <-- File quy định các đường dẫn web
+│   └──api.php                      <-- Entry point
+└──    api/
+        └── v1/                      <-- Modular Routes
+            ├── auth.php
+            ├── orders.php
+            └── products.php
 ├── storage/              <-- Nơi lưu log lỗi, file upload tạm (ít đụng)
 ├── tests/                <-- Nơi viết code kiểm thử (User mới chưa cần quan tâm)
 ├── vendor/               <-- CẤM ĐỤNG VÀO (Thư viện PHP do Composer tải về)
