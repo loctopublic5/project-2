@@ -2,6 +2,10 @@
 
 Tài liệu hướng dẫn quy trình phát triển, cài đặt và cấu trúc dự án.
 **Mô hình áp dụng:** MVC mở rộng (Controller -> Service -> Repository).
+-------------------------------------------------------------------------------------------------------
+**Quy trình luồng dữ liệu (Data Flow) bắt buộc:**
+1.  **Input:** Route (Modular) -> Request (Validation) -> Controller -> Service (Logic) -> DB.
+2.  **Output:** DB -> Service -> Controller -> Resource (Transform JSON) -> View (Blade/JSON Response).
 
 ---
 
