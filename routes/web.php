@@ -32,3 +32,12 @@ Route::get('/test-rbac', function () {
         'Has Permission (products.create)?' => $check ? 'CÓ' : 'KHÔNG'
     ]);
 });
+
+// Route này chỉ dùng để dev, giúp trình duyệt nhớ bạn là User 1
+Route::get('/force-login', function () {
+    Auth::loginUsingId(1);
+    return "Đã đăng nhập thành công với User ID 1. Hãy thử lại route test.";
+});
+Route::get('/admin/products/delete', function(){
+    return 'Xóa sản phẩm thành công';
+})->middleware('permission:products,create');
