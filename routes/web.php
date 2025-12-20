@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('home');
@@ -41,3 +42,9 @@ Route::get('/force-login', function () {
 Route::get('/admin/products/delete', function(){
     return 'Xóa sản phẩm thành công';
 })->middleware('permission:products,create');
+
+Route::get('/test-view', function () {
+    // Nhớ fake login user 1 trước
+    Auth::loginUsingId(1); 
+    return view('test-gate');
+});
