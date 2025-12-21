@@ -6,11 +6,11 @@ use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\AuthResource;
 use App\Exceptions\BusinessException;
-use App\Http\Requests\ResetPasswordRequest;
-use App\Http\Requests\StoreRegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\StoreRegisterRequest;
 
 class AuthController
 {

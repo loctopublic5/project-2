@@ -63,7 +63,7 @@ class User extends Authenticatable
         return $this->hasMany(DealerRequest::class);
     }
 
-    public function lastesrDealerRequest(){
+    public function latestDealerRequest(){
         return $this->hasOne(DealerRequest::class)->latestOfMany();
     }
 
