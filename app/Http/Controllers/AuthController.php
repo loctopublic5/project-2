@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use App\Services\AuthService;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\AuthResource;
 use App\Exceptions\BusinessException;
 use App\Http\Requests\StoreRegisterRequest;
-use App\Traits\ApiResponse;
 
 class AuthController
 {
@@ -48,4 +49,11 @@ class AuthController
         return $this->error($e->getMessage(), 500);
     }
 }
+
+
+    public function logout(Request $request){
+        $user = $request->user();
+        $this->auth_service->logout($user);
+        return $this->success(null, 'Đăng xuất thành công.');
+    }
 }

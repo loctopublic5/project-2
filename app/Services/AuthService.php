@@ -101,4 +101,21 @@ class AuthService
             'token_type' => 'Bearer',
         ];
     }
+    
+    /**
+     * Logout logic
+    * Input: User Object
+    * Output: bool (hoặc void)
+    */
+    public function logout(User $user): bool
+{
+    // Lấy token hiện tại
+        /** @var \Laravel\Sanctum\PersonalAccessToken $token */
+        $token = $user->currentAccessToken();
+        // Kiểm tra chắc chắn token tồn tại trước khi xóa (phòng trường hợp gọi logout khi chưa login - dù middleware đã chặn rồi nhưng cứ chắc cốp)
+        if ($token) {
+            return $token->delete();
+        }
+        return false;
+    }
 }
