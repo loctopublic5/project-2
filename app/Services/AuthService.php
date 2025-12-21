@@ -150,4 +150,34 @@ class AuthService
     Mail::to($email)->send(new ResetPasswordMail($token));
     return true;
     }
+
+    public function resetPassword(string $email, string $token, string $newPassword): bool{
+        $resetRecord = DB::table('password_reset_tokens')->where('email', $email)->first();
+
+        if(!$resetRecord){
+            throw new Exception("Yêu cầu đặt lại mật khẩu không tồn tại hoặc sai email.", 404);
+        }
+
+        if(!Hash::check($token,$resetRecord->token)){
+            throw ValidationException::withMessages(['token'=>['Mã token không hợp lệ hoặc sai.']]);
+        }
+        
+        $tokenCreateAt = \Carbon\Carbon::parse($resetRecord->created_at);
+        if($tokenCreateAt->addMinutes(60)->isPast()){
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            throw new Exception("Mã token đã hết hạn, vui lòng gửi yêu cầu mới.", 400);
+        }
+
+        $user = User::where('email', $email)->first();
+        if(!$user){
+            throw new Exception("Người dùng không tồn tại", 404);
+        }
+
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        return true;
+    }
 }

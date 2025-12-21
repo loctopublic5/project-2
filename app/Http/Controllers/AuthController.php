@@ -9,6 +9,7 @@ use App\Services\AuthService;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\AuthResource;
 use App\Exceptions\BusinessException;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\StoreRegisterRequest;
 
 class AuthController
@@ -67,5 +68,18 @@ class AuthController
     $this->auth_service->forgotPassword($request->email);
     // 3. Trả về JSON Success
     return $this->success(null, 'Vui lòng kiểm tra email để lấy lại mật khẩu.');
+    }
+
+    public function resetPassword(ResetPasswordRequest $request){
+        $data = $request->validated();
+        $this->auth_service->resetPassword(
+            $data['email'],
+            $data['token'],
+            $data['password']
+        );
+        return response()->json([
+            'status' => true,
+            'message' => 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ.'
+        ]);
     }
 }

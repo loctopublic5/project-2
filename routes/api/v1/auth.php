@@ -14,10 +14,9 @@ Route::prefix('auth')->group(function(){
     // Quên mật khẩu: POST /api/v1/auth/forgot-password
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
-    // Route::post('/forgot-password', function() {
-    //     return response()->json(['message' => 'Route đã thông! Lỗi nằm ở Controller']);
-    // });
-    
+    //Đăt lại mật khẩu: POST /api/v1/auth/reset-password
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
     // Đăng xuất: POST /api/v1/auth/logout
     Route::middleware('auth:sanctum')->group(function(){
         Route::post('/logout', [AuthController::class, 'logout']);
