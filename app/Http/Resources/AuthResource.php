@@ -20,6 +20,7 @@ class AuthResource extends JsonResource
             'name' => $this->resource['user']->full_name, // Mapping cột full_name 
             'email' => $this->resource['user']->email,
             'roles' => $this->resource['roles'], // Danh sách roles
+            'last_login_at' => $this->last_login_at?->format('d/m/Y H:i:s'),
         ],
         'authorization' => [
             'token' => $this->resource['access_token'],

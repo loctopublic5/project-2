@@ -25,6 +25,7 @@ class AuthService
             // 2. Hash mật khẩu
             // Keyword: $data['password'] = Hash::make(...);
             $data['password'] = Hash::make($data['password']);
+            $data['last_login_at'] = now();
             // 3. Tạo User vào bảng `users`
             // Keyword: User::create($data);
             // $user = ...
@@ -82,6 +83,8 @@ class AuthService
             throw ValidationException::withMessages(['email' => ['Tài khoản của bạn đã bị khóa.'],
             ]);
         }
+        $user->last_login_at = now(); 
+        $user->save();
         // 4. Tạo Token (Sanctum)
         // Keyword: $token = $user->createToken('auth_token')->plainTextToken;
         $token = $user->createToken('auth_token')->plainTextToken;

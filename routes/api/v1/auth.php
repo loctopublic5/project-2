@@ -17,5 +17,7 @@ Route::prefix('auth')->group(function(){
 Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin-only', function () {
     return response()->json(['message' => 'Chào Admin!']);
 });
+
+
 }); 
 ?>
