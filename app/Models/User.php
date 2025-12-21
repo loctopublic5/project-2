@@ -59,6 +59,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id','role_id');
     }
 
+    public function dealerRequest(){
+        return $this->hasMany(DealerRequest::class);
+    }
+
+    public function lastesrDealerRequest(){
+        return $this->hasOne(DealerRequest::class)->latestOfMany();
+    }
+
     /**
  * Kiểm tra user có role cụ thể nào đó không (dựa vào slug)
  * @param string $roleSlug (VD: 'admin')
