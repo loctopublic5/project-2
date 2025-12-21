@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DealerRequestController;
+
 
 Route::prefix('auth')->group(function(){
 
@@ -19,13 +19,11 @@ Route::prefix('auth')->group(function(){
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
     // Đăng xuất: POST /api/v1/auth/logout
-Route::middleware('auth:sanctum')->group(function(){
-    Route::post('/logout', [AuthController::class, 'logout']);
-});
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::post('/logout', [AuthController::class, 'logout']);
+    });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
-    Route::put('/dealer-requests/{dealer_request}', [DealerRequestController::class, 'updateStatus']);
-});
+
 
 
 }); 

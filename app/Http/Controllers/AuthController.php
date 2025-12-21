@@ -38,7 +38,7 @@ class AuthController
         // 2. Gọi Service (Giao việc)
         $result = $this->auth_service->login($credentials);
 
-        // 3. Trả về thành công (Sẽ xử lý Resource ở bước sau)
+        // 3. Trả về thành công 
         return $this->success(new AuthResource($result));
 
     } catch (BusinessException $e) {

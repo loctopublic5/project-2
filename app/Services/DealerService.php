@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use App\Models\User;
 use App\Models\Role; 
 use App\Models\DealerRequest;
 use App\Mail\DealerApprovedMail;
@@ -97,5 +98,42 @@ class DealerService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * User đăng ký làm đại lý
+     * @param User $user User đang đăng nhập
+     * @return DealerRequest
+     */
+    public function registerForUpgrade($user)
+    {
+        // --- GUARD 1: CHECK ROLE HIỆN TẠI ---
+        // Kiểm tra xem user đã có role 'dealer' chưa.
+        // Gợi ý: $user->hasRole('dealer') (nếu dùng package) hoặc check trong $user->roles
+        // Nếu có rồi -> Ném Exception: "Bạn đã là đại lý rồi, đăng ký chi nữa?"
+        // CODE CỦA BẠN:
+        if($user->hasRole('dealer')){
+            throw new Exception("Bạn đã là Đại lý rồi!");
+        };
+        
+        // --- GUARD 2: CHECK YÊU CẦU CŨ (SPAM PREVENTION) ---
+        // Kiểm tra xem user này có request nào đang 'pending' trong bảng dealer_requests không.
+        // Gợi ý: Dùng relationship $user->dealerRequests()->where('status', 'pending')->exists()
+        // Nếu có -> Ném Exception: "Yêu cầu của bạn đang được xử lý, vui lòng chờ."
+        // CODE CỦA BẠN:
+        if($user->dealerRequests()->where('status', 'pending')->exists()) {
+            throw new Exception("Yêu cầu của bạn đang được xử lý, vui lòng chờ.");
+        };
+
+        // --- ACTION: TẠO REQUEST MỚI ---
+        // Tạo bản ghi mới vào dealer_requests.
+        // Input: user_id = $user->id, status = 'pending' (mặc định DB đã set, nhưng điền vào cho rõ cũng được)
+        // CODE CỦA BẠN:
+        $request = DealerRequest::create([
+            'user_id' => $user->id,
+            'status' => 'pending',
+        ]);
+
+        return $request;
     }
 }
