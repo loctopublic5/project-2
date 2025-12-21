@@ -50,10 +50,22 @@ class AuthController
     }
 }
 
-
     public function logout(Request $request){
         $user = $request->user();
         $this->auth_service->logout($user);
         return $this->success(null, 'Đăng xuất thành công.');
+    }
+
+    public function forgotPassword(Request $request)
+    {
+    
+    // 1. Validate Input
+    // $request->validate(['email' => 'required|email']);
+    $request->validate(['email'=> 'required|email']);
+    // 2. Gọi Service
+    // $this->authService->forgotPassword($request->email);
+    $this->auth_service->forgotPassword($request->email);
+    // 3. Trả về JSON Success
+    return $this->success(null, 'Vui lòng kiểm tra email để lấy lại mật khẩu.');
     }
 }
