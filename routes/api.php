@@ -12,6 +12,8 @@ Route::prefix('v1')->group(function () {
 
     if ($routeFiles) {
         foreach ($routeFiles as $file) {
+            // [DEBUG] Uncomment dòng dưới để xem nó load file nào
+            //dump($file); 
             require $file;
         }
     }
