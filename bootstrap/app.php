@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => App\Http\Middleware\CheckPermission::class,
         ]);
+        $middleware->alias([
+            'role' => App\Http\Middleware\CheckRoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 1. Chỉ trả về JSON nếu request là API

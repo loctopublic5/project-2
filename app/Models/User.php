@@ -57,4 +57,15 @@ class User extends Authenticatable
     public function roles():  BelongsToMany{
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id','role_id');
     }
+
+    /**
+ * Kiểm tra user có role cụ thể nào đó không (dựa vào slug)
+ * @param string $roleSlug (VD: 'admin')
+ * @return bool
+ */
+    public function hasRole(string $roleSlug):bool {
+        // Dùng collection method 'contains' để check trong danh sách roles đã eager load
+         // Lưu ý: $this->roles là Collection (do Eloquent trả về)
+        return $this->roles->contains('slug', $roleSlug);
+    }
 }
