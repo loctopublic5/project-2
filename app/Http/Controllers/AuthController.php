@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Exception;
+use App\Services\AuthService;
+use App\Http\Requests\LoginRequest;
+use App\Http\Resources\AuthResource;
+use App\Exceptions\BusinessException;
+use App\Http\Requests\StoreRegisterRequest;
+use App\Traits\ApiResponse;
+
+class AuthController
+{
+    use ApiResponse;
+    public function __construct(protected AuthService $auth_service) {}
+
+    public function register(StoreRegisterRequest $request){
+        try{
+            $data = $request->validated();
+            $result = $this->auth_service->register($data);
+            return $this->success(new AuthResource($result), 'Đăng ký thành công!');
+        } catch(BusinessException $e){
+            return $this->error($e->getMessage(), 401);
+        } catch(Exception $e){
+            return $this->error($e->getMessage(), 500);
+        }
+    }
+
+    public function login(LoginRequest $request)
+{
+    try {
+        // 1. Lấy data sạch (đã validate xong ở lớp Request)
+        $credentials = $request->validated(); 
+
+        // 2. Gọi Service (Giao việc)
+        $result = $this->auth_service->login($credentials);
+
+        // 3. Trả về thành công (Sẽ xử lý Resource ở bước sau)
+        return $this->success(new AuthResource($result));
+
+    } catch (BusinessException $e) {
+        // 4. Bắt lỗi logic nghiệp vụ (VD: Sai pass, khóa acc)
+        // Trả về code 401 hoặc 400 tùy message
+        return $this->error($e->getMessage(), 401);
+    } catch (Exception $e) {
+        // 5. Bắt lỗi hệ thống không mong muốn (500)
+        return $this->error($e->getMessage(), 500);
+    }
+}
+}
