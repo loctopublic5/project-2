@@ -10,11 +10,11 @@ class BaseFormRequest extends FormRequest{
         return true;
     }
 
-    protected function failedValidator(Validator $validate){
+    protected function failedValidation(Validator $validate){
         throw new HttpResponseException(response()->json([
             'status' => false,
             'message' => 'Validation Error',
-            'error' => $validate->errors()
+            'errors' => $validate->errors()
         ], 422));
     } 
 } 
