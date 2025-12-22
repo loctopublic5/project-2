@@ -83,19 +83,20 @@ class AuthService
         // 3. Kiểm tra User có đang hoạt động không (cột `is_active`) [cite: 13]
         // Nếu $user->is_active == false -> Throw Exception 'Tài khoản đã bị khóa'
         if(!$user->is_active){
-            throw ValidationException::withMessages(['email' => ['Tài khoản của bạn đã bị khóa.'],
+            throw ValidationException::withMessages(['email' => ['Tài khoản của bạn đã bị khóa.'], 'code' => [401],
             ]);
         }
-        $user->last_login_at = now(); 
-        $user->save();
+        //Xóa token cũ để tránh spam làm phình database rác
+        $user->tokens()->delete();
+
         // 4. Tạo Token (Sanctum)
         // Keyword: $token = $user->createToken('auth_token')->plainTextToken;
         $token = $user->createToken('auth_token')->plainTextToken;
         // 5. Lấy danh sách Role (Eager Loading) để trả về cho Frontend
-        // Keyword: $user->load('roles');
-        // $roles = $user->roles->pluck('slug');
         $user->load('roles');
         $roles = $user->roles->pluck('slug');
+        $user->last_login_at = now(); 
+        $user->save();
         // 6. Trả về mảng dữ liệu
         return [
             'user' => $user,
