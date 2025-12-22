@@ -35,5 +35,6 @@ class AppServiceProvider extends ServiceProvider
     Gate::define('products.create', function(User $user){
         return $user->hasPermissionTo('products', 'create');
     });
+
     }
 }

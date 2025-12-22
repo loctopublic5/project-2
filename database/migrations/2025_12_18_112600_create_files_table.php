@@ -10,18 +10,29 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
+{
     Schema::create('files', function (Blueprint $table) {
-    $table->id();
-    $table->string('disk', 20)->default('s3'); 
-    $table->string('path', 255);
-    $table->string('mime_type', 50);
-    $table->bigInteger('size');
-    $table->string('target_type', 50); // VD: products [cite: 77]
-    $table->unsignedBigInteger('target_id');
-    $table->timestamp('created_at')->useCurrent();
-});
-    }
+        $table->id();
+        
+        // 1. Sửa default thành 'public' cho hợp môi trường Dev
+        $table->string('disk', 20)->default('public'); 
+        
+        $table->string('path', 255);
+        
+        // 2. Tăng độ dài lên 255 để không bị lỗi với file Office
+        $table->string('mime_type', 255)->nullable(); 
+        
+        // Size không bao giờ âm -> dùng unsigned
+        $table->unsignedBigInteger('size'); 
+        
+        // 3. Thay vì khai báo lẻ tẻ, dùng morphs để vừa tạo cột, vừa tạo INDEX tự động
+        // Nó sẽ tạo ra: target_type (string) và target_id (bigint) + Index
+        $table->morphs('target'); 
+
+        // 4. Tạo đủ bộ created_at và updated_at
+        $table->timestamps(); 
+    });
+}
 
     /**
      * Reverse the migrations.

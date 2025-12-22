@@ -5,7 +5,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('home');
+    return view('test-gate');
 });
 
 Route::post('/register', function(){

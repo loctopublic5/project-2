@@ -9,8 +9,10 @@ Route::prefix('auth')->group(function(){
     // Đăng ký: POST /api/v1/auth/register
     Route::post('/register', [AuthController::class, 'register']);
 
-    // Đăng nhập: POST /api/v1/auth/login
+    Route::middleware('throttle:5,1')->group(function(){
+        // Đăng nhập: POST /api/v1/auth/login
     Route::post('/login', [AuthController::class, 'login']);
+    });
 
     // Quên mật khẩu: POST /api/v1/auth/forgot-password
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -23,7 +25,7 @@ Route::prefix('auth')->group(function(){
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 
-
+    
 
 
 }); 
