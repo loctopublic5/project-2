@@ -6,11 +6,11 @@ use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\AuthResource;
 use App\Exceptions\BusinessException;
-use App\Http\Requests\ResetPasswordRequest;
-use App\Http\Requests\StoreRegisterRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\StoreRegisterRequest;
 
 class AuthController
 {
@@ -38,7 +38,7 @@ class AuthController
         // 2. Gọi Service (Giao việc)
         $result = $this->auth_service->login($credentials);
 
-        // 3. Trả về thành công (Sẽ xử lý Resource ở bước sau)
+        // 3. Trả về thành công 
         return $this->success(new AuthResource($result));
 
     } catch (BusinessException $e) {
