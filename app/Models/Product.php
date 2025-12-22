@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
-class Products extends Model
+class Product extends Model
 {
     protected $fillable = [
         'category_id',
