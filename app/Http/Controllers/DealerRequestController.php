@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Traits\ApiResponse;
 use App\Services\DealerService;
-use App\Http\Requests\User\PostDealerRequestRequest;
-use App\Http\Resources\Admin\PostDealerRequestResource;
+use App\Http\Requests\Customer\PostDealerRequestRequest;
+use App\Http\Resources\Customer\PostDealerRequestResource;
 use App\Http\Requests\Admin\UpdateDealerRequestRequest; 
 use App\Http\Resources\Admin\UpdateDealerRequestResource;
 

@@ -17,7 +17,7 @@ class UpdateDealerRequestResource extends JsonResource
             
             // Nên trả về cả thông tin user để Admin biết vừa duyệt cho ai
             'user_id' => $this->user_id,
-            'user_name' => $this->user->name ?? 'Unknown', 
+            'user_name' => $this->user ? $this->user->full_name : 'Unknown User',
             
             'status' => $this->status,
             

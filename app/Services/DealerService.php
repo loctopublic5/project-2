@@ -34,7 +34,7 @@ class DealerService
         // Kiểm tra xem trạng thái hiện tại của $request có phải là 'pending' không.
         // Nếu KHÔNG phải 'pending' -> Ném ra một `new Exception("Thông báo lỗi...")`.
         // CODE CỦA BẠN Ở ĐÂY:
-        if(!$request->status !== 'pending'){
+        if($request->status !== 'pending'){
             throw new Exception("Yêu cầu này đã được xử lý trước đó (" . $request->status . ").", 400);
         }
 

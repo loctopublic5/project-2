@@ -13,13 +13,13 @@
 ## 2. Tài Khoản và Mật Khẩu
 
 ### Tài Khoản Admin và Quản Lý
-- Admin: `admin@gmail.com` / `admin@321`
+- Admin: `admin@example.com' / `password123`
 
 ### Tài Khoản Super Admin
 - Super Admin: `sieuadmin@gmail.com` / `admins100`
 
 ### Tài Khoản Test
-- Quản lý kho test: `khach1@gmail.com` / `khachso1`
+- Khách hàng test: `customer@example.com` / `password123`
 - ... (Thêm tài khoản khác nếu cần, ví dụ: user test khách hàng)
 
 

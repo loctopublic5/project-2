@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('dealer_requests', function (Blueprint $table) {
-        // 1. Liên kết với bảng users
-        // constrained() tự hiểu là nối với id bảng users
-        // cascadeOnDelete() để nếu xóa user thì xóa luôn yêu cầu (tránh rác DB)
+        $table->id(); // Tự động tạo cột 'id' tăng dần (1, 2, 3...)
+
+        // 2. TẠO KHÓA NGOẠI (Bỏ thuộc tính primary/unique nếu có)
         $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
         // 2. Trạng thái (State Machine đơn giản)

@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\HasPermissions;
+use App\Models\DealerRequest;
 
 class User extends Authenticatable
 {
@@ -59,7 +60,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id','role_id');
     }
 
-    public function dealerRequest(){
+    public function dealerRequests(){
         return $this->hasMany(DealerRequest::class);
     }
 
