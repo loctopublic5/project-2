@@ -1,6 +1,6 @@
 <?php 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DealerRequestController;
+use App\Http\Controllers\System\DealerRequestController;
 
 Route::prefix('admin')->group(function(){
 

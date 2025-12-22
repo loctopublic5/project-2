@@ -5,6 +5,8 @@ namespace App\Services\System;
 use Exception;
 use App\Models\User;
 use App\Models\Role; 
+use App\Models\PriceTier;
+use App\Models\DealerProfile;
 use App\Models\DealerRequest;
 use App\Mail\DealerApprovedMail;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +80,15 @@ class DealerService
                     Log::error("Không tìm thấy Role 'dealer' trong bảng roles");
                 }
             }
+
+            DealerProfile::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'price_tier_id' => PriceTier::where('slug','sliver')->value('id') ?? 1,
+                    'brand_name' => $user->name,
+                    'address' => 'Cập nhật sau',
+                    'phone_business' => $user->phone
+            ]);
 
             // --- BƯỚC 6: LƯU CHÍNH THỨC (COMMIT) ---
             // Xác nhận transaction thành công.
