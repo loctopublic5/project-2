@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use App\Services\AuthService;
+use App\Services\System\AuthService;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Resources\AuthResource;
+use App\Http\Resources\Auth\AuthResource;
 use App\Exceptions\BusinessException;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\StoreRegisterRequest;
@@ -21,7 +21,7 @@ class AuthController
         try{
             $data = $request->validated();
             $result = $this->auth_service->register($data);
-            return $this->success(new AuthResource($result), 'Đăng ký thành công!');
+            return $this->success(new AuthResource($result), 'Đăng ký thành công!', 201);
         } catch(BusinessException $e){
             return $this->error($e->getMessage(), 401);
         } catch(Exception $e){
@@ -39,7 +39,7 @@ class AuthController
         $result = $this->auth_service->login($credentials);
 
         // 3. Trả về thành công 
-        return $this->success(new AuthResource($result));
+        return $this->success(new AuthResource($result), 'Bạn đã Đăng nhập thành công!', 200);
 
     } catch (BusinessException $e) {
         // 4. Bắt lỗi logic nghiệp vụ (VD: Sai pass, khóa acc)
@@ -54,7 +54,7 @@ class AuthController
     public function logout(Request $request){
         $user = $request->user();
         $this->auth_service->logout($user);
-        return $this->success(null, 'Đăng xuất thành công.');
+        return $this->success(null, 'Đăng xuất thành công.', 200);
     }
 
     public function forgotPassword(Request $request)
@@ -67,7 +67,7 @@ class AuthController
     // $this->authService->forgotPassword($request->email);
     $this->auth_service->forgotPassword($request->email);
     // 3. Trả về JSON Success
-    return $this->success(null, 'Vui lòng kiểm tra email để lấy lại mật khẩu.');
+    return $this->success(null, 'Vui lòng kiểm tra email để lấy lại mật khẩu.',200);
     }
 
     public function resetPassword(ResetPasswordRequest $request){

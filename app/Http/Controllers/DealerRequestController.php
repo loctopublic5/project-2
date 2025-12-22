@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Traits\ApiResponse;
-use App\Services\DealerService;
+use App\Services\System\DealerService;
 use App\Http\Requests\Customer\PostDealerRequestRequest;
 use App\Http\Resources\Customer\PostDealerRequestResource;
 use App\Http\Requests\Admin\UpdateDealerRequestRequest; 
@@ -28,7 +28,7 @@ class DealerRequestController
             $user = $request->user();
 
             $dealerRequest = $this->dealerService->registerForUpgrade($user);
-            return $this->success(new PostDealerRequestResource($dealerRequest));
+            return $this->success(new PostDealerRequestResource($dealerRequest),'Gửi thành công yêu cầu làm ĐẠI LÝ của bạn.',200);
         } catch(Exception $e){
             return $this->error($e->getMessage(), 400);
         }
@@ -46,7 +46,7 @@ class DealerRequestController
                 $validData['status'],
                 $validData['admin_note'] ?? null
             );
-            return $this->success(new UpdateDealerRequestResource($updatedRequest));
+            return $this->success(new UpdateDealerRequestResource($updatedRequest),'Success' );
         } catch(Exception $e){
             $statusCode = $e->getCode() == 404 ? 404 : 400;
             return $this->error($e->getMessage(),$statusCode);
