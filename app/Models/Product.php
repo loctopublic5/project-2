@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 
 class Product extends Model
@@ -15,13 +17,13 @@ class Product extends Model
         'slug',
         'price',
         'sale_price',
-        'dealer_price',
         'stock_qty',
         'description',
         'view_count',
     ];
 
-    public function categories():BelongsToMany{
-        return $this->belongsToMany(categories::class,'products', 'category_id', 'id');
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class); 
     }
 }
