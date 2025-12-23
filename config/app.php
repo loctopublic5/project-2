@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Log Switch
+    |--------------------------------------------------------------------------
+    | Biến này dùng để bật/tắt tính năng ghi log toàn hệ thống.
+    | Mặc định là true (Bật).
+    */
+    'audit_enabled' => env('AUDIT_ENABLED', true),
+
 ];

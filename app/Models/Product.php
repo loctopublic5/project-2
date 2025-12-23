@@ -19,7 +19,12 @@ class Product extends Model
         'sale_price',
         'stock_qty',
         'description',
+        'attributes',
         'view_count',
+    ];
+
+    protected $cats =[
+        'attributes' => 'array',
     ];
 
     public function category(): BelongsTo
