@@ -25,4 +25,5 @@ class DealerProfile extends Model
         // Liên kết sang bảng price_tiers
         return $this->belongsTo(PriceTier::class, 'price_tier_id');
     }
+
 }
