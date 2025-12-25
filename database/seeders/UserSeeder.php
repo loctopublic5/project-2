@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'], // Điều kiện tìm (tránh trùng)
             [
-                'full_name' => 'Super Admin',
+                'full_name' => 'Admin',
                 'password' => Hash::make('password123'), // Mật khẩu chung
                 'phone' => '0909000001',
                 'is_active' => true,

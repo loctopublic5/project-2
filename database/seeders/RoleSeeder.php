@@ -17,9 +17,9 @@ class RoleSeeder extends Seeder
                 'description' => 'Quản trị viên hệ thống toàn quyền',
             ],
             [
-                'name' => 'Dealer',
+                'name' => 'Warehouse',
                 'slug' => 'dealer',
-                'description' => 'Đại lý bán hàng (Sau khi được duyệt)',
+                'description' => 'Quản lý kho vận, đóng gói.',
             ],
             [
                 'name' => 'Customer',

@@ -21,6 +21,7 @@ return new class extends Migration
     $table->decimal('sale_price', 15, 2)->nullable();
     $table->integer('stock_qty')->default(0);
     $table->text('description')->nullable();
+    $table->json('attributes')->nullable()->comment('Lưu Size, Color...');
     $table->integer('view_count')->default(0);
     $table->boolean('is_active')->default(true);
     $table->timestamps();

@@ -21,8 +21,6 @@ class Category extends Model
      */
     public function products(): HasMany
     {
-        // SAI: return $this->hasMany('products', ...); 
-        // ĐÚNG: Phải gọi Model class
         return $this->hasMany(Product::class, 'category_id', 'id');
     }
 
@@ -41,5 +39,11 @@ class Category extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+
+    // Đệ quy toàn bộ danh mục con
+    public function childrenRecursion(){
+        return $this->children()->with('childrenRecursion');
     }
 }
