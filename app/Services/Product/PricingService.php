@@ -5,86 +5,97 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Product;
 
-class PricingService
-{
+class PricingService{
+
     /**
-     * Tính toán giá sản phẩm dựa trên User Context
-     * Chiến lược: Best Price Wins (Giá nào rẻ nhất thì lấy)
-     * * @param Product $product
-     * @param User|null $user (Có thể null nếu là khách vãng lai)
-     * @return array Cấu trúc giá chi tiết
+     * Hàm tính toán tổng hợp
+     * @param array $cartItems: Danh sách SP và số lượng
+     * @param string|null $voucherCode: Mã giảm giá user nhập
+     * @return array: Cấu trúc giá chi tiết
      */
-    public function calculatePrice(Product $product, ?User $user = null): array
-    {
-        // --- BƯỚC 1: XÁC ĐỊNH GIÁ GỐC (BASE) ---
-        $originalPrice = $product->price;
-        
-        // Mặc định: Giá cuối cùng = Giá gốc (Chưa giảm)
-        $finalPrice = $originalPrice;
-        $appliedRule = 'none'; // Lý do giảm giá: none, public_sale, dealer_tier...
+    public function  calculateCart($cartItems, $voucherCode = NULL){
 
+        // --- BƯỚC 1: TÍNH SUBTOTAL (TỔNG TIỀN HÀNG) ---
+        $subtotal = 0;
+        $lineItems = []
 
-        // --- BƯỚC 2: TÌM GIÁ SALE ĐẠI TRÀ (PUBLIC CANDIDATE) ---
-        // TODO: Kiểm tra xem sản phẩm có giá sale hợp lệ không?
-        // Logic: sale_price phải > 0 VÀ sale_price phải nhỏ hơn originalPrice.
-        // Gợi ý: Dùng toán tử 3 ngôi hoặc if.
-        
-        // Biến tạm để so sánh
-        $publicPrice = $originalPrice; 
-        
-        // Viết logic cập nhật $publicPrice tại đây:
-        if ($product->sale_price > 0 && $product->sale_price < $publicPrice) 
-            { $publicPrice = $product->sale_price; };
+        foreach item IN cartItems:
+            // Lấy thông tin sản phẩm
+            product = FindProduct(item.product_id)
 
+            // LOGIC B2C: Ưu tiên giá Sale 
+            // Điều kiện: Có giá sale VÀ giá sale nhỏ hơn giá gốc
+            IF (product.sale_price > 0) AND (product.sale_price < product.price):
+                finalUnitPrice = product.sale_price
+            ELSE:
+                finalUnitPrice = product.price
+            END IF
 
-        // --- BƯỚC 3: TÌM GIÁ ĐẠI LÝ (DEALER CANDIDATE) ---
-        // Mặc định giá đại lý bằng giá gốc (nếu không phải đại lý)
-        $dealerPrice = $originalPrice; 
-        $tierName = null;
+            lineTotal = finalUnitPrice * item.quantity
+            subtotal = subtotal + lineTotal
 
-        // TODO: Kiểm tra User có tồn tại KHÔNG? VÀ User có phải Dealer KHÔNG?
-        // Gợi ý: check $user && $user->dealerProfile && $user->dealerProfile->tier
-        if ($user && $user->dealerProfile) { 
-            $tier = $user->dealerProfile->tier;
-            
-            if ($tier) {
-                $tierName = $tier->name;
-                $percent = $tier->discount_percentage;
+            // Lưu lại snapshot để sau này lưu vào bảng order_items [cite: 84]
+            PUSH {
+                'product_id': product.id,
+                'price_at_purchase': finalUnitPrice,
+                'quantity': item.quantity
+            } INTO lineItems
+        END FOR
+
+        // --- BƯỚC 2: TÍNH GIẢM GIÁ (VOUCHER) ---
+        INIT discountAmount = 0
+        INIT voucherInfo = NULL
+
+        IF voucherCode IS NOT NULL:
+            // Gọi hàm validation riêng (Clean Code)
+            voucher = ValidateVoucher(voucherCode, subtotal) // Validate ngày, số lượng, min_order_value
+
+            IF voucher IS VALID:
+                IF voucher.type == 'percent':
+                    discountAmount = subtotal * (voucher.value / 100)
+                    // Nếu có logic max_discount thì check ở đây
+                ELSE:
+                    discountAmount = voucher.value // Loại Fixed
+                END IF
                 
-                // Công thức chuẩn: Giá gốc * (1 - %/100)
-                $dealerPrice = round($originalPrice * (100 - $percent) / 100);
-            }
-        }
-        
+                // Cập nhật thông tin trả về
+                voucherInfo = voucher
+            END IF
+        END IF
 
+        // --- BƯỚC 3: CHỐT TỔNG (FINAL TOTAL) ---
+        // Phí ship tạm tính là 0 (sẽ tính ở ShippingService sau)
+        shippingFee = 0 
 
-        // --- BƯỚC 4: CHIẾN LƯỢC "BEST PRICE WINS" (SO SÁNH & CHỐT ĐƠN) ---
-        
-        // Case A: Giá đại lý rẻ hơn (hoặc bằng) giá Public Sale
-        // Điều kiện: $dealerPrice < $publicPrice
-        if ($dealerPrice < $publicPrice) {
-            $finalPrice = $dealerPrice;
-            $appliedRule = 'dealer_tier_' . ($tierName ?? 'unknown');
-        } 
-        // Case B: Giá Public Sale rẻ hơn
-        // Điều kiện: $publicPrice < $originalPrice
-        elseif ($publicPrice < $originalPrice) {
-            $finalPrice = $publicPrice;
-            $appliedRule = 'public_sale';
-        }
-        // Case C: Không có giảm giá nào (Giữ nguyên giá gốc)
-        else {
-            $finalPrice = $originalPrice;
-            $appliedRule = 'none';
+        // Công thức chuẩn[cite: 121]: (Hàng - Giảm giá) + Ship
+        // Sử dụng hàm MAX để tránh âm tiền (Bài học Câu 1)
+        total = MAX(0, subtotal - discountAmount) + shippingFee
+
+        RETURN {
+            'subtotal': subtotal,
+            'discount_amount': discountAmount,
+            'shipping_fee': shippingFee,
+            'total': total,
+            'line_items': lineItems, // Dùng để insert vào order_items
+            'voucher_used': voucherInfo
         }
 
-        // --- BƯỚC 5: TRẢ VỀ KẾT QUẢ ---
-        return [
-            'original_price'   => $originalPrice,
-            'final_price'      => $finalPrice,
-            'discount_amount'  => $originalPrice - $finalPrice,
-            'discount_percent' => $originalPrice > 0 ? round((($originalPrice - $finalPrice) / $originalPrice) * 100, 2) : 0,
-            'applied_rule'     => $appliedRule,
-        ];
+    /**
+     * Hàm kiểm tra Voucher (Re-usable)
+     */
+    FUNCTION ValidateVoucher(code, orderValue):
+        voucher = FindVoucher(code)
+
+        // Check 1: Tồn tại và Còn số lượng [cite: 73]
+        IF !voucher OR voucher.quantity <= 0: THROW Error
+
+        // Check 2: Thời gian (Khắc phục lỗi Câu 2) [cite: 74, 77]
+        // Bắt buộc so sánh với NOW() ngay lúc gọi hàm
+        IF NOW() < voucher.start_date OR NOW() > voucher.end_date: THROW Error
+
+        // Check 3: Giá trị đơn tối thiểu [cite: 73]
+        IF orderValue < voucher.min_order_value: THROW Error
+
+        RETURN voucher
     }
 }
