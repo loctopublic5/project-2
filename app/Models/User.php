@@ -79,17 +79,4 @@ class User extends Authenticatable
         return $this->roles->contains('slug', $roleSlug);
     }
 
-
-    public function dealerProfile()
-{
-    // Một User có 1 hồ sơ đại lý
-    return $this->hasOne(DealerProfile::class);
-}
-
-// Helper: Check nhanh xem có phải đại lý không
-public function isDealer(): bool
-{
-    // Logic: Có hồ sơ đại lý và hồ sơ đó đang active (tùy logic sau này)
-    return $this->dealerProfile()->exists();
-}
 }
