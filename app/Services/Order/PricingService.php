@@ -1,14 +1,20 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Order;
 
 use Exception;
-use App\Models\User;
 use App\Models\Product;
 use App\Models\Voucher;
 use Illuminate\Support\Facades\Log;
+use App\Services\Order\ShippingService;
 
 class PricingService{
+
+    protected $shippingService;
+
+    public function __construct(ShippingService $shippingService){
+        $this->shippingService = $shippingService;
+    }
 
     /**
      * Hàm tính toán tổng hợp
@@ -87,8 +93,13 @@ class PricingService{
     }
 
     // --- BƯỚC C: TỔNG KẾT & PHÍ SHIP ---
-    // Giả định phí ship tạm thời (Sẽ tính bằng ShippingService sau)
-    $shippingFee = 30000; 
+    // Ví dụ gọi thực tế:
+    // $shippingFee = $this->shippingService->calculateShippingFee('Hà Nội'); // Ra 15000
+    // $shippingFee = $this->shippingService->calculateShippingFee('Cà Mau'); // Ra 35000
+    
+    // Code an toàn nếu chưa có địa chỉ (Mặc định Remote)
+    $shippingFee = 35000; 
+    // TODO: Khi nào làm Checkout Controller có địa chỉ thật thì gọi hàm trên.
 
     // Logic an toàn: Đảm bảo (Hàng - Voucher) không bao giờ ÂM
     // Hàm MAX(0, value) rất quan trọng
