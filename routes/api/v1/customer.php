@@ -1,6 +1,7 @@
 <?php 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Customer\WalletController;
+use App\Http\Controllers\Customer\PaymentController;
 
 
 Route::prefix('customer')->group(function(){
@@ -13,6 +14,12 @@ Route::prefix('customer')->group(function(){
 
             // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
             Route::post('/deposit', [WalletController::class, 'deposit']);
+        });
+    });
+
+    Route::prefix('payment')->group(function(){
+        Route::middleware('auth:scantum')->group(function(){
+            Route::post( '/wallet',[PaymentController::class, 'payByWallet']);
         });
     });
 
