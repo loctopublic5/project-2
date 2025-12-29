@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Order;
 use App\Models\UserWallet;
 use App\Models\DealerRequest;
 use App\Traits\HasPermissions;
@@ -85,4 +86,7 @@ class User extends Authenticatable
         return $this->hasOne(UserWallet::class);
     }
 
+    public function order(): HasOne{
+        return $this->hasOne(Order::class);
+    }
 }
