@@ -3,14 +3,16 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\UserWallet;
+use App\Models\DealerRequest;
+use App\Traits\HasPermissions;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
-use App\Traits\HasPermissions;
-use App\Models\DealerRequest;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -77,6 +79,10 @@ class User extends Authenticatable
         // Dùng collection method 'contains' để check trong danh sách roles đã eager load
          // Lưu ý: $this->roles là Collection (do Eloquent trả về)
         return $this->roles->contains('slug', $roleSlug);
+    }
+
+    public function wallet(): HasOne{
+        return $this->hasOne(UserWallet::class);
     }
 
 }

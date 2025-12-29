@@ -2,17 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Model;
-
-// Import các Model cần theo dõi
 use App\Models\User;
 use App\Models\Product;
+use App\Observers\UserObserver;
+
+// Import các Model cần theo dõi
+use App\Observers\AuditObserver;
+use Illuminate\Support\Facades\Gate;
 // use App\Models\Order; // Sau này thêm vào đây
 
 // Import Observer
-use App\Observers\AuditObserver;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -90,6 +91,10 @@ class AppServiceProvider extends ServiceProvider
         
         // Mẹo: Sau này bạn có thể viết vòng lặp để tự động đăng ký Gate 
         // dựa trên danh sách permission trong DB để đỡ phải define thủ công từng dòng.
+
+
+        // Khai báo tạo ví tự động khi tạo tài khoản
+        User::observe(UserObserver::class);
     }
 
 }
