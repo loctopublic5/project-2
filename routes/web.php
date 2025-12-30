@@ -3,10 +3,35 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Customer\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 Route::get('/', function () {
     return view('test-gate');
 });
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware('auth')
+    ->group(function () {
+
+        Route::resource('products', AdminProductController::class)
+            ->middleware([
+                'index'   => 'permission:products,view',
+                'create'  => 'permission:products,create',
+                'store'   => 'permission:products,create',
+                'edit'    => 'permission:products,update',
+                'update'  => 'permission:products,update',
+                'destroy' => 'permission:products,delete',
+            ]);
+    });
+
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::resource('products', AdminProductController::class);
+});
+
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{slug}', [ProductController::class, 'show']);
 
 Route::post('/register', function(){
     return 'thank yyou!';
@@ -41,7 +66,7 @@ Route::get('/force-login', function () {
 });
 Route::get('/admin/products/delete', function(){
     return 'Xóa sản phẩm thành công';
-})->middleware('permission:products,create');
+})->middleware('permission:products,delete');
 
 Route::get('/test-view', function () {
     // Nhớ fake login user 1 trước
