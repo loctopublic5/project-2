@@ -24,7 +24,7 @@ trait HasUniqueCode{
 
             // 3. Kiểm tra trong DB (Sử dụng Model động)
             // $modelClass::where(...) tương đương WalletTransaction::where(...)
-        }while ($modelClass::where($column,$code)->exist());
+        }while ($modelClass::where($column,$code)->exists());
 
         return $code;
         }

@@ -17,9 +17,9 @@ class RefundRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['Required', 'exists:user,id'],
+            'user_id' => ['Required', 'exists:users,id'],
             'amount'  => ['required', 'integer', 'min:10000'],
-            'original_order_id' => ['required', 'string'],
+            'original_order_id' => ['required', 'integer'], // Sử dụng tạm integer để test thôi nên dùng String
             'reason'  => ['required', 'string', 'min:5']
         ];
     }

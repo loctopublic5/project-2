@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     // Khai báo các cột được phép gán dữ liệu (Mass Assignment)
     // Phải khớp với file migration đã tạo

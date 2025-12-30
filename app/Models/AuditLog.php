@@ -16,7 +16,7 @@ class AuditLog extends Model
         'ip_address',
         'user_agent',
     ];
-
+    const UPDATED_AT = null; 
     protected $casts = [
         'old_values' => 'array',
         'new_values' => 'array',

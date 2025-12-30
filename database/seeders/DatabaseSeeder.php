@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            WalletTestSeeder::class,
 
         ]);
         // Tạo 1000 sản phẩm cực nhanh vì không phải ghi 1000 dòng log

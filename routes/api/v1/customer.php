@@ -8,7 +8,7 @@ Route::prefix('customer')->group(function(){
 
     // NHÓM 1: USER ROUTES (Khách hàng dùng)
     Route::prefix('wallet')->group(function(){
-        Route::middleware('auth:scantum')->group(function(){
+        Route::middleware('auth:sanctum')->group(function(){
             // GET /api/wallet/me -> Xem số dư & lịch sử
             ROUTE::get ('/' , [WalletController::class, 'getMe']);
 
@@ -18,7 +18,7 @@ Route::prefix('customer')->group(function(){
     });
 
     Route::prefix('payment')->group(function(){
-        Route::middleware('auth:scantum')->group(function(){
+        Route::middleware('auth:sanctum')->group(function(){
             Route::post( '/wallet',[PaymentController::class, 'payByWallet']);
         });
     });
