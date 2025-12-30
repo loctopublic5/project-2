@@ -17,9 +17,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            CategorySeeder::class,
+            ProductSeeder::class,
 
         ]);
-        // Tạo 1000 sản phẩm cực nhanh vì không phải ghi 1000 dòng log
+        // Tạo 50 sản phẩm cực nhanh vì không phải ghi 50dòng log
         
         // Ra khỏi hàm này, Observer tự động bật lại.
     });
