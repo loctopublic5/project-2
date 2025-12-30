@@ -1,57 +1,60 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin; 
 
 use App\Http\Controllers\Controller;
 use App\Services\Product\ProductService;
-use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    protected ProductService $productService;
+    protected $productService;
 
+    // Sử dụng Dependency Injection để gọi Service
     public function __construct(ProductService $productService)
     {
         $this->productService = $productService;
-
-        $this->middleware('permission:products,view')->only('index');
-        $this->middleware('permission:products,create')->only(['create','store']);
-        $this->middleware('permission:products,update')->only(['edit','update']);
-        $this->middleware('permission:products,delete')->only('destroy');
     }
 
+    /**
+     * Hiển thị danh sách sản phẩm
+     */
     public function index(Request $request)
     {
-        $products = $this->productService->paginate($request->all());
+        // FIX: Đảm bảo truyền mảng vào hàm list
+        $products = $this->productService->list($request->all());
         return view('admin.products.index', compact('products'));
     }
 
-    public function create()
-    {
-        return view('admin.products.create');
-    }
-
+    /**
+     * Lưu sản phẩm mới vào Database
+     */
     public function store(Request $request)
     {
-        $this->productService->create($request->all());
-        return redirect()->route('admin.products.index');
-    }
+        // 1. Validate dữ liệu đầu vào
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'description' => 'nullable|string',
+            'is_active'   => 'boolean'
+        ]);
 
-    public function edit(Product $product)
-    {
-        return view('admin.products.edit', compact('product'));
-    }
+        try {
+            // 2. Gọi sang Service để xử lý lưu trữ
+            $this->productService->create($validated);
 
-    public function update(Request $request, Product $product)
-    {
-        $this->productService->update($product, $request->all());
-        return redirect()->route('admin.products.index');
-    }
-
-    public function destroy(Product $product)
-    {
-        $this->productService->delete($product);
-        return redirect()->back();
+            // 3. Trả về thông báo thành công
+            return redirect()->route('admin.products.index')
+                             ->with('success', 'Thêm sản phẩm thành công!');
+        } catch (\Exception $e) {
+            // Log lỗi nếu có vấn đề xảy ra
+            Log::error("Lỗi thêm sản phẩm: " . $e->getMessage());
+            
+            return back()->withInput()
+                         ->with('error', 'Có lỗi xảy ra, vui lòng thử lại.');
+        }
     }
 }
