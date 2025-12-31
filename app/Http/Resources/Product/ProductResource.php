@@ -19,7 +19,7 @@ class ProductResource extends JsonResource
         // Lấy ảnh đầu tiên làm thumbnail nếu danh sách ảnh đã được load và không rỗng
         $thumbnail = null;
         if ($this->relationLoaded('images') && $this->images->isNotEmpty()){
-            $thumbnail = Storage::url($this->images->first()->path());
+            $thumbnail = Storage::url($this->images->first()->path);
         }
         return [
             'id'   => $this->id,
@@ -43,7 +43,15 @@ class ProductResource extends JsonResource
             }),
 
             // Trả về danh sách URL tuyệt đối cho Frontend
-            'images' => $this->wh
+            'images' => $this->whenLoaded('images', function(){
+                return $this->images->map(function($files){
+                    return [
+                        'id'  => $files->id,
+                        'url' => Storage::url($files->path)
+                    ];
+
+                });
+            }),
 
             // Giá cả (Logic Pricing Service đính kèm)
             'pricing' => $this->calculated_price ?? [
