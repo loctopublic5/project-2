@@ -5,7 +5,7 @@ namespace App\Http\Requests\Product;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\BaseFormRequest;
 
-class StoreProductRequest extends BaseFormRequest
+class UpdateProductRequest extends BaseFormRequest
 {
 
     /**
@@ -22,7 +22,8 @@ class StoreProductRequest extends BaseFormRequest
         return [
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name'        => ['required', 'string', 'max:250'],
-            'sku'         => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'sku')->ignore($productId)],
+            'sku'         => ['required', 'string', 'max:50','alpha_dash', 
+                                Rule::unique('products', 'sku')->ignore($productId)],// Rule: unique trong bảng products, cột sku, NGOẠI TRỪ $productId
             'price'       => ['required', 'numeric', 'min:0'],
             'sale_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'],
             'stock_qty'   => ['required', 'integer', 'min:0'],
