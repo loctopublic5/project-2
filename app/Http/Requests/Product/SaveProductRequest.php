@@ -5,7 +5,7 @@ namespace App\Http\Requests\Product;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\BaseFormRequest;
 
-class StoreProductRequest extends BaseFormRequest
+class SaveProductRequest extends BaseFormRequest
 {
 
     /**
