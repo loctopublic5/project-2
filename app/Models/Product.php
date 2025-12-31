@@ -5,9 +5,10 @@ namespace App\Models;
 use App\Models\Category;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Product extends Model
@@ -53,7 +54,16 @@ class Product extends Model
         return $this->morphMany(File::class, 'target');
     }
 
-    public function orderItem(): HasOne{
-        return $this->hasOne(OrderItem::class);
+    public function orderItem(): HasMany{
+        return $this->hasMany(OrderItem::class);
     }
+
+    public function reviews(): HasMany{
+        return $this->hasMany(Review::class);
+    }
+
+    public function scopeActive($query){
+        return $this->where('is_active', true);
+    }
+
 }

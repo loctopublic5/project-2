@@ -17,6 +17,7 @@ return new class extends Migration
     $table->foreignId('product_id')->constrained('products'); // Sản phẩm [cite: 44]
     $table->tinyInteger('rating')->unsigned(); // Số sao (1 đến 5) [cite: 44]
     $table->text('comment')->nullable(); // Nội dung đánh giá [cite: 44]
+    $table->string('pages_url', 500)->nullable();
     $table->timestamp('created_at')->useCurrent(); // [cite: 44]
     
     // Ràng buộc rating từ 1-5 theo tài liệu [cite: 44]
