@@ -7,7 +7,6 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\Customer\WalletService;
 use App\Http\Requests\Customer\DepositRequest;
-use App\Http\Resources\Customer\WalletResource;
 use App\Http\Resources\Customer\TransactionResource;
 
 class WalletController

@@ -16,6 +16,11 @@ class Category extends Model
         'is_active',
     ];
 
+    protected $cats = [
+        'is_active' => 'boolean',
+        'level'     => 'integer',
+    ];
+
 /**
      * Quan hệ 1-N: Một danh mục có nhiều sản phẩm
      */

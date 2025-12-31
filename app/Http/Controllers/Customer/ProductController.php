@@ -22,30 +22,30 @@ class ProductController extends Controller
      * Danh sách sản phẩm (Trang shop)
      * GET /products
      */
-    public function index(Request $request)
-    {
-        $products = $this->productService->list([
-            'category_id' => $request->category_id,
-            'keyword' => $request->keyword,
-        ]);
+    // public function index(Request $request)
+    // {
+    //     $products = $this->productService->list([
+    //         'category_id' => $request->category_id,
+    //         'keyword' => $request->keyword,
+    //     ]);
 
-        return view('customer.products.index', [
-            'products' => $products
-        ]);
-    }
+    //     return view('customer.products.index', [
+    //         'products' => $products
+    //     ]);
+    // }
 
-    /**
-     * Chi tiết sản phẩm
-     * GET /products/{slug}
-     */
-    public function show(string $slug)
-    {
-        $product = $this->productService->findBySlug($slug);
+    // /**
+    //  * Chi tiết sản phẩm
+    //  * GET /products/{slug}
+    //  */
+    // public function show(string $slug)
+    // {
+    //     $product = $this->productService->findBySlug($slug);
 
-        abort_if(!$product, 404);
+    //     abort_if(!$product, 404);
 
-        return view('customer.products.show', [
-            'product' => $product
-        ]);
-    }
+    //     return view('customer.products.show', [
+    //         'product' => $product
+    //     ]);
+    // }
 }

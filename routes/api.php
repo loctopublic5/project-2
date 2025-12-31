@@ -5,46 +5,57 @@ use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 
-Route::middleware(['api'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+| Base URL mặc định: /api
+|  URL chuẩn: /api/v1/...
+*/
+Route::prefix('v1')->group(function () {
 
-    /* 
-    ROUTE AUTH
-    */
-    // Đăng ký: POST /api/v1/auth/register
-    Route::post('/register', [AuthController::class, 'register']);
+    /* =================================================================
+        1. AUTH MODULE
+        URL: /api/v1/auth/...
+    ================================================================= */
+    Route::prefix('auth')->group(function(){
+        // Đăng ký: POST /api/v1/auth/register
+        Route::post('/register', [AuthController::class, 'register']);
 
-    Route::middleware('throttle:5,1')->group(function(){
+        Route::middleware('throttle:5,1')->group(function(){
         // Đăng nhập: POST /api/v1/auth/login
-    Route::post('/login', [AuthController::class, 'login']);
-    });
-
-    // Quên mật khẩu: POST /api/v1/auth/forgot-password
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-
-    //Đăt lại mật khẩu: POST /api/v1/auth/reset-password
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-
-    // Đăng xuất: POST /api/v1/auth/logout
-    Route::middleware('auth:sanctum')->group(function(){
-        Route::post('/logout', [AuthController::class, 'logout']);
-    });
-
-    /* 
-    ROUTE ADMIN
-    */
-    Route::prefix('admin')->group(function(){
-        Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
-            // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
-            Route::post('/refund', [AdminWalletController::class, 'refund']);
+        Route::post('/login', [AuthController::class, 'login']);
         });
+
+        // Quên mật khẩu: POST /api/v1/auth/forgot-password
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
+        //Đăt lại mật khẩu: POST /api/v1/auth/reset-password
+        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+        // Đăng xuất: POST /api/v1/auth/logout
+        Route::middleware('auth:sanctum')->group(function(){
+            Route::post('/logout', [AuthController::class, 'logout']);
+        });
+    });
     
+    /* =================================================================
+        2. PUBLIC DATA (Ai cũng xem được)
+        URL: /api/v1/...
+    ================================================================= */
+    // Get /api/v1/categories
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
     });
 
-    /* 
-    ROUTE CUSTOMER
-    */
+
+    /* =================================================================
+        3. CUSTOMER MODULE (Yêu cầu Login)
+        URL: /api/v1/customer/...
+    ================================================================= */
     Route::prefix('customer')->group(function(){
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
         Route::prefix('wallet')->group(function(){
@@ -63,14 +74,28 @@ Route::middleware(['api'])->group(function () {
             });
         });
     });
+    
+    /* =================================================================
+        4. ADMIN MODULE (Role: Admin)
+        URL: /api/v1/admin/...
+    ================================================================= */
+    Route::prefix('admin')->group(function(){
+        Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
+            // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
+            Route::post('/refund', [AdminWalletController::class, 'refund']);
+        });
+    
+    });
 
-    /* 
-    ROUTE SYSTEM
-    */
+    /* =================================================================
+        5. SYSTEM UTILITIES
+    ================================================================= */
     Route::middleware(['auth:sanctum'])->group(function () {
-            // API Upload file dùng chung
+            // POST api/upload
             Route::post('/upload', [FileController::class, 'store']);
         });
+    
+
 
 });
 
