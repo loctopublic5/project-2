@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Category;
+use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -48,5 +51,9 @@ class Product extends Model
     public function images(): MorphMany
     {
         return $this->morphMany(File::class, 'target');
+    }
+
+    public function orderItem(): HasOne{
+        return $this->hasOne(OrderItem::class);
     }
 }

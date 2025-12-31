@@ -4,8 +4,10 @@ namespace App\Http\Requests\Customer;
 
 use App\Http\Requests\BaseFormRequest;
 
-class PostDealerRequestRequest extends BaseFormRequest
+class PaymentRequest extends BaseFormRequest
 {
+
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -14,16 +16,14 @@ class PostDealerRequestRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required','string'],
-            'status' => ['required_if:status,pending']
+            'order_id' => ['required', 'integer', 'exists:orders,id'],
+            'note'     => ['nullable', 'string', 'max:255']
         ];
     }
 
-    public function messages():array
-    {
+    public function messages():array{
         return [
-            'user_id.required' => 'Vui lòng cung cấp id User của bạn!',
-            'status.required_if' => 'Tráng thái duyệt mặc định là pending',
+            'order_id.required' => 'Cung cấp đủ id đơn hàng',
         ];
     }
 }

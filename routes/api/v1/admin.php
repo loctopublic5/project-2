@@ -1,13 +1,15 @@
 <?php 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\System\DealerRequestController;
+use App\Http\Controllers\Admin\AdminWalletController;
 
 Route::prefix('admin')->group(function(){
+    // NHÓM 2: ADMIN ROUTES (Quản trị viên dùng)
+        Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
+            // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
+            Route::post('/refund', [AdminWalletController::class, 'refund']);
+        });
+    
 
-    Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
-        // PUT /api/v1/admin/dealer-requests/{id_request}
-        Route::put('/dealer-requests/{dealer_request}', [DealerRequestController::class, 'updateStatus']);
-    });
     
 });
 ?>

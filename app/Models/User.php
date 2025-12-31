@@ -3,14 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Order;
+use App\Models\UserWallet;
+use App\Models\DealerRequest;
+use App\Traits\HasPermissions;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
-use App\Traits\HasPermissions;
-use App\Models\DealerRequest;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -79,17 +82,11 @@ class User extends Authenticatable
         return $this->roles->contains('slug', $roleSlug);
     }
 
+    public function wallet(): HasOne{
+        return $this->hasOne(UserWallet::class);
+    }
 
-    public function dealerProfile()
-{
-    // Một User có 1 hồ sơ đại lý
-    return $this->hasOne(DealerProfile::class);
-}
-
-// Helper: Check nhanh xem có phải đại lý không
-public function isDealer(): bool
-{
-    // Logic: Có hồ sơ đại lý và hồ sơ đó đang active (tùy logic sau này)
-    return $this->dealerProfile()->exists();
-}
+    public function order(): HasOne{
+        return $this->hasOne(Order::class);
+    }
 }
