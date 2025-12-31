@@ -26,7 +26,7 @@ class UploadFileRequest extends BaseFormRequest
                                     $allowedModels = [
                                         'App\Models\User',
                                         'App\Models\Product',
-                                        'App\Models\DealerRequest',
+                                        'App\Models\Review',
                                     ];
                                     if(!in_array($value,$allowedModels)){
                                         return $fail("Loại đối tượng '$value' không được phép upload file.");
