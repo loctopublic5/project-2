@@ -1,20 +1,95 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\System\AuthController;
+use App\Http\Controllers\System\FileController;
+use App\Http\Controllers\Customer\WalletController;
+use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Admin\AdminWalletController;
 
+Route::middleware(['api'])->group(function () {
+
+    /* 
+    ROUTE AUTH
+    */
+    // Đăng ký: POST /api/v1/auth/register
+    Route::post('/register', [AuthController::class, 'register']);
+
+    Route::middleware('throttle:5,1')->group(function(){
+        // Đăng nhập: POST /api/v1/auth/login
+    Route::post('/login', [AuthController::class, 'login']);
+    });
+
+    // Quên mật khẩu: POST /api/v1/auth/forgot-password
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+
+    //Đăt lại mật khẩu: POST /api/v1/auth/reset-password
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    // Đăng xuất: POST /api/v1/auth/logout
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::post('/logout', [AuthController::class, 'logout']);
+    });
+
+    /* 
+    ROUTE ADMIN
+    */
+    Route::prefix('admin')->group(function(){
+        Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
+            // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
+            Route::post('/refund', [AdminWalletController::class, 'refund']);
+        });
+    
+    });
+
+    /* 
+    ROUTE CUSTOMER
+    */
+    Route::prefix('customer')->group(function(){
+        // NHÓM 1: USER ROUTES (Khách hàng dùng)
+        Route::prefix('wallet')->group(function(){
+            Route::middleware('auth:sanctum')->group(function(){
+                // GET /api/wallet/me -> Xem số dư & lịch sử
+                ROUTE::get ('/' , [WalletController::class, 'getMe']);
+
+                // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
+                Route::post('/deposit', [WalletController::class, 'deposit']);
+            });
+        });
+
+        Route::prefix('payment')->group(function(){
+            Route::middleware('auth:sanctum')->group(function(){
+                Route::post( '/wallet',[PaymentController::class, 'payByWallet']);
+            });
+        });
+    });
+
+    /* 
+    ROUTE SYSTEM
+    */
+    Route::middleware(['auth:sanctum'])->group(function () {
+            // API Upload file dùng chung
+            Route::post('/upload', [FileController::class, 'store']);
+        });
+
+});
+
+
+// Syntax cũ dành cho đọc folder api để gọi api theo cách làm việc tránh conflict trước kia khi cả 2 cùng làm backend
+//-------------------------------------------------------------------
 // Lệnh này giữ nguyên prefix /api mặc định của Laravel
 // Ta thêm prefix /v1 để versioning (thành /api/v1/...)
-Route::prefix('v1')->group(function () {
+// Route::prefix('v1')->group(function () {
     
-    // Đường dẫn đến folder chứa các file module con
-    // Lưu ý: __DIR__ hiện tại đang là folder routes/
-    $routeFiles = glob(__DIR__ . '/api/v1/*.php');
+//     // Đường dẫn đến folder chứa các file module con
+//     // Lưu ý: __DIR__ hiện tại đang là folder routes/
+//     $routeFiles = glob(__DIR__ . '/api/v1/*.php');
 
-    if ($routeFiles) {
-        foreach ($routeFiles as $file) {
-            // [DEBUG] Uncomment dòng dưới để xem nó load file nào
-            //dump($file); 
-            require $file;
-        }
-    }
-});
+//     if ($routeFiles) {
+//         foreach ($routeFiles as $file) {
+//             // [DEBUG] Uncomment dòng dưới để xem nó load file nào
+//             //dump($file); 
+//             require $file;
+//         }
+//     }
+// });
