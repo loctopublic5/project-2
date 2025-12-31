@@ -7,7 +7,7 @@ use App\Http\Controllers\Customer\ProductController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 Route::get('/', function () {
-    return view('test-gate');
+    return view('layouts.app'); // Test khung layout
 });
 
 Route::prefix('admin')

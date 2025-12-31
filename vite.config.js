@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
+import path from 'path'; // <--- QUAN TRỌNG: Phải có dòng này mới dùng được path.resolve
 
 export default defineConfig({
     plugins: [
@@ -8,8 +8,14 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
         }),
-        tailwindcss(),
     ],
+    resolve: {
+        alias: {
+            // SỬA LẠI: Trỏ vào folder js gốc, không trỏ vào file cụ thể
+            '@': path.resolve(__dirname, 'resources/js'), 
+            '~': path.resolve(__dirname, 'resources'),
+        },
+    },
     server: {
         watch: {
             ignored: ['**/storage/framework/views/**'],
