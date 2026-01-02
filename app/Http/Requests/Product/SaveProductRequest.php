@@ -22,7 +22,8 @@ class SaveProductRequest extends BaseFormRequest
         return [
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name'        => ['required', 'string', 'max:250'],
-            'sku'         => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'sku')->ignore($productId)],
+            'sku'         => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'sku')->ignore($productId)],
+            'slug'        => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'slug')->ignore($productId)],
             'price'       => ['required', 'numeric', 'min:0'],
             'sale_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'],
             'stock_qty'   => ['required', 'integer', 'min:0'],
@@ -50,9 +51,12 @@ class SaveProductRequest extends BaseFormRequest
             'name.max'      => 'Tên sản phẩm quá dài (tối đa :max ký tự).',
 
             // SKU
-            'sku.required'   => 'Mã SKU là bắt buộc.',
             'sku.unique'     => 'Mã SKU ":input" đã tồn tại, vui lòng chọn mã khác.',
             'sku.alpha_dash' => 'Mã SKU chỉ được chứa chữ, số, dấu gạch ngang (-) và gạch dưới (_).',
+
+            // SLUG
+            'slug.unique'     => 'Mã SLUG ":input" đã tồn tại, vui lòng chọn mã khác.',
+            'slug.alpha_dash' => 'Mã SLUG chỉ được chứa chữ, số, dấu gạch ngang (-) và gạch dưới (_).',
 
             // Price
             'price.required' => 'Giá niêm yết là bắt buộc.',

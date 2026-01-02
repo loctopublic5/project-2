@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\HasSlug;
 use App\Models\Category;
 use App\Models\OrderItem;
+use App\Traits\HasUniqueCode;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Product extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasSlug, HasUniqueCode;
 
     protected $fillable = [
         'category_id',
@@ -40,6 +41,26 @@ class Product extends Model
         'view_count' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Hook vào sự kiện của Model
+     */
+    protected static function booted(){
+        static::creating(function ($product) {
+            // 1. Xử lý SLUG (Chuẩn SEO)
+            // Luôn tự động tạo slug từ name nếu slug chưa được set hoặc rỗng
+            if (empty($product->slug)) {
+                $product->slug = $product->generateSlug($product->name);
+            }
+
+            // 2. Xử lý SKU (Mã kho)
+            // Nếu Admin không nhập SKU -> Tự sinh mã ngẫu nhiên (VD: SP-X8L9P)
+            if (empty($product->sku)) {
+                // generateUniqueCode(cột, tiền tố, độ dài)
+                $product->sku = $product->generateUniqueCode('sku', 'SP', 6);
+            }
+        });
+    }
 
     /**
      * Product belongs to Category

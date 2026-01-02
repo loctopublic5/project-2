@@ -58,7 +58,7 @@ class ProductResource extends JsonResource
                 'original_price'   => (int) $this->price,
                 'sale_price'       => (int) $this->sale_price,
                 'is_sale_active'   => $this->sale_price > 0 && $this->sale_price < $this->price,
-                'note'             => 'Giá chưa áp dụng chính sách đại lý'
+                'note'             => 'Giá chưa áp dụng Sale'
             ],
 
             // Kho vận & Thuộc tính

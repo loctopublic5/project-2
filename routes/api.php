@@ -7,6 +7,8 @@ use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Product\PublicProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +52,10 @@ Route::prefix('v1')->group(function () {
     Route::prefix('categories')->group(function () {
         Route::get('/', [CategoryController::class, 'index']);
     });
+    Route::prefix('products')->group(function () {
+        Route::get('/', [PublicProductController::class, 'index']);
+        Route::get('/{id}', [PublicProductController::class, 'show']);
+    });
 
 
     /* =================================================================
@@ -85,6 +91,16 @@ Route::prefix('v1')->group(function () {
             Route::post('/refund', [AdminWalletController::class, 'refund']);
         });
     
+        // 2. ADMIN API (Dùng AdminProductController)
+        Route::prefix('products')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+            Route::post('/', [AdminProductController::class, 'store']);
+            /* Lách luật bằng kỹ thuật Method Spoofing:
+            Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).
+            Body Data: Gửi kèm một field ẩn tên là _method với giá trị là PUT.
+            */ 
+            Route::post('/{id}', [AdminProductController::class, 'update']);
+            Route::delete('/{id}', [AdminProductController::class, 'destroy']);
+        });
     });
 
     /* =================================================================
