@@ -98,7 +98,7 @@ Route::prefix('v1')->group(function () {
             Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).
             Body Data: Gửi kèm một field ẩn tên là _method với giá trị là PUT.
             */ 
-            Route::post('/{id}', [AdminProductController::class, 'update']);
+            Route::put('/{id}', [AdminProductController::class, 'update']);
             Route::delete('/{id}', [AdminProductController::class, 'destroy']);
         });
     });
