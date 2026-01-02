@@ -2,9 +2,11 @@
 
 namespace App\Traits;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 trait ApiResponse
 {
@@ -16,11 +18,52 @@ trait ApiResponse
      */
     protected function success(mixed $data = null, string $message = 'Success', int $statusCode = Response::HTTP_OK): JsonResponse
     {
-        return response()->json([
+        $meta = [];
+        $resultData = $data;
+
+        // 1. Kiểm tra nếu data là Resource Collection (được bọc bởi ::collection($paginate))
+        if ($data instanceof ResourceCollection) {
+            // Lấy dữ liệu phân trang gốc bên trong
+            if ($data->resource instanceof AbstractPaginator) {
+                $paginator = $data->resource;
+                
+                // Tách meta
+                $meta = [
+                    'current_page' => $paginator->currentPage(),
+                    'per_page'     => $paginator->perPage(),
+                    'total_items'  => $paginator->total(),
+                    'total_pages'  => $paginator->lastPage(),
+                ];
+
+                // Data lúc này sẽ là mảng các item đã được qua hàm toArray() của Resource
+                // resolve() giúp biến đổi Resource thành mảng thuần
+                $resultData = $data->resolve(); 
+            }
+        } 
+        // 2. Kiểm tra nếu data là Paginator thuần (không dùng Resource)
+        else if ($data instanceof AbstractPaginator) {
+            $meta = [
+                'current_page' => $data->currentPage(),
+                'per_page'     => $data->perPage(),
+                'total_items'  => $data->total(),
+                'total_pages'  => $data->lastPage(),
+            ];
+            $resultData = $data->items();
+        }
+
+        // Cấu trúc phản hồi chuẩn
+        $response = [
             'status'  => true,
             'message' => $message,
-            'data'    => $data,
-        ], $statusCode);
+            'data'    => $resultData,
+        ];
+
+        // Chỉ thêm meta nếu có phân trang
+        if (!empty($meta)) {
+            $response['meta'] = $meta;
+        }
+
+        return response()->json($response, $statusCode);
     }
 
     /**

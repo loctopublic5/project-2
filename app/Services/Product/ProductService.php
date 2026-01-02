@@ -22,7 +22,7 @@ class ProductService
         }
 
         // 3. Filter theo Keyword (Tìm kiếm)
-        if(isset($fillter['keyword'])){
+        if(isset($filters['keyword'])){
             $keyword = $filters['keyword'];
             $query->where('name' , 'LIKE', "%{$keyword}%");
         }
@@ -37,7 +37,7 @@ class ProductService
 
         // 5. Sorting (Sắp xếp)
         // Mặc định là mới nhất
-        $sortBy = $fillters['sort_by'] ?? 'latest';
+        $sortBy = $filters['sort_by'] ?? 'latest';
         switch ($sortBy){
             case 'price_asc':
                 $query->orderBy('price', 'asc');
