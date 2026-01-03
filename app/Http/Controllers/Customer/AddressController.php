@@ -87,7 +87,7 @@ class AddressController extends Controller
             // Tái sử dụng hàm update, chỉ gửi mỗi field is_default
             $address = $this->addressService->updateAddress($userId, $id, ['is_default' => true]);
 
-            return $this->success($address, 'Đã đặt làm địa chỉ mặc định.');
+            return $this->success(new UserAddressResource($address), 'Đã đặt làm địa chỉ mặc định.');
         } catch (Exception $e) {
             return $this->error($e->getMessage());
         }
@@ -102,10 +102,7 @@ class AddressController extends Controller
             $userId = $request->user()->id;
             $this->addressService->deleteAddress($userId, $id);
 
-            return response()->json([
-                'status'  => true,
-                'message' => 'Xóa địa chỉ thành công.'
-            ]);
+            return $this->success(null, 'Xóa địa chỉ thành công.');
         } catch (Exception $e) {
             return $this->error($e->getMessage());
         }
