@@ -88,4 +88,11 @@ class Product extends Model
         return $this->where('is_active', true);
     }
 
+    // Quan hệ này ít dùng trực tiếp, nhưng hữu ích khi muốn check:
+    // "Sản phẩm này đang nằm trong bao nhiêu giỏ hàng?" (Analytics)
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
 }

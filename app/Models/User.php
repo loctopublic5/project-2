@@ -97,6 +97,13 @@ class User extends Authenticatable
         return $this->hasMany(VoucherUsage::class);
     }   
 
+    // Lấy giỏ hàng hiện tại của User
+    // Dùng hasOne vì tại 1 thời điểm, 1 user chỉ active 1 giỏ hàng (giỏ cũ nhất hoặc mới nhất)
+    public function cart()
+    {
+        return $this->hasOne(Cart::class)->latestOfMany(); 
+    }
+
     // Helper function tiện lợi
     public function hasUsedVoucher($voucherId)
     {
