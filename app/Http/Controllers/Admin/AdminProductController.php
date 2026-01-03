@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin; 
 
 use Exception;
-use App\Traits\apiResponse;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -13,7 +13,7 @@ use App\Http\Requests\Product\SaveProductRequest;
 
 class AdminProductController extends Controller
 {
-    use apiResponse;
+    use ApiResponse;
     protected $productService;
 
     // Sử dụng Dependency Injection để gọi Service

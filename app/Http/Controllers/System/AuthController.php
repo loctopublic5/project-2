@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\System;
 
 use Exception;
-use App\Traits\apiResponse;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Services\System\AuthService;
 use App\Http\Requests\Auth\LoginRequest;
@@ -14,7 +14,7 @@ use App\Http\Requests\Auth\StoreRegisterRequest;
 
 class AuthController
 {
-    use apiResponse;
+    use ApiResponse;
     public function __construct(protected AuthService $auth_service) {}
 
     public function register(StoreRegisterRequest $request){

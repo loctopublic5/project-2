@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use Exception;
 use App\Models\Order;
-use App\Traits\apiResponse;
+use App\Traits\ApiResponse;
 use App\Services\Customer\WalletService;
 use App\Http\Requests\Customer\PaymentRequest;
 use App\Exceptions\InsufficientBalanceException;
@@ -12,7 +12,7 @@ use App\Http\Resources\Customer\TransactionResource;
 
 class PaymentController
 {
-    use apiResponse;
+    use ApiResponse;
     
     // Inject cả 2 Service hoặc Model cần thiết
     public function __construct(protected WalletService $walletService){}

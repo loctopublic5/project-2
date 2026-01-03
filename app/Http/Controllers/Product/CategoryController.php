@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Product;
 
 use Exception;
-use App\Traits\apiResponse;
+use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Product\CategoryService;
 use App\Http\Resources\Product\CategoryResource;
 
 class CategoryController extends Controller
 {
-    use apiResponse;
+    use ApiResponse;
 
     public function __construct(protected CategoryService $categoryService){}
 
