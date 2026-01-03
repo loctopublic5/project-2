@@ -20,7 +20,7 @@ class CheckRoleMiddleware
         if(!$user){
             return response()->json ([
                 'status' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthenticated.'
             ],401);
         }
         // 2. Logic kiểm tra quyền

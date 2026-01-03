@@ -172,38 +172,42 @@ class ProductApiTest extends TestCase
         $admin = User::factory()->admin()->create();
         
         $product = Product::factory()->create([
-            'name'  => 'Old Name',
-            'price' => 100000
+            'name'      => 'Old Name',
+            'price'     => 100000,
+            'stock_qty' => 50
         ]);
 
-        // 2. Chuẩn bị dữ liệu (Giả lập Form Data từ Frontend)
+        // 2. Chuẩn bị dữ liệu (Phải gửi ĐẦY ĐỦ các trường required trong SaveProductRequest)
         $payload = [
-            // --- QUAN TRỌNG: METHOD SPOOFING ---
-            '_method'     => 'PUT', 
-            // -----------------------------------
+            '_method'     => 'PUT', // Method Spoofing
             
-            'name'        => 'Updated by Method Spoofing',
-            'price'       => 200000,
-            'category_id' => $product->category_id,
-            'stock_qty'   => 20, // Đảm bảo đủ các trường bắt buộc nếu có
+            // Các trường bắt buộc (Required)
+            'category_id' => $product->category_id, // Giữ nguyên danh mục cũ
+            'name'        => 'Updated Name',        // Đổi tên
+            'price'       => 200000,                // Đổi giá
+            'stock_qty'   => 10,                    // Đổi tồn kho
             
-            // Nếu bạn muốn test luôn upload ảnh mới:
-            // 'images' => [UploadedFile::fake()->image('new_product.jpg')]
+            // Các trường Nullable (Có thể bỏ qua hoặc gửi)
+            'is_active'   => 1,
+            'description' => 'Mô tả mới',
+            
+            // SKU/Slug nếu không gửi thì giữ nguyên hoặc sinh mới tùy logic Controller
+            // Nhưng nếu gửi thì phải check unique (Request của bạn đã handle việc này rồi)
+             'sku'         => $product->sku, 
         ];
 
-        // 3. Gọi API bằng method POST (postJson)
-        // URL vẫn là đường dẫn đến ID sản phẩm
+        // 3. Gọi API
         $response = $this->actingAs($admin)
                          ->postJson("/api/v1/admin/products/{$product->id}", $payload);
 
         // 4. Assert
-        $response->assertStatus(200); // Mong đợi 200 OK
+        $response->assertStatus(200);
 
-        // Kiểm tra DB xem đã đổi tên chưa
         $this->assertDatabaseHas('products', [
-            'id'   => $product->id,
-            'name' => 'Updated by Method Spoofing',
-            'price' => 200000
+            'id'    => $product->id,
+            'name'  => 'Updated Name',
+            'price' => 200000,
+            'stock_qty' => 10
         ]);
     }
 
@@ -220,7 +224,7 @@ class ProductApiTest extends TestCase
                         ->deleteJson("/api/v1/admin/products/{$product->id}");
 
         $response->assertStatus(200);
-        $this->assertDatabaseMissing('products', ['id' => $product->id]);
+        $this->assertSoftDeleted('products', ['id' => $product->id]);
     }
 
     /**
@@ -229,7 +233,10 @@ class ProductApiTest extends TestCase
     public function test_normal_user_cannot_access_admin_routes()
     {
         /** @var \App\Models\User $user */
-        $user = User::factory()->admin()->create();
+        $user = User::factory()->create(); 
+
+        // Debug nhanh: In ra xem user này có role gì (nếu cần)
+        //dd($user->roles->toArray());
         
         // Cố tình gọi API admin
         $response = $this->actingAs($user)

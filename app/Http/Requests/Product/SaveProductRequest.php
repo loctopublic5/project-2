@@ -15,18 +15,23 @@ class SaveProductRequest extends BaseFormRequest
      */
     public function rules(): array
     {
-        // Lấy ID sản phẩm từ URL (nếu đang update)
-        // Giả sử Route là: PUT /products/{id} -> thì lấy $this->route('id')
-        // Nếu Route Model Binding: PUT /products/{product} -> thì lấy $this->route('product')->id
+        $productId = $this->route('product') ? $this->route('product')->id : $this->route('id');
+    
+        // Kiểm tra xem đây là hành động UPDATE hay CREATE
+        // Nếu có ID -> Update -> Dùng quy tắc "sometimes" (Chỉ validate nếu có gửi lên)
+        // Nếu không có ID -> Create -> Dùng quy tắc "required"
+        $isUpdate = !empty($productId); 
+        $ruleType = $isUpdate ? 'sometimes' : 'required';
         $productId = $this->route('product') ? $this->route('product')->id : $this->route('id');
         return [
-            'category_id' => ['required', 'integer', 'exists:categories,id'],
-            'name'        => ['required', 'string', 'max:250'],
+            'category_id' => [$ruleType, 'integer', 'exists:categories,id'],
+            'name'        => [$ruleType, 'string', 'max:250'],
+            'price'       => [$ruleType, 'numeric', 'min:0'],
+            'stock_qty'   => [$ruleType, 'integer', 'min:0'],
+        
             'sku'         => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'sku')->ignore($productId)],
             'slug'        => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'slug')->ignore($productId)],
-            'price'       => ['required', 'numeric', 'min:0'],
             'sale_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'],
-            'stock_qty'   => ['required', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
             'is_active'   => ['boolean'],
 

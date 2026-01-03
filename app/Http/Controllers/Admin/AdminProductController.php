@@ -40,7 +40,7 @@ class AdminProductController extends Controller
             try{
                 $data = $request->validated();
                 $product = $this->productService->updateProduct($id, $data);
-                return $this->success(new ProductResource($product), 'Cập nhật thông tin sản phẩm thành công !', 201);
+                return $this->success(new ProductResource($product), 'Cập nhật thông tin sản phẩm thành công !');
             }catch(Exception $e){
                 return $this->error($e->getMessage(), 500);
             }
