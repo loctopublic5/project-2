@@ -37,4 +37,17 @@ class Voucher extends Model
                     ->where('start_date', '<=', $now)
                     ->where('end_date', '>=', $now);
     }
+
+
+    public function usages()
+    {
+        return $this->hasMany(VoucherUsage::class);
+    }
+
+    // Lấy danh sách user đã dùng mã này
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'voucher_usages')
+                    ->withPivot('used_at', 'order_id');
+    }
 }

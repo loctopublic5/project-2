@@ -5,12 +5,14 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Order;
 use App\Models\UserWallet;
+use App\Models\VoucherUsage;
 use App\Models\DealerRequest;
 use App\Traits\HasPermissions;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -88,5 +90,17 @@ class User extends Authenticatable
 
     public function order(): HasOne{
         return $this->hasOne(Order::class);
+    }
+
+    public function voucherUsages()
+    {
+        return $this->hasMany(VoucherUsage::class);
+    }   
+
+    // Helper function tiện lợi
+    public function hasUsedVoucher($voucherId)
+    {
+        // Kiểm tra nhanh xem user đã dùng voucher này chưa
+        return $this->voucherUsages()->where('voucher_id', $voucherId)->exists();
     }
 }

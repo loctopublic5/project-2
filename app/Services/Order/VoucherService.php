@@ -45,7 +45,7 @@ class VoucherService{
         } 
         // Optional: Nếu voucher bắt buộc login mới được dùng
         else {
-           throw new VoucherException("Vui lòng đăng nhập để sử dụng mã này.");
+            throw new VoucherException("Vui lòng đăng nhập để sử dụng mã này.");
         }
 
         return $voucher;
