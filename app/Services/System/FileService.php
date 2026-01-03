@@ -21,7 +21,7 @@ class FileService
     public function upload(UploadedFile $file, string $targetType, int $targetId)
     {
         // --- BƯỚC 1: XỬ LÝ TÊN FILE (NAMING) ---
-        $fileName = $file->hasName();
+        $fileName = $file->hashName();
 
 
         // --- BƯỚC 2: ĐỊNH NGHĨA THƯ MỤC (PATH) ---
@@ -59,7 +59,7 @@ class FileService
     public function delete(File $file){
         //Xóa file vật lý
         if(Storage::disk($file->disk)->exists($file->path)){
-            Storage::disk($file->disk)->delete($file->disk);
+            Storage::disk($file->disk)->delete($file->path);
         }
 
         //Xóa record trong DB

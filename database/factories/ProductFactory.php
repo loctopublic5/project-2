@@ -20,11 +20,11 @@ class ProductFactory extends Factory
     {
         $name = $this->faker->words(3, true);
     return [
-        'category_id' => Category::inRandomOrder()->first()->id ?? 1, // Lấy ngẫu nhiên 1 danh mục đã có
+        'category_id' => Category::factory(),
         'name'        => ucfirst($name),
         'slug'        => Str::slug($name) . '-' . Str::random(5),
         'price'       => $this->faker->numberBetween(100000, 2000000), // Giá từ 100k - 2tr
-        'stock'       => $this->faker->numberBetween(10, 100),
+        'stock_qty'   => $this->faker->numberBetween(10, 100),
         'description' => $this->faker->paragraph(),
         'is_active'   => true,
         'created_at'  => now(),

@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Customer;
 
 use Exception;
-use App\Traits\ApiResponse;
+use App\Traits\apiResponse;
 use Illuminate\Http\Request;
 use App\Services\Customer\WalletService;
 use App\Http\Requests\Customer\DepositRequest;
-use App\Http\Resources\Customer\WalletResource;
 use App\Http\Resources\Customer\TransactionResource;
 
 class WalletController
 {
-    use ApiResponse;
+    use apiResponse;
 
     public function __construct(protected WalletService $walletService){}
 

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use Exception;
 use App\Models\User;
-use App\Traits\ApiResponse;
+use App\Traits\apiResponse;
 use App\Services\Customer\WalletService;
 use App\Http\Requests\Customer\RefundRequest;
 use App\Http\Resources\Customer\TransactionResource;
@@ -12,7 +12,7 @@ use App\Http\Resources\Customer\TransactionResource;
 class AdminWalletController
 {
     
-    use ApiResponse;
+    use apiResponse;
     
     public function __construct(protected WalletService $walletService){}
 

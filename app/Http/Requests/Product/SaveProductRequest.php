@@ -5,9 +5,7 @@ namespace App\Http\Requests\Product;
 use Illuminate\Validation\Rule;
 use App\Http\Requests\BaseFormRequest;
 
-
-
-class StoreProductRequest extends BaseFormRequest
+class SaveProductRequest extends BaseFormRequest
 {
 
     /**
@@ -17,14 +15,23 @@ class StoreProductRequest extends BaseFormRequest
      */
     public function rules(): array
     {
-        $productId = $this->route('product') ? $this->route('product')->id : null;
+        $productId = $this->route('product') ? $this->route('product')->id : $this->route('id');
+    
+        // Kiểm tra xem đây là hành động UPDATE hay CREATE
+        // Nếu có ID -> Update -> Dùng quy tắc "sometimes" (Chỉ validate nếu có gửi lên)
+        // Nếu không có ID -> Create -> Dùng quy tắc "required"
+        $isUpdate = !empty($productId); 
+        $ruleType = $isUpdate ? 'sometimes' : 'required';
+        $productId = $this->route('product') ? $this->route('product')->id : $this->route('id');
         return [
-            'category_id' => ['required', 'integer', 'exists:category_id,id'],
-            'name'        => ['required', 'string', 'max:250'],
-            'sku'         => ['required', 'string', 'max:50', 'alpha_dash', Rule::uinque('products', 'sku')->ignore($productId)],
-            'price'       => ['required', 'numeric', 'min:0'],
+            'category_id' => [$ruleType, 'integer', 'exists:categories,id'],
+            'name'        => [$ruleType, 'string', 'max:250'],
+            'price'       => [$ruleType, 'numeric', 'min:0'],
+            'stock_qty'   => [$ruleType, 'integer', 'min:0'],
+        
+            'sku'         => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'sku')->ignore($productId)],
+            'slug'        => ['nullable', 'string', 'max:50', 'alpha_dash', Rule::unique('products', 'slug')->ignore($productId)],
             'sale_price'  => ['nullable', 'numeric', 'min:0', 'lt:price'],
-            'stock_qty'   => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'is_active'   => ['boolean'],
 
@@ -49,9 +56,12 @@ class StoreProductRequest extends BaseFormRequest
             'name.max'      => 'Tên sản phẩm quá dài (tối đa :max ký tự).',
 
             // SKU
-            'sku.required'   => 'Mã SKU là bắt buộc.',
             'sku.unique'     => 'Mã SKU ":input" đã tồn tại, vui lòng chọn mã khác.',
             'sku.alpha_dash' => 'Mã SKU chỉ được chứa chữ, số, dấu gạch ngang (-) và gạch dưới (_).',
+
+            // SLUG
+            'slug.unique'     => 'Mã SLUG ":input" đã tồn tại, vui lòng chọn mã khác.',
+            'slug.alpha_dash' => 'Mã SLUG chỉ được chứa chữ, số, dấu gạch ngang (-) và gạch dưới (_).',
 
             // Price
             'price.required' => 'Giá niêm yết là bắt buộc.',

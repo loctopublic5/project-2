@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\HasSlug;
 use App\Models\Category;
 use App\Models\OrderItem;
+use App\Traits\HasUniqueCode;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasSlug, HasUniqueCode, HasFactory;
 
     protected $fillable = [
         'category_id',
@@ -41,6 +44,26 @@ class Product extends Model
     ];
 
     /**
+     * Hook vào sự kiện của Model
+     */
+    protected static function booted(){
+        static::creating(function ($product) {
+            // 1. Xử lý SLUG (Chuẩn SEO)
+            // Luôn tự động tạo slug từ name nếu slug chưa được set hoặc rỗng
+            if (empty($product->slug)) {
+                $product->slug = $product->generateSlug($product->name);
+            }
+
+            // 2. Xử lý SKU (Mã kho)
+            // Nếu Admin không nhập SKU -> Tự sinh mã ngẫu nhiên (VD: SP-X8L9P)
+            if (empty($product->sku)) {
+                // generateUniqueCode(cột, tiền tố, độ dài)
+                $product->sku = $product->generateUniqueCode('sku', 'SP', 6);
+            }
+        });
+    }
+
+    /**
      * Product belongs to Category
      */
     public function category(): BelongsTo
@@ -53,7 +76,16 @@ class Product extends Model
         return $this->morphMany(File::class, 'target');
     }
 
-    public function orderItem(): HasOne{
-        return $this->hasOne(OrderItem::class);
+    public function orderItem(): HasMany{
+        return $this->hasMany(OrderItem::class);
     }
+
+    public function reviews(): HasMany{
+        return $this->hasMany(Review::class);
+    }
+
+    public function scopeActive($query){
+        return $this->where('is_active', true);
+    }
+
 }

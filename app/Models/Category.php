@@ -5,15 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'parent_id',
         'name',
         'slug',
         'level',
         'is_active',
+    ];
+
+    protected $cats = [
+        'is_active' => 'boolean',
+        'level'     => 'integer',
     ];
 
 /**

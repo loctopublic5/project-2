@@ -6,10 +6,10 @@ use App\Http\Requests\System\UploadFileRequest;
 use App\Services\System\FileService;           
 use App\Http\Resources\System\FileResource;           
 use Exception;
-use App\Traits\ApiResponse;
+use App\Traits\apiResponse;
 class FileController 
 {
-    use ApiResponse;
+    use apiResponse;
     public function __construct(
         protected FileService $fileService
     ) {}
