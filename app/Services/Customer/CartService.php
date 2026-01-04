@@ -7,8 +7,11 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\DB;
+use App\Services\System\PricingService;
 
 class CartService{
+
+    public function __construct(protected PricingService $pricingService){}
 
     /**
      * Thêm sản phẩm vào giỏ
@@ -142,7 +145,6 @@ class CartService{
         }
 
         return $item->delete();
-
     }
 
     /**
@@ -157,6 +159,50 @@ class CartService{
         }
         return false;
     }
+
+    /**
+     * Lấy chi tiết giỏ hàng và tính toán tiền nong
+     * @param int $userId
+     * @param array $params (Chứa voucher_code, address_id nếu có)
+     */
+    public function getCartDetail($userId, $params = []){
+        // 1. Lấy Cart & Items
+        // Eager load 'product' để giảm query
+        $cart = CartItem::with('item.product')
+                        ->firstOrCreate(['user_id' => $userId]);
+
+        // 2. Chuẩn bị dữ liệu cho PricingService
+        // PricingService cần mảng: [['product_id' => 1, 'quantity' => 2], ...]
+        // LƯU Ý: Chỉ tính tiền những món đang được SELECTED
+        $selectedItem = $cart->item->where('selected', true);
+
+        $pricingItems = $selectedItem->map(function($item){
+            return [
+                'product_id' => $item->product_id,
+                'quantity'   => $item->quantity,
+                'options'    => $item->options
+            ];
+        })->toArray();
+
+        // 3. Gọi PricingService tính toán
+        // Lấy voucher và address từ params (nếu Controller gửi sang)
+        $voucherCode = $params['voucher_code'] ?? null;
+        $addressId   = $params['address_id'] ?? null;
+
+        $pricingResult = $this->pricingService->calculateCart(
+            $pricingItems,
+            $voucherCode,
+            $userId,
+            $addressId
+        );
+
+        // 4. Trả về kết quả thô
+        return [
+            'cart'    => $cart,
+            'pricing' => $pricingResult
+        ];
+    }
+
 
     /**
      * ========================
