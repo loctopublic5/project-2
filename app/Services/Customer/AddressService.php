@@ -79,31 +79,40 @@ class AddressService{
 
     public function updateAddress(int $userId, int $addressId, array $data)
     {
-    return DB::transaction(function () use ($userId, $addressId, $data) {
-        // 1. Tìm địa chỉ và đảm bảo nó thuộc về user này
-        $address = UserAddress::where('user_id', $userId)->findOrFail($addressId);
+        return DB::transaction(function () use ($userId, $addressId, $data) {
+            // 1. Tìm địa chỉ (IDOR Protection)
+            $address = UserAddress::where('user_id', $userId)->findOrFail($addressId);
 
-        // 2. Xử lý logic "Tranh ngôi" (Set Default)
-        if (isset($data['is_default']) && $data['is_default'] === true) {
-            // Nếu user muốn set cái này làm mặc định -> Reset tất cả cái KHÁC về false
-            // Lưu ý: where('id', '!=', $addressId) để tránh update thừa chính nó
-            UserAddress::where('user_id', $userId)
-                        ->where('id', '!=', $addressId)
-                        ->update(['is_default' => false]);
-        }
-        
-        // *Edge Case (Nâng cao): Nếu user cố tình set is_default = false cho thằng đang là default?
-        // Thường chúng ta sẽ CHẶN hoặc LỜ ĐI. Quy tắc là: 
-        // "Muốn bỏ default cũ thì hãy set default cho cái mới. Không được để trống ngôi vua."
-        // Đoạn code dưới đây sẽ ép logic đó (nếu frontend gửi false cho thằng đang true, ta bỏ qua field đó)
-        if ($address->is_default && isset($data['is_default']) && $data['is_default'] === false) {
-             unset($data['is_default']); // Không cho phép tắt default thủ công
-        }
+            // 2. Chuẩn hóa Boolean (Safe Casting)
+            // Chuyển mọi thể loại "1", "true", 1 về true/false chuẩn của PHP
+            $wantsToBeDefault = isset($data['is_default']) 
+                                ? filter_var($data['is_default'], FILTER_VALIDATE_BOOLEAN) 
+                                : null;
 
-        // 3. Thực hiện Update
-        $address->update($data);
+            // 3. Xử lý Logic "Tranh ngôi" (Set Default)
+            if ($wantsToBeDefault === true) {
+                // Nếu muốn làm vua -> Truất ngôi tất cả thằng khác
+                UserAddress::where('user_id', $userId)
+                    ->where('id', '!=', $addressId)
+                    ->update(['is_default' => false]);
+            }
 
-        return $address;
+            // 4. Xử lý Edge Case: "Vua không được tự thoái vị"
+            // Nếu đang là Default mà user gửi lên false -> Lờ đi (Xóa khỏi data update)
+            // Hoặc nếu user không gửi is_default -> Cũng không sao, Eloquent không update field đó
+            if ($address->is_default && $wantsToBeDefault === false) {
+            unset($data['is_default']); 
+            }
+
+            // 5. Cập nhật dữ liệu
+            // Gán lại giá trị chuẩn boolean vào data để Eloquent lưu cho đúng (tránh lưu string "true")
+            if (isset($data['is_default'])) {
+                $data['is_default'] = $wantsToBeDefault;
+            }
+            
+            $address->update($data);
+
+            return $address;
         });
     }
 }
