@@ -19,16 +19,21 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name = $this->faker->words(3, true);
-    return [
-        'category_id' => Category::factory(),
-        'name'        => ucfirst($name),
-        'slug'        => Str::slug($name) . '-' . Str::random(5),
-        'price'       => $this->faker->numberBetween(100000, 2000000), // Giá từ 100k - 2tr
-        'stock_qty'   => $this->faker->numberBetween(10, 100),
-        'description' => $this->faker->paragraph(),
-        'is_active'   => true,
-        'created_at'  => now(),
-        'updated_at'  => now(),
-    ];
+        $price = $this->faker->numberBetween(100000, 1000000); // Giá từ 100k đến 1 triệu
+        $salePrice = $this->faker->boolean(70) ? $this->faker->numberBetween(10000, $price - 10000) : null; // 70% có sale_price, nhỏ hơn price
+
+        return [
+            'category_id' => Category::factory(),
+            'name'        => ucfirst($name),
+            'slug'        => Str::slug($name) . '-' . Str::random(5),
+            'price'       => $price,
+            'sale_price'  => $salePrice,
+            'stock'       => $this->faker->numberBetween(10, 1000),
+            'description' => $this->faker->paragraph(),
+            'is_active'   => true,
+            'thumbnail'   => $this->faker->imageUrl(),
+            'created_at'  => now(),
+            'updated_at'  => now(),
+        ];
     }
 }
