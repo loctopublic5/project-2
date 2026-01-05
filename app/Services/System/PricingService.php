@@ -6,7 +6,7 @@ use Exception;
 use App\Models\Product;
 use App\Models\Voucher;
 use Illuminate\Support\Facades\Log;
-use App\Services\Order\AddressService;
+use App\Services\Customer\AddressService;
 use App\Services\Order\VoucherService;
 use App\Services\Order\ShippingService;
 

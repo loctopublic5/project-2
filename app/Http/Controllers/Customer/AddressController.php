@@ -6,8 +6,8 @@ use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\Order\AddressService;
-use App\Http\Resources\UserAddressResource;
+use App\Services\Customer\AddressService;
+use App\Http\Resources\Customer\UserAddressResource;
 use App\Http\Requests\Customer\SaveAddressRequest;
 
 

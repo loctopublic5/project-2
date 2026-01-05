@@ -12,6 +12,7 @@ class UserAddress extends Model
     protected $fillable = [
         'user_id',
         'recipient_name',
+        'phone',
         'province_id',
         'district_id',
         'ward_id',
@@ -19,8 +20,8 @@ class UserAddress extends Model
         'is_default',
     ];
 
-    protected $cats = [
-        'is_default' => 'boolen',
+    protected $casts = [
+        'is_default' => 'boolean',
     ];
 
     public function users(): BelongsToMany{

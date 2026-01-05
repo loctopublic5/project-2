@@ -5,6 +5,7 @@ use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\WalletController;
+use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
@@ -75,6 +76,18 @@ Route::prefix('v1')->group(function () {
         Route::prefix('payment')->middleware('auth:sanctum')->group(function(){
             Route::post( '/',[PaymentController::class, 'payByWallet']);
         });
+
+        // ADDRESS ROUTES
+        Route::prefix('addresses')->middleware('auth:sanctum')->group(function(){
+            Route::get('/', [AddressController::class, 'index']);
+            Route::post('/', [AddressController::class, 'store']);
+            Route::get('/{id}', [AddressController::class, 'show']);
+            Route::put('/{id}', [AddressController::class, 'update']);
+            Route::delete('/{id}', [AddressController::class, 'destroy']);
+        
+            // Route đặc biệt: Set default
+            Route::patch('/{id}/default', [AddressController::class, 'setDefault']);
+    });
 
         // CART ROUTES (Role: Customer)
         Route::prefix('cart')->middleware('auth:sanctum')->group(function(){

@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Order;
+namespace App\Services\Customer;
 
 use App\Models\UserAddress;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +30,7 @@ class AddressService{
                 'district_id'    => $data['district_id'],
                 'ward_id'        => $data['ward_id'],
                 'address_detail' => $data['address_detail'],
-                'is_default'     => $data['is_defalut'] ?? false,
+                'is_default'     => $data['is_default'] ?? false,
                 'is_active'      => true,
             ]);
         });

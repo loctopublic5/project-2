@@ -28,10 +28,9 @@ class ProductFactory extends Factory
             'slug'        => Str::slug($name) . '-' . Str::random(5),
             'price'       => $price,
             'sale_price'  => $salePrice,
-            'stock'       => $this->faker->numberBetween(10, 1000),
+            'stock_qty'   => $this->faker->numberBetween(10, 1000),
             'description' => $this->faker->paragraph(),
             'is_active'   => true,
-            'thumbnail'   => $this->faker->imageUrl(),
             'created_at'  => now(),
             'updated_at'  => now(),
         ];
