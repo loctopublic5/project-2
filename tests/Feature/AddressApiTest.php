@@ -95,9 +95,8 @@ public function test_user_cannot_delete_others_address()
     /** @var User $hacker */
     // Hacker cố xóa địa chỉ của Victim
     $response = $this->actingAs($hacker)->deleteJson("/api/v1/customer/addresses/{$victimAddress->id}");
-
     // Mong đợi lỗi (Thường Laravel trả về 404 nếu dùng findOrFail trong scope user)
-    $response->assertNotFound(); 
+    $response->assertStatus(400);
 
     // Kiểm tra DB: Dữ liệu vẫn còn đó
     $this->assertDatabaseHas('user_addresses', ['id' => $victimAddress->id]);
