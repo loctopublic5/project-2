@@ -77,52 +77,88 @@ class CartService{
     * @param int $newQuantity
     * @param array|null $newOptions (Nếu null nghĩa là không đổi option)
     */
-    public function updateCartItem($userId, $itemId, $newQuantity, $newOptions = null){
-        return DB::transaction(function() use ($userId, $itemId, $newQuantity, $newOptions){
-            // 1. AUTH & RETRIEVE (Bảo mật & Lấy dữ liệu)
-            // Tìm item, đồng thời check xem item này có thuộc về cart của user này không
-            // Eager load 'product' để check tồn kho sau này
-            $currentItem = CartItem::with(['cart', 'product'])
-                                    ->where('id', $itemId)
-                                    ->whereHas('cart', function($query) use ($userId){
-                                        $query->where('user_id', $userId);
-                                    })->firstOrFail(); //404
+    public function updateCartItem(int $userId, int $itemId, ?int $newQuantity = null, ?array $newOptions = null)
+    {
+        return DB::transaction(function () use ($userId, $itemId, $newQuantity, $newOptions) {
             
-            // 2. DETECT CHANGE TYPE (Phát hiện loại thay đổi)
-            // Nếu user không gửi newOptions, hoặc newOptions giống hệt cũ -> Là update quantity thường
-            $isOptionChanged = false;
-            if($newOptions !== null && !$this->compareOptions((array)$currentItem->options, $newOptions)){
-                $isOptionChanged = true;
-            }
+            // 1. AUTH & RETRIEVE
+            $currentItem = CartItem::with(['cart', 'product'])
+                ->where('id', $itemId)
+                ->whereHas('cart', fn($q) => $q->where('user_id', $userId))
+                ->firstOrFail();
 
-            // 3. LOGIC XỬ LÝ
+            // 2. CHUẨN HÓA DỮ LIỆU (FALLBACK)
+            // Nếu input null -> Dùng giá trị cũ
+            $targetQuantity = $newQuantity ?? $currentItem->quantity;
+            
+            $currentOptions = (array) $currentItem->options;
+            $targetOptions  = $newOptions ?? $currentOptions;
+
+            // 3. DETECT CHANGE (Phát hiện thay đổi)
+            // Chỉ cần so sánh 1 lần duy nhất ở đây
+            $isOptionChanged = !$this->compareOptions($currentOptions, $targetOptions);
+
+            // Biến lưu item kết quả cuối cùng
             $finalItem = $currentItem;
 
-            if($isOptionChanged){
-                // Bước 3.1: Tìm xem trong giỏ đã có thằng nào mang Option Mới chưa?
-                // (Trừ chính thằng currentItem ra)
+            if ($isOptionChanged) {
+                // --- NHÁNH A: CÓ THAY ĐỔI OPTION ---
+
+                // Tìm xem có trùng với item nào khác trong giỏ không (trừ chính nó)
                 $duplicateItem = $this->findDuplicateItem(
                     $currentItem->cart_id,
                     $currentItem->product_id,
-                    $newOptions,
+                    $targetOptions, // Dùng targetOptions đã chuẩn hóa
                     $currentItem->id
                 );
 
-                if($duplicateItem){
-                    // CASE B2: MERGE (Gộp dòng)
-                    // Cộng số lượng user muốn update vào thằng đã tồn tại
-                    $mergeQty = $duplicateItem->quantity + $newQuantity;
-                    // Check tồn kho
-                    if($currentItem->product->stock_qty < $mergeQty){
-                        throw new Exception("Tổng số lượng trong giỏ vượt quá tồn kho.");
+                if ($duplicateItem) {
+                    // CASE A1: MERGE (Gộp dòng)
+                    // Logic: Số lượng hiện có của dòng kia + Số lượng MỚI user muốn set cho dòng này
+                    $mergedQty = $duplicateItem->quantity + $targetQuantity;
+
+                    // Check tồn kho tổng
+                    if ($currentItem->product->stock_qty < $mergedQty) {
+                        throw new Exception("Không đủ hàng để gộp (Kho còn: {$currentItem->product->stock_qty}).");
                     }
+
                     // Update thằng kia, xóa thằng này
-                    $duplicateItem->update(['quantity' => $mergeQty]);
+                    $duplicateItem->update(['quantity' => $mergedQty]);
                     $currentItem->delete();
 
                     $finalItem = $duplicateItem;
+                } else {
+                    // CASE A2: ĐỔI OPTION (Không trùng ai cả -> Chỉ rename)
+                    // Check tồn kho cho số lượng mới
+                    if ($currentItem->product->stock_qty < $targetQuantity) {
+                        throw new Exception("Sản phẩm chỉ còn {$currentItem->product->stock_qty} món.");
+                    }
+
+                    $currentItem->update([
+                        'quantity' => $targetQuantity,
+                        'options'  => $targetOptions
+                    ]);
+                    $finalItem = $currentItem;
                 }
+
+            } else {
+                // --- NHÁNH B: CHỈ THAY ĐỔI SỐ LƯỢNG (Giữ nguyên Option) ---
+                // Đây là đoạn code bạn bị THIẾU trong bản cũ
+                
+                // Nếu số lượng không đổi thì thôi return luôn cho nhanh
+                if ($currentItem->quantity === $targetQuantity) {
+                    return $currentItem;
+                }
+
+                // Check tồn kho
+                if ($currentItem->product->stock_qty < $targetQuantity) {
+                    throw new Exception("Sản phẩm chỉ còn {$currentItem->product->stock_qty} món.");
+                }
+
+                $currentItem->update(['quantity' => $targetQuantity]);
+                $finalItem = $currentItem;
             }
+
             return $finalItem;
         });
     }

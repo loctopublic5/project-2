@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
+use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
@@ -64,20 +65,24 @@ Route::prefix('v1')->group(function () {
     ================================================================= */
     Route::prefix('customer')->group(function(){
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
-        Route::prefix('wallet')->group(function(){
-            Route::middleware('auth:sanctum')->group(function(){
-                // GET /api/wallet/me -> Xem số dư & lịch sử
-                ROUTE::get ('/' , [WalletController::class, 'getMe']);
-
-                // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
-                Route::post('/deposit', [WalletController::class, 'deposit']);
-            });
+        Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
+            // GET /api/wallet/me -> Xem số dư & lịch sử
+            Route::get('/', [WalletController::class, 'getMe']);
+            // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
+            Route::post('/deposit', [WalletController::class, 'deposit']);
         });
 
-        Route::prefix('payment')->group(function(){
-            Route::middleware('auth:sanctum')->group(function(){
-                Route::post( '/wallet',[PaymentController::class, 'payByWallet']);
-            });
+        Route::prefix('payment')->middleware('auth:sanctum')->group(function(){
+            Route::post( '/',[PaymentController::class, 'payByWallet']);
+        });
+
+        // CART ROUTES (Role: Customer)
+        Route::prefix('cart')->middleware('auth:sanctum')->group(function(){
+            Route::get('/', [CartController::class, 'index']);      
+            Route::post('/', [CartController::class, 'store']);     
+            Route::put('/{id}', [CartController::class, 'update']); 
+            Route::delete('/{id}', [CartController::class, 'destroy']); 
+            Route::delete('/', [CartController::class, 'clear']);
         });
     });
     
@@ -111,8 +116,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/upload', [FileController::class, 'store']);
         });
     
-
-
 });
 
 

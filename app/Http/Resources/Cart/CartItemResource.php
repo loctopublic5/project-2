@@ -9,40 +9,73 @@ class CartItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        // $this đại diện cho Model CartItem
-        // Ta giả định CartItem đã eager load 'product' từ Service
+        // 1. SAFETY CHECK (Phòng thủ)
+        // Dù Service đã eager load, nhưng lỡ sản phẩm bị Soft Delete hoặc lỗi data
+        // thì $this->product có thể null. Check để tránh crash API 500.
         $product = $this->product;
 
-        // Logic giá hiển thị (Ưu tiên Sale Price)
-        $realPrice = ($product->sale_price && $product->sale_price > 0) 
+        if (!$product) {
+            return [
+                'item_id' => $this->id,
+                'is_error' => true,
+                'error_message' => 'Sản phẩm không còn tồn tại.',
+                'product_info' => null,
+                // ... trả về null các trường khác để FE không bị gãy
+            ];
+        }
+
+        // 2. LOGIC GIÁ (Price Logic)
+        // Cast về float để đảm bảo FE nhận số, không phải string "10000.00"
+        $realPrice = (float) (($product->sale_price && $product->sale_price > 0) 
                         ? $product->sale_price 
-                        : $product->price;
+                        : $product->price);
+        
+        $originalPrice = (float) $product->price;
+
+        // 3. LOGIC TỒN KHO & TRẠNG THÁI (Advanced Stock Check)
+        $stockError = null;
+        
+        // Case A: Sản phẩm bị Admin ẩn/ngừng kinh doanh
+        if (!$product->is_active) {
+            $stockError = 'Sản phẩm đã ngừng kinh doanh.';
+        } 
+        // Case B: Kho không đủ số lượng khách muốn mua
+        elseif ($product->stock_qty < $this->quantity) {
+            $stockError = "Kho chỉ còn {$product->stock_qty} sản phẩm.";
+        }
+        // Case C: Kho hết sạch (0)
+        elseif ($product->stock_qty <= 0) {
+            $stockError = "Sản phẩm đang tạm hết hàng.";
+        }
 
         return [
-            'item_id'      => $this->id, // ID của dòng trong cart_items (để update/delete)
+            'item_id'      => $this->id,
             'product_id'   => $this->product_id,
             
-            // Thông tin sản phẩm (Flat ra cho FE dễ lấy)
             'product_info' => [
                 'name'   => $product->name,
                 'slug'   => $product->slug,
-                'avatar' => $product->avatar, // Giả sử model Product có accessor lấy full URL
+                // Đảm bảo avatar luôn là chuỗi (hoặc null), tránh lỗi nếu DB null
+                'avatar' => $product->avatar ?? '', 
                 'sku'    => $product->sku,
             ],
 
-            'price'        => (float) $realPrice,      // Giá bán thực tế
-            'old_price'    => (float) $product->price, // Giá gốc (để gạch ngang nếu cần)
+            'price'        => $realPrice,
+            'old_price'    => $originalPrice,
             
             'quantity'     => (int) $this->quantity,
-            'options'      => $this->options,          // JSON size/color
-            'selected'     => (bool) $this->selected,  // Trạng thái checkbox
+            'options'      => $this->options ?? [], // Luôn trả về mảng, tránh null
+            'selected'     => (bool) $this->selected,
             
-            // Thành tiền tạm tính của item này
             'line_total'   => $realPrice * $this->quantity,
             
-            // Stock check realtime (Hữu ích cho FE hiện cảnh báo nếu kho hết)
-            'in_stock'     => $product->stock_qty >= $this->quantity,
-            'max_qty'      => $product->stock_qty, // Để FE limit input số lượng
+            // --- CỜ BÁO HIỆU CHO FE (QUAN TRỌNG) ---
+            // Nếu có error -> FE sẽ hiện viền đỏ hoặc disable checkbox/nút checkout
+            'is_error'      => !is_null($stockError),
+            'error_message' => $stockError,
+            
+            // Thông tin kho để FE limit input số lượng (Max = stock_qty)
+            'max_qty'       => (int) $product->stock_qty,
         ];
     }
 }
