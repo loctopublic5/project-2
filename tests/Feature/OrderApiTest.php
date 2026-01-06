@@ -119,37 +119,54 @@ class OrderApiTest extends TestCase
         ]);
     }
 
-    // /**
-    //  * Test Case 2: Hết hàng thì không được bán
-    //  */
-    // public function test_cannot_order_if_out_of_stock()
-    // {
-    //     $user = User::factory()->create();
-    //     UserWallet::create(['user_id' => $user->id, 'balance' => 1000000, 'status' => 'active']);
-    //     $address = UserAddress::factory()->create(['user_id' => $user->id]);
+    /**
+     * Test Case 2: Hết hàng thì không được bán
+     */
+    public function test_cannot_order_if_out_of_stock()
+    {
+        // 1. SETUP
+        $user = User::factory()->create();
 
-    //     // Sản phẩm chỉ còn 1 cái
-    //     $product = Product::factory()->create(['stock_qty' => 1, 'price' => 100000]);
+        // [FIX 1]: Dùng updateOrCreate để tránh lỗi trùng ví
+        UserWallet::updateOrCreate(
+            ['user_id' => $user->id],
+            ['balance' => 1000000, 'status' => 'active']
+        );
 
-    //     // Cố tình mua 2 cái
-    //     CartItem::create([
-    //         'user_id'    => $user->id,
-    //         'product_id' => $product->id,
-    //         'quantity'   => 2,
-    //         'selected'   => true
-    //     ]);
+        $address = UserAddress::factory()->create(['user_id' => $user->id]);
 
-    //     $response = $this->actingAs($user)->postJson($this->endpoint, [
-    //         'address_id'     => $address->id,
-    //         'payment_method' => 'wallet'
-    //     ]);
+        // Sản phẩm chỉ còn 1 cái
+        $product = Product::factory()->create([
+            'stock_qty' => 1, 
+            'price' => 100000,
+            'sale_price' => 0 // Set 0 để chắc chắn giá là 100k
+        ]);
 
-    //     // Mong đợi lỗi 400 (Bad Request)
-    //     $response->assertStatus(400);
+        // [FIX 2]: Phải tạo Giỏ hàng (Parent) trước rồi mới tạo Item
+        $cart = \App\Models\Cart::create(['user_id' => $user->id]);
+
+        // Cố tình mua 2 cái (Trong khi kho chỉ còn 1)
+        CartItem::create([
+            'cart_id'    => $cart->id, // Link vào giỏ
+            'product_id' => $product->id,
+            'quantity'   => 2,
+            'selected'   => true
+        ]);
+
+        // 2. ACTION
+        /** @var User $user */
+        $response = $this->actingAs($user)->postJson($this->endpoint, [
+            'address_id'     => $address->id,
+            'payment_method' => 'wallet'
+        ]);
+
+        // 3. ASSERTION
+        // Mong đợi lỗi 400 (Bad Request) vì hết hàng
+        $response->assertStatus(400);
         
-    //     // Tiền trong ví phải còn nguyên
-    //     $this->assertDatabaseHas('user_wallets', ['balance' => 1000000]);
-    //     // Kho vẫn còn 1
-    //     $this->assertDatabaseHas('products', ['stock_qty' => 1]);
-    // }
+        // Tiền trong ví phải còn nguyên
+        $this->assertDatabaseHas('user_wallets', ['balance' => 1000000]);
+        // Kho vẫn còn 1
+        $this->assertDatabaseHas('products', ['stock_qty' => 1]);
+    }
 }
