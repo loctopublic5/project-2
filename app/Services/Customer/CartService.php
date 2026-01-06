@@ -21,7 +21,7 @@ class CartService{
      * @param array|null $options (VD: ['size' => 'M', 'color' => 'Red'])
      * @return CartItem
      */
-    public function addToCart(User $userId, int $productId, int $quantity, array $options = []){
+    public function addToCart($userId, int $productId, int $quantity, array $options = []){
         return DB::transaction(function() use ($userId, $productId, $quantity, $options){
             //B1: Lấy Cart Header
             $cart = Cart::firstOrCreate(['user_id'=> $userId]);
