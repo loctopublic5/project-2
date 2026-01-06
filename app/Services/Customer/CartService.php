@@ -202,17 +202,19 @@ class CartService{
      * @param array $params (Chứa voucher_code, address_id nếu có)
      */
     public function getCartDetail($userId, $params = []){
-        // 1. Lấy Cart & Items
-        // Eager load 'product' để giảm query
-        $cart = CartItem::with('item.product')
-                        ->firstOrCreate(['user_id' => $userId]);
+        // 1. Load quan hệ 'items' (SỐ NHIỀU)
+        $cart = Cart::with('items.product') 
+                    ->firstOrCreate(['user_id' => $userId]);
 
-        // 2. Chuẩn bị dữ liệu cho PricingService
-        // PricingService cần mảng: [['product_id' => 1, 'quantity' => 2], ...]
-        // LƯU Ý: Chỉ tính tiền những món đang được SELECTED
-        $selectedItem = $cart->item->where('selected', true);
+        // 2. Lấy items (SỐ NHIỀU)
+        // [FIX LỖI NULL]: Thêm ?? collect([]) để phòng trường hợp relation trả về null
+        $cartItems = $cart->items ?? collect([]); 
 
-        $pricingItems = $selectedItem->map(function($item){
+        // 3. Filter selected
+        $selectedItems = $cartItems->where('selected', true);
+
+        // 4. Map dữ liệu
+        $pricingItems = $selectedItems->map(function($item){
             return [
                 'product_id' => $item->product_id,
                 'quantity'   => $item->quantity,
@@ -220,25 +222,19 @@ class CartService{
             ];
         })->toArray();
 
-        // 3. Gọi PricingService tính toán
-        // Lấy voucher và address từ params (nếu Controller gửi sang)
-        $voucherCode = $params['voucher_code'] ?? null;
-        $addressId   = $params['address_id'] ?? null;
-
+        // 5. Gọi PricingService
         $pricingResult = $this->pricingService->calculateCart(
             $pricingItems,
-            $voucherCode,
+            $params['voucher_code'] ?? null,
             $userId,
-            $addressId
+            $params['address_id'] ?? null
         );
 
-        // 4. Trả về kết quả thô
         return [
             'cart'    => $cart,
             'pricing' => $pricingResult
         ];
     }
-
 
     /**
      * ========================

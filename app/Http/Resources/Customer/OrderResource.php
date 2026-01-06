@@ -21,7 +21,7 @@ class OrderResource extends JsonResource
             'subtotal'       => (float) $this->subtotal,
             'shipping_fee'   => (float) $this->shipping_fee,
             'discount'       => (float) $this->discount_amount,
-            'total'          => (float) $this->grand_total,
+            'total'          => (float) $this->total_amount,
             
             // Thông tin giao hàng (Lấy từ Snapshot JSON)
             // Laravel tự cast mảng này nếu khai báo trong model, resource chỉ việc trả về

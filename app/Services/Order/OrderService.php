@@ -5,14 +5,13 @@ use Exception;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\UserAddress;
-use App\Traits\HasUniqueCode;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Services\Customer\CartService;
 use App\Services\System\PricingService;
 use App\Services\Customer\WalletService;
 
 class OrderService{
-    use HasUniqueCode;
 
     public function __construct(
         protected PricingService $pricingService,
@@ -45,8 +44,8 @@ class OrderService{
         $pricingResult = $cartResult['pricing']; // Mảng kết quả tính tiền (subtotal, total...)
 
         // Lấy danh sách item ĐƯỢC CHỌN MUA (selected = true)
-        // Lưu ý: Theo code của bạn là $cartModel->item
-        $selectedItems = $cartModel->item->where('selected', true);
+        // Lưu ý: Theo code của bạn là $cartModel->items
+        $selectedItems = ($cartModel->items ?? collect([]))->where('selected', true);
 
         if ($selectedItems->isEmpty()) {
             throw new Exception('Bạn chưa chọn sản phẩm nào để thanh toán.');
@@ -101,7 +100,9 @@ class OrderService{
         return DB::transaction(function () use ($user, $orderData) {
             
             // 1. TẠO MÃ ĐƠN HÀNG TRƯỚC (Để log vào ví)
-            $orderCode = $this->generateUniqueCode('code', 'ORD', 8); 
+            do {
+                $orderCode = 'ORD-' . strtoupper(Str::random(8));
+            } while (Order::where('code', $orderCode)->exists());
 
             // 2. XỬ LÝ THANH TOÁN
             $paymentStatus = 'unpaid';
@@ -131,7 +132,7 @@ class OrderService{
                 'subtotal'         => $orderData['subtotal'],
                 'shipping_fee'     => $orderData['shipping_fee'],
                 'discount_amount'  => $orderData['discount_amount'],
-                'grand_total'      => $orderData['grand_total']
+                'total_amount'     => $orderData['grand_total']
             ]);
 
             // 4. TẠO ORDER ITEMS (SNAPSHOT)
@@ -164,7 +165,7 @@ class OrderService{
                     throw new Exception("Sản phẩm '{$itemSnapshot['product_name']}' vừa hết hàng. Vui lòng thử lại.");
                 }
             }
-            
+
             // 5. CLEAR CART
             $this->cartService->clearSelectedItems($user->id);
 
