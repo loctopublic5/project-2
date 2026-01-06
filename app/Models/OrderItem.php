@@ -19,6 +19,7 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'product_name',      // Snapshot tên SP
+        'sku',               // Snapshot SKU
         'variant_snapshot',  // Snapshot Size/Màu (JSON)
         'quantity',
         'price_at_purchase', // Snapshot Giá lúc mua

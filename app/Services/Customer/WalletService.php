@@ -155,7 +155,7 @@ class WalletService{
 
         // Tạo mã nạp tiền (DEP-XXXX)
         // Lưu ý: Sửa GenerateUniqueCode -> generateUniqueCode (camelCase)
-        $depositCode = $this->generateUniqueCode(WalletTransaction::class, 'reference_id', 'DEP');
+        $depositCode = $this->generateUniqueCode('reference_id', 'DEP', 8);
 
         // FIX: Đổi 'code' thành 'reference_id' và sửa typo 'descrption'
         $transaction = WalletTransaction::create([
@@ -201,6 +201,54 @@ class WalletService{
             DB::rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Hàm trừ tiền dành riêng cho Order Transaction.
+     * Tận dụng checkBalance để validate trạng thái ví.
+     */
+    public function deductBalanceForOrder(User $user, float $amount, string $orderReference, string $note = '')
+    {
+        // 1. TẬN DỤNG HELPER (REUSE)
+        // Gọi checkBalance để validate:
+        // - Ví có tồn tại không? (Nếu không -> Exception)
+        // - Ví có bị khóa không? (Nếu có -> Exception)
+        // - Lấy số dư hiện tại để Pre-check
+        $currentBalance = $this->checkBalance($user->id);
+
+        // 2. PRE-CHECK BALANCE (FAIL FAST)
+        // Kiểm tra nhanh trước khi phải lock DB (Tối ưu hiệu năng)
+        if ($currentBalance < $amount) {
+            throw new InsufficientBalanceException("Số dư ví không đủ để thanh toán.");
+        }
+
+        // 3. LOCKING (BẮT BUỘC TRONG TRANSACTION)
+        // Dù đã check ở trên, ta vẫn phải lockForUpdate để tránh Race Condition 
+        // (Ví dụ: Vừa check xong thì có 1 giao dịch khác trừ tiền)
+        $wallet = UserWallet::where('user_id', $user->id)->lockForUpdate()->first();
+
+        // 4. DOUBLE CHECK (REAL-TIME)
+        // Kiểm tra lại lần cuối sau khi đã giữ khóa
+        if ($wallet->balance < $amount) {
+            throw new InsufficientBalanceException("Giao dịch thất bại: Số dư không đủ.");
+        }
+
+        // 5. EXECUTION (Trừ tiền)
+        $wallet->balance -= $amount;
+        $wallet->save();
+
+        // 6. LOGGING
+        // Lưu ý: reference_id là mã đơn hàng (Order Code) để dễ tra cứu
+        WalletTransaction::create([
+            'wallet_id'    => $wallet->id,
+            'type'         => 'payment',
+            'amount'       => -($amount), // Số âm
+            'status'       => 'success',
+            'reference_id' => $orderReference, 
+            'description'  => $note ?: "Thanh toán đơn hàng " . $orderReference
+        ]);
+
+        return true;
     }
 }
 ?>
