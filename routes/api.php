@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
@@ -65,6 +66,10 @@ Route::prefix('v1')->group(function () {
         URL: /api/v1/customer/...
     ================================================================= */
     Route::prefix('customer')->group(function(){
+        // ORDER ROUTES (Role: Customer)
+        Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
+            Route::post('/', [OrderController::class, 'store']);});
+        //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
         Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
             // GET /api/wallet/me -> Xem số dư & lịch sử
