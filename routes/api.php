@@ -12,6 +12,7 @@ use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Order\OrderHistoryController;
+use App\Http\Controllers\Api\Admin\AdminOrderController;
 use App\Http\Controllers\Product\PublicProductController;
 
 /*
@@ -115,14 +116,13 @@ Route::prefix('v1')->group(function () {
         4. ADMIN MODULE (Role: Admin)
         URL: /api/v1/admin/...
     ================================================================= */
-    Route::prefix('admin')->group(function(){
-        Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
+    Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function(){
+        // 1. ADMIN WALLET ROUTES
             // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
             Route::post('/refund', [AdminWalletController::class, 'refund']);
-        });
     
         // 2. ADMIN API (Dùng AdminProductController)
-        Route::prefix('products')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::prefix('products')->group(function() {
             Route::post('/', [AdminProductController::class, 'store']);
             /* Lách luật bằng kỹ thuật Method Spoofing:
             Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).
@@ -130,6 +130,11 @@ Route::prefix('v1')->group(function () {
             */ 
             Route::put('/{id}', [AdminProductController::class, 'update']);
             Route::delete('/{id}', [AdminProductController::class, 'destroy']);
+        });
+
+        // 3. ADMIN ORDER ROUTES
+        Route::prefix('orders')->group(function(){
+            Route::patch('/{id}/status', [AdminOrderController::class, 'updateStatus']);
         });
     });
 

@@ -6,8 +6,8 @@ use Exception;
 use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Order\CheckoutService;
-use App\Http\Resources\Customer\OrderResource;
-use App\Http\Requests\Customer\StoreOrderRequest;
+use App\Http\Resources\Order\OrderResource;
+use App\Http\Requests\Order\StoreOrderRequest;
 
 
 class OrderController extends Controller

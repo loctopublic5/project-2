@@ -7,7 +7,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\Order\OrderService;
-use App\Http\Resources\Customer\OrderResource;
+use App\Http\Resources\Order\OrderResource;
 
 
 
