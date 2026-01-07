@@ -73,6 +73,7 @@ Route::prefix('v1')->group(function () {
             // Order History
             Route::get('/', [OrderHistoryController::class, 'index']);
             Route::get('/{id}', [OrderHistoryController::class, 'show']);
+            Route::put('cancel/{id}', [OrderHistoryController::class, 'cancel']);
         //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
         Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){

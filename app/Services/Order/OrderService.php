@@ -4,8 +4,10 @@ namespace App\Services\Order;
 use Exception;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Enums\OrderStatus;
 use App\Models\UserAddress;
 use Illuminate\Support\Str;
+use App\Enums\PaymentStatus;
 use Illuminate\Support\Facades\DB;
 use App\Services\Customer\CartService;
 use App\Services\System\PricingService;
@@ -248,5 +250,55 @@ class OrderService{
             throw new Exception("Đơn hàng không tồn tại hoặc bạn không có quyền truy cập.");
         }
         return $order;
+    }
+
+    /**
+     * Khách hàng hủy đơn
+     */
+    public function cancelOrder($user, $orderId, $reason){
+        return DB::transaction(function () use ($user,$orderId, $reason){
+            // 1. Lấy đơn hàng (Có check quyền sở hữu của User)
+            // Dùng lockForUpdate để tránh Admin confirm cùng lúc User bấm hủy
+            $order = Order::where('id', $orderId)
+                        ->where('user_id', $orderId)
+                        ->lockForUpdate()
+                        ->first();
+        
+            if(!$order){
+                throw new Exception("Đơn hàng không tồn tại.");
+            }
+
+            /// 2. CHECK TRẠNG THÁI (Guard Clause)
+            // Chỉ cho hủy khi còn Pending
+            if ($order->status !== OrderStatus::PENDING) {
+                throw new Exception("Không thể hủy đơn hàng đã được xác nhận hoặc đang vận chuyển.");
+            }
+
+            // 3. CẬP NHẬT TRẠNG THÁI
+            $order->status = OrderStatus::CANCELLED;
+            $order->note   = $order->note . " | Lý do hủy: " . $reason;
+            
+            // 4. HOÀN TIỀN (REFUND LOGIC)
+            if($order->payment_status === PaymentStatus::PAID && $order->payment_method === 'wallet'){
+                $this->walletService->refundForOrder($user, [
+                    'amount'            => $order->total_amount,
+                    'original_order_id' => $order->code,
+                    'reason'            => $reason
+                ]);
+                $order->payment_status = PaymentStatus::REFUNDED;
+            }
+            $order->save();
+
+            // 5. HOÀN KHO (RESTOCK)
+            // Lặp qua items để cộng lại số lượng tồn kho
+            // Tương tự logic trừ kho, ta dùng increment cho an toàn
+            foreach ($order->items as $item) {
+                DB::table('products')
+                    ->where('id', $item->product_id)
+                    ->increment('stock_qty', $item->quantity);
+            }
+
+            return $order;
+        });
     }
 }

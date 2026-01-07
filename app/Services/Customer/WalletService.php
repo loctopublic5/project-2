@@ -142,6 +142,31 @@ class WalletService{
         }
     }
 
+    /**
+     * Hàm hoàn tiền dành riêng cho quy trình Hủy đơn (Chạy trong Transaction cha)
+     */
+    public function refundForOrder(User $user, array $data)
+    {
+        // 1. Lock Ví (Vẫn cần lock để đảm bảo tính đúng đắn)
+        $wallet = UserWallet::where('user_id', $user->id)->lockForUpdate()->first();
+
+        // 2. Cộng tiền
+        $wallet->balance += $data['amount'];
+        $wallet->save();
+
+        // 3. Log Refund
+        WalletTransaction::create([
+            'wallet_id'    => $wallet->id,
+            'type'         => 'refund',
+            'amount'       => $data['amount'], // Số dương
+            'status'       => 'success',
+            'reference_id' => $data['original_order_id'], 
+            'description'  => !empty($data['reason']) ? "Hoàn tiền: " . $data['reason'] : "Hoàn tiền hủy đơn"
+        ]);
+
+        return true;
+    }
+
 
     /**
      * Logic Nạp tiền

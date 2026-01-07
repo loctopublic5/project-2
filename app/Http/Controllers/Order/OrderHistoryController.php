@@ -56,4 +56,25 @@ class OrderHistoryController extends Controller
             return $this->error($e->getMessage());
         }
     }
+
+    /**
+     * Hủy đơn hàn pending và hoàn tiền, hoàn kho
+     */
+    public function cancel(Request $request, $id){
+        $request->validate([
+            'reason' => 'required|string|max:255'
+        ]);
+
+        try {
+            $order = $this->orderService->cancelOrder(
+                $request->user(), 
+                $id, 
+                $request->reason
+            );
+
+            return $this->success(new OrderResource($order), 'Hủy đơn thành công');
+        } catch (Exception $e) {
+            return $this->error($e->getMessage());
+        }
+    }
 }
