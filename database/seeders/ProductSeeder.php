@@ -43,7 +43,7 @@ class ProductSeeder extends Seeder
                     'sku'         => 'SKU-' . strtoupper(Str::random(8)),
                     'price'       => $price,
                     'sale_price'  => $salePrice,
-                    'stock_qty'       => rand(0, 500), 
+                    'stock_qty'   => rand(0, 500), 
                     'description' => 'Đây là sản phẩm mẫu chất lượng cao dùng cho mục đích test hệ thống TMĐT.',
                     'attributes'  => json_encode([ // Encode JSON để đảm bảo an toàn dữ liệu
                         'size'  => ['S', 'M', 'L', 'XL'],

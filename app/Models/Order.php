@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\OrderItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
@@ -50,6 +51,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function voucherUsage(): HasMany{
+        return $this->hasMany(VoucherUsage::class);
     }
 
     // --- HELPER METHODS (Logic nghiệp vụ) ---

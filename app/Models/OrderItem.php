@@ -11,19 +11,19 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    // Không cần timestamp (created_at, updated_at) cho bảng chi tiết này để nhẹ DB
-    // Tùy setting migration của bạn, nếu migration có timestamps() thì bỏ dòng này
-    public $timestamps = true; 
 
     protected $fillable = [
         'order_id',
         'product_id',
         'product_name',      // Snapshot tên SP
+        'sku',               // Snapshot SKU
         'variant_snapshot',  // Snapshot Size/Màu (JSON)
         'quantity',
         'price_at_purchase', // Snapshot Giá lúc mua
     ];
 
+    // Tắt timestamps vì bảng order_items không có (và không cần) cột created_at/updated_at
+    public $timestamps = false;
     protected $casts = [
         'price_at_purchase' => 'float',
         'variant_snapshot'  => 'array', // Tự động decode JSON

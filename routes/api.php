@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
+use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\WalletController;
+use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
@@ -63,21 +66,41 @@ Route::prefix('v1')->group(function () {
         URL: /api/v1/customer/...
     ================================================================= */
     Route::prefix('customer')->group(function(){
+        // ORDER ROUTES (Role: Customer)
+        Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
+            Route::post('/', [OrderController::class, 'store']);});
+        //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
-        Route::prefix('wallet')->group(function(){
-            Route::middleware('auth:sanctum')->group(function(){
-                // GET /api/wallet/me -> Xem số dư & lịch sử
-                ROUTE::get ('/' , [WalletController::class, 'getMe']);
-
-                // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
-                Route::post('/deposit', [WalletController::class, 'deposit']);
-            });
+        Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
+            // GET /api/wallet/me -> Xem số dư & lịch sử
+            Route::get('/', [WalletController::class, 'getMe']);
+            // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
+            Route::post('/deposit', [WalletController::class, 'deposit']);
         });
 
-        Route::prefix('payment')->group(function(){
-            Route::middleware('auth:sanctum')->group(function(){
-                Route::post( '/wallet',[PaymentController::class, 'payByWallet']);
-            });
+        Route::prefix('payment')->middleware('auth:sanctum')->group(function(){
+            Route::post( '/',[PaymentController::class, 'payByWallet']);
+        });
+
+        // ADDRESS ROUTES
+        Route::prefix('addresses')->middleware('auth:sanctum')->group(function(){
+            Route::get('/', [AddressController::class, 'index']);
+            Route::post('/', [AddressController::class, 'store']);
+            Route::get('/{id}', [AddressController::class, 'show']);
+            Route::put('/{id}', [AddressController::class, 'update']);
+            Route::delete('/{id}', [AddressController::class, 'destroy']);
+        
+            // Route đặc biệt: Set default
+            Route::patch('/{id}/default', [AddressController::class, 'setDefault']);
+    });
+
+        // CART ROUTES (Role: Customer)
+        Route::prefix('cart')->middleware('auth:sanctum')->group(function(){
+            Route::get('/', [CartController::class, 'index']);      
+            Route::post('/', [CartController::class, 'store']);     
+            Route::put('/{id}', [CartController::class, 'update']); 
+            Route::delete('/{id}', [CartController::class, 'destroy']); 
+            Route::delete('/', [CartController::class, 'clear']);
         });
     });
     
@@ -111,8 +134,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/upload', [FileController::class, 'store']);
         });
     
-
-
 });
 
 

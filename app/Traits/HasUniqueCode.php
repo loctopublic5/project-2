@@ -6,15 +6,12 @@ use Illuminate\Support\Str;
 
 trait HasUniqueCode{
     /**
-     * Sinh mã duy nhất và kiểm tra trùng lặp trong Database
-     *
-     * @param string $modelClass Class Model cần check (VD: WalletTransaction::class)
-     * @param string $column     Tên cột cần check (VD: 'code')
-     * @param string $prefix     Tiền tố (VD: 'DEP')
-     * @param int    $length     Độ dài chuỗi ngẫu nhiên (không tính prefix)
-     * @return string            Mã hoàn chỉnh (VD: DEP-XH8L9Z)
+     * Sinh mã duy nhất và kiểm tra trùng lặp
+     * *@param string $column  Tên cột cần check (VD: 'sku')
+     * @param string $prefix  Tiền tố (VD: 'SP')
+     * @param int    $length  Độ dài chuỗi ngẫu nhiên (không tính prefix)
      */
-    protected function generateUniqueCode($modelClass,$column,$prefix,$length=8){
+    protected function generateUniqueCode($column,$prefix,$length=8){
         do{
             // 1. Sinh chuỗi ngẫu nhiên, viết hoa
             $randomString = Str::upper(Str::random($length));
@@ -24,7 +21,7 @@ trait HasUniqueCode{
 
             // 3. Kiểm tra trong DB (Sử dụng Model động)
             // $modelClass::where(...) tương đương WalletTransaction::where(...)
-        }while (static::where($column, $code)->exists());
+        } while (static::where($column, $code)->exists());
 
         return $code;
         }

@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Order;
 use App\Models\UserWallet;
+use App\Models\UserAddress;
+use App\Models\VoucherUsage;
 use App\Models\DealerRequest;
 use App\Traits\HasPermissions;
 use Laravel\Sanctum\HasApiTokens;
@@ -72,10 +74,10 @@ class User extends Authenticatable
     }
 
     /**
- * Kiểm tra user có role cụ thể nào đó không (dựa vào slug)
- * @param string $roleSlug (VD: 'admin')
- * @return bool
- */
+    * Kiểm tra user có role cụ thể nào đó không (dựa vào slug)
+    * @param string $roleSlug (VD: 'admin')
+    * @return bool
+    */
     public function hasRole(string $roleSlug):bool {
         // Dùng collection method 'contains' để check trong danh sách roles đã eager load
          // Lưu ý: $this->roles là Collection (do Eloquent trả về)
@@ -88,5 +90,37 @@ class User extends Authenticatable
 
     public function order(): HasOne{
         return $this->hasOne(Order::class);
+    }
+
+    public function voucherUsages()
+    {
+        return $this->hasMany(VoucherUsage::class);
+    }   
+
+    // Lấy giỏ hàng hiện tại của User
+    // Dùng hasOne vì tại 1 thời điểm, 1 user chỉ active 1 giỏ hàng (giỏ cũ nhất hoặc mới nhất)
+    public function cart()
+    {
+        return $this->hasOne(Cart::class)->latestOfMany(); 
+    }
+
+    // Helper function tiện lợi
+    public function hasUsedVoucher($voucherId)
+    {
+        // Kiểm tra nhanh xem user đã dùng voucher này chưa
+        return $this->voucherUsages()->where('voucher_id', $voucherId)->exists();
+    }
+
+    // 1. Lấy toàn bộ danh sách địa chỉ của User
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    // 2. Lấy địa chỉ mặc định (Logic "One Default")
+    // Helper cực tiện lợi để gọi: $user->defaultAddress
+    public function defaultAddress()
+    {
+        return $this->hasOne(UserAddress::class)->where('is_default', true);
     }
 }

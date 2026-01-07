@@ -17,9 +17,14 @@ return new class extends Migration
     $table->foreignId('user_id')->constrained()->onDelete('cascade');
     $table->string('recipient_name', 100); // Tên người nhận
     $table->string('phone', 20);
-    $table->text('full_address');
+    $table->string('province_id');
+    $table->string('district_id');
+    $table->string('ward_id');
+    $table->text('address_detail');
     $table->boolean('is_default')->default(false);
+    $table->boolean('is_active')->default(true);
     $table->timestamps();
+    $table->softDeletes();
 });
     }
 

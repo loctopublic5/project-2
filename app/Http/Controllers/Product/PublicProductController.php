@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Product;
 
 use Exception;
 use App\Models\Product;
-use App\Traits\apiResponse;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\Product\ProductService;
@@ -12,7 +12,7 @@ use App\Http\Resources\Product\ProductResource;
 
 class PublicProductController extends Controller
 {
-    use apiResponse;
+    use ApiResponse;
 
     public function __construct(protected ProductService $productService) {}
 
