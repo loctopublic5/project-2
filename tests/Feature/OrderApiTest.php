@@ -71,7 +71,7 @@ class OrderApiTest extends TestCase
         /** @var User $user */
         $response = $this->actingAs($user)->postJson($this->endpoint, $payload);
 
-        $response->dump();
+        // $response->dump();
 
         // ===========================
         // 3. ASSERTION (Kiểm tra kết quả)
