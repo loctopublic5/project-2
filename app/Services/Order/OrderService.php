@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Services\Customer\CartService;
 use App\Services\System\PricingService;
 use App\Services\Customer\WalletService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrderService{
 
@@ -247,7 +248,7 @@ class OrderService{
         }
         $order = $query->first();
         if(!$order){
-            throw new Exception("Đơn hàng không tồn tại hoặc bạn không có quyền truy cập.");
+            throw new ModelNotFoundException("Đơn hàng không tồn tại hoặc bạn không có quyền truy cập.");
         }
         return $order;
     }
@@ -271,7 +272,7 @@ class OrderService{
             /// 2. CHECK TRẠNG THÁI (Guard Clause)
             // Chỉ cho hủy khi còn Pending
             if ($order->status !== OrderStatus::PENDING) {
-                throw new Exception("Không thể hủy đơn hàng đã được xác nhận hoặc đang vận chuyển.");
+                throw new ModelNotFoundException("Không thể hủy đơn hàng đã được xác nhận hoặc đang vận chuyển.");
             }
 
             // 3. CẬP NHẬT TRẠNG THÁI

@@ -51,7 +51,7 @@ class OrderHistoryController extends Controller
      */
     public function show(Request $request, $id)
     {
-        try{
+        
             $userId = $request->user()->id;
 
             // Gọi Service lấy chi tiết (Service tự check security user_id)
@@ -59,9 +59,7 @@ class OrderHistoryController extends Controller
 
             // Trả về Resource Single
             return $this->success(new OrderResource($order),'Lấy thành công chi tiết đơn hàng');
-        }catch(Exception $e){
-            return $this->error($e->getMessage());
-        }
+
     }
 
     /**
