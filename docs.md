@@ -6,9 +6,6 @@ Tài liệu hướng dẫn quy trình phát triển, cài đặt và cấu trúc
 2.  **Output:** DB -> Service -> Controller -> Resource (Transform JSON) -> View (Blade/JSON Response).
 -------------------------------------------------------------------------------------------------------
 
-
----
-
 ## 🛠 1. Cài đặt dự án (Cho thành viên mới)
 
 Khi clone dự án về máy, hãy chạy lần lượt các lệnh sau để thiết lập môi trường:

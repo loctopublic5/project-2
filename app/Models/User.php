@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\UserWallet;
 use App\Models\UserAddress;
 use App\Models\VoucherUsage;
-use App\Models\DealerRequest;
 use App\Traits\HasPermissions;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -63,25 +62,6 @@ class User extends Authenticatable
 
     public function roles():  BelongsToMany{
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id','role_id');
-    }
-
-    public function dealerRequests(){
-        return $this->hasMany(DealerRequest::class);
-    }
-
-    public function latestDealerRequest(){
-        return $this->hasOne(DealerRequest::class)->latestOfMany();
-    }
-
-    /**
-    * Kiểm tra user có role cụ thể nào đó không (dựa vào slug)
-    * @param string $roleSlug (VD: 'admin')
-    * @return bool
-    */
-    public function hasRole(string $roleSlug):bool {
-        // Dùng collection method 'contains' để check trong danh sách roles đã eager load
-         // Lưu ý: $this->roles là Collection (do Eloquent trả về)
-        return $this->roles->contains('slug', $roleSlug);
     }
 
     public function wallet(): HasOne{

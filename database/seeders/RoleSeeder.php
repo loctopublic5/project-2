@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
             ],
             [
                 'name' => 'Warehouse',
-                'slug' => 'dealer',
+                'slug' => 'warehouse',
                 'description' => 'Quản lý kho vận, đóng gói.',
             ],
             [
