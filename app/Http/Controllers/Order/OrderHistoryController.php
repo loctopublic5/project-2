@@ -7,7 +7,9 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\Order\OrderService;
-use App\Http\Resources\OrderResource;
+use App\Http\Resources\Customer\OrderResource;
+
+
 
 class OrderHistoryController extends Controller
 {
@@ -24,15 +26,20 @@ class OrderHistoryController extends Controller
         try{
             // 1. Lấy User ID hiện tại
             $userId = $request->user()->id;
+            $filters = $request->all();
 
             // 2. Gọi Service (Tái sử dụng logic lọc/sort)
             // Truyền params từ request (status, keyword...) vào
-            $orders = $this->orderService->getOrders($userId, $request->all());
+            $orders = $this->orderService->getOrders($userId, $filters);
 
             // 3. Trả về Resource Collection
             $result =  OrderResource::collection($orders);
 
-            return $this->succes($result, 'Láy danh sách đơn hàng thành công');
+            $message = $orders->isEmpty() 
+            ? 'Không tìm thấy đơn hàng phù hợp.' 
+            : 'Lấy danh sách đơn hàng thành công.';
+
+            return $this->success($result, $message);
         }catch(Exception $e){
             return $this->error($e->getMessage());
         }

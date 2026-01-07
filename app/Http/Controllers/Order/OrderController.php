@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Order;
 
-use App\Traits\ApiResponse;
 use Exception;
+use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Order\OrderService;
 use App\Http\Resources\Customer\OrderResource;

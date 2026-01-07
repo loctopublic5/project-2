@@ -204,7 +204,7 @@ class OrderService{
 
         // Lọc theo Payment Status
         if(!empty($filters['payment_status'])){
-            $query->where('paymet_status', $filters['payment_status']);
+            $query->where('payment_status', $filters['payment_status']);
         }
 
         // Tìm kiếm theo mã đơn

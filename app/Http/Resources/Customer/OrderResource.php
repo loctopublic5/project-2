@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Customer;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -39,7 +39,7 @@ class OrderResource extends JsonResource
             'shipping_fee'   => (float) $this->shipping_fee,
             'discount'       => (float) $this->discount_amount,
             'tax'            => (float) $this->tax,
-            'total'          => (float) $this->total_amount,
+            'total_amount'   => (float) $this->total_amount,
 
             // --- DETAILS ---
             // Shipping Address đã được Model cast sang Array, ta trả về luôn

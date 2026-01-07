@@ -69,11 +69,13 @@ Route::prefix('v1')->group(function () {
     Route::prefix('customer')->group(function(){
         // ORDER ROUTES (Role: Customer)
         Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
-            Route::post('/', [OrderController::class, 'store']);});
+            Route::post('/', [OrderController::class, 'store']);
             // Order History
             Route::get('/', [OrderHistoryController::class, 'index']);
             Route::get('/{id}', [OrderHistoryController::class, 'show']);
-            Route::put('cancel/{id}', [OrderHistoryController::class, 'cancel']);
+            Route::put('/{id}/cancel', [OrderHistoryController::class, 'cancel']);
+        });
+            
         //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
         Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
