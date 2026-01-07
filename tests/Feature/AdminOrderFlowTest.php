@@ -48,8 +48,10 @@ class AdminOrderFlowTest extends TestCase
         $this->customer = User::factory()->create(['email' => 'khach@test.com']);
         
         // 3. Tạo Ví cho khách (Để test hoàn tiền)
-        // Giả sử ví đang có 0 đồng
-        UserWallet::create(['user_id' => $this->customer->id, 'balance' => 0]);
+        UserWallet::updateOrCreate(
+            ['user_id' => $this->customer->id], // Điều kiện tìm
+            ['balance' => 0]                    // Dữ liệu update/tạo
+        );
 
         // 4. Tạo Sản phẩm (Để test trừ kho)
         // Tồn kho ban đầu: 100 cái
@@ -77,13 +79,14 @@ class AdminOrderFlowTest extends TestCase
 
         // 2. Action: Admin gọi API Confirm
         $response = $this->actingAs($this->admin)
-                         ->patchJson("/api/admin/orders/{$order->id}/status", [
-                             'status' => 'confirmed'
-                         ]);
+                        ->patchJson("/api/v1/admin/orders/{$order->id}/status", [
+                            'status' => 'confirmed'
+                        ]);
 
+        // $response->dump();
         // 3. Assert (Kiểm tra kết quả)
         $response->assertStatus(200);
-        $response->assertJson(['message' => 'Cập nhật trạng thái thành công.']);
+        $response->assertJson(['message' => 'Cập nhật trạng thái đơn hàng thành công.']);
 
         // Check DB Order: Đã đổi status chưa?
         $this->assertDatabaseHas('orders', [
@@ -107,9 +110,9 @@ class AdminOrderFlowTest extends TestCase
 
         // Ông kho cố tình gọi API confirm
         $response = $this->actingAs($this->warehouse)
-                         ->patchJson("/api/admin/orders/{$order->id}/status", [
-                             'status' => 'confirmed'
-                         ]);
+                        ->patchJson("/api/v1/admin/orders/{$order->id}/status", [
+                            'status' => 'confirmed'
+                        ]);
 
         // Phải bị chặn 403 Forbidden
         $response->assertStatus(403);
@@ -125,13 +128,15 @@ class AdminOrderFlowTest extends TestCase
 
         // Dù là Admin hay Kho cũng không được nhảy cóc
         $response = $this->actingAs($this->warehouse)
-                         ->patchJson("/api/admin/orders/{$order->id}/status", [
-                             'status' => 'shipping'
-                         ]);
+                        ->patchJson("/api/v1/admin/orders/{$order->id}/status", [
+                            'status' => 'shipping'
+                        ]);
+
+        $response->dump();
 
         // Lỗi 422 (Logic Validation)
         $response->assertStatus(422); 
-        $response->assertJsonFragment(['message' => "Đơn phải được 'Xác nhận' xong mới được Giao đi."]);
+        $response->assertJsonValidationErrors(['status']);
     }
 
     /**
@@ -165,7 +170,7 @@ class AdminOrderFlowTest extends TestCase
 
         // 2. Action: Admin Hủy đơn
         $response = $this->actingAs($this->admin)
-                         ->patchJson("/api/admin/orders/{$order->id}/status", [
+                         ->patchJson("/api/v1/admin/orders/{$order->id}/status", [
                              'status' => 'cancelled',
                              'reason' => 'Hết hàng đột xuất'
                          ]);

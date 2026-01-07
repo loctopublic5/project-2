@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Admin;
 
 use Exception;
 use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Order\OrderService;
-use App\Http\Resources\AdminOrderResource;
+use App\Http\Resources\Order\AdminOrderResource;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Order\UpdateOrderStatusRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -42,11 +42,11 @@ class AdminOrderController extends Controller
 
         } catch (ValidationException $e) {
             // Lỗi Validation do Service ném ra (Ví dụ: Sai quy trình State Machine)
-            $logs = [
-                'errors' => $e->errors(),
-                'message' => $e->getMessage(),
-            ];
-            return $this->error(json_encode($logs), 422);
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(), // VD: "The given data was invalid." hoặc message tùy chỉnh
+                'errors'  => $e->errors()      // VD: ['status' => ['Đơn phải được xác nhận...']]
+            ], 422);
 
         } catch (Exception $e) {
             // Các lỗi logic khác (Lỗi kho, Lỗi quyền 403...)

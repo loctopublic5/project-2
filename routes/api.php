@@ -12,7 +12,7 @@ use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Order\OrderHistoryController;
-use App\Http\Controllers\Api\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Product\PublicProductController;
 
 /*
@@ -131,11 +131,6 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}', [AdminProductController::class, 'update']);
             Route::delete('/{id}', [AdminProductController::class, 'destroy']);
         });
-
-        // 3. ADMIN ORDER ROUTES
-        Route::prefix('orders')->group(function(){
-            Route::patch('/{id}/status', [AdminOrderController::class, 'updateStatus']);
-        });
     });
 
     /* =================================================================
@@ -145,8 +140,16 @@ Route::prefix('v1')->group(function () {
             // POST api/upload
             Route::post('/upload', [FileController::class, 'store']);
         });
-    
+
+    /* =================================================================
+    6. ADMIN ORDER ROUTES (Role: Admin/Warehouse)
+    ================================================================= */
+    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin')->group(function() {
+        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
+    });
 });
+
+
 
 
 // Syntax cũ dành cho đọc folder api để gọi api theo cách làm việc tránh conflict trước kia khi cả 2 cùng làm backend
