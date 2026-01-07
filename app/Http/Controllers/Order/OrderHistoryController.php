@@ -6,7 +6,7 @@ use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\Order\CheckoutService;
+use App\Services\Order\OrderService;
 use App\Http\Resources\Customer\OrderResource;
 
 
@@ -15,7 +15,7 @@ class OrderHistoryController extends Controller
 {
     use ApiResponse;
     public function __construct(
-        protected CheckoutService $checkoutService
+        protected OrderService $orderService
     ) {}
 
     /**
@@ -30,7 +30,7 @@ class OrderHistoryController extends Controller
 
             // 2. Gọi Service (Tái sử dụng logic lọc/sort)
             // Truyền params từ request (status, keyword...) vào
-            $orders = $this->checkoutService->getOrders($userId, $filters);
+            $orders = $this->orderService->getOrders($userId, $filters);
 
             // 3. Trả về Resource Collection
             $result =  OrderResource::collection($orders);
@@ -55,7 +55,7 @@ class OrderHistoryController extends Controller
             $userId = $request->user()->id;
 
             // Gọi Service lấy chi tiết (Service tự check security user_id)
-            $order = $this->checkoutService->getOrderDetail($id, $userId);
+            $order = $this->orderService->getOrderDetail($id, $userId);
 
             // Trả về Resource Single
             return $this->success(new OrderResource($order),'Lấy thành công chi tiết đơn hàng');
@@ -71,7 +71,7 @@ class OrderHistoryController extends Controller
         ]);
 
         try {
-            $order = $this->checkoutService->cancelOrder(
+            $order = $this->orderService->cancelOrder(
                 $request->user(), 
                 $id, 
                 $request->reason
