@@ -1,16 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
-use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Order\OrderHistoryController;
 use App\Http\Controllers\Product\PublicProductController;
 
 /*
@@ -69,6 +70,9 @@ Route::prefix('v1')->group(function () {
         // ORDER ROUTES (Role: Customer)
         Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
             Route::post('/', [OrderController::class, 'store']);});
+            // Order History
+            Route::get('/', [OrderHistoryController::class, 'index']);
+            Route::get('/{id}', [OrderHistoryController::class, 'show']);
         //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
         Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Order;
 
 use App\Traits\ApiResponse;
 use Exception;
