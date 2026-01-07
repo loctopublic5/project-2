@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
     $customerUser->roles()->syncWithoutDetaching([$customerRole->id]);
 
     // ====================================================
-    // PHẦN 3: TẠO USER WAREHOUSE (Bổ sung cho UserSeeder của bạn)
+    // PHẦN 3: TẠO USER WAREHOUSE 
     // ====================================================
     
     // Admin & Customer đã có ở UserSeeder kia rồi, ta chỉ tạo thêm ông Kho thôi

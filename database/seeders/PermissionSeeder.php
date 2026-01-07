@@ -61,6 +61,5 @@ class PermissionSeeder extends Seeder
         ]);
 
         $this->command->info('✅ Đã phân quyền cho Admin và Warehouse.');
-        $this->command->info('✅ Đã tạo User Warehouse: warehouse@example.com');
     }
 }
