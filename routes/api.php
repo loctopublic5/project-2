@@ -5,6 +5,7 @@ use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Customer\AddressController;
@@ -133,7 +134,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function(){
         // 1. ADMIN WALLET ROUTES
             // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
-            Route::post('/refund', [AdminWalletController::class, 'refund']);
+            Route::post('/wallet/refund', [AdminWalletController::class, 'refund']);
     
         // 2. ADMIN API (Dùng AdminProductController)
         Route::prefix('products')->group(function() {
@@ -145,6 +146,10 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}', [AdminProductController::class, 'update']);
             Route::delete('/{id}', [AdminProductController::class, 'destroy']);
         });
+
+        // 3. Dashboard Analytics
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard/refresh', [DashboardController::class, 'refresh']);
     });
 
     /* =================================================================
