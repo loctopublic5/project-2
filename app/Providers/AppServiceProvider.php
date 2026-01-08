@@ -3,15 +3,18 @@
 namespace App\Providers;
 
 use App\Models\User;
-use App\Models\Product;
-use App\Observers\UserObserver;
+use App\Models\Order;
+use App\Models\Review;
 
 // Import các Model cần theo dõi
-use App\Observers\AuditObserver;
-use Illuminate\Support\Facades\Gate;
+use App\Models\Product;
+use App\Observers\UserObserver;
 // use App\Models\Order; // Sau này thêm vào đây
 
 // Import Observer
+use App\Observers\AuditObserver;
+use App\Observers\ReviewObserver;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
     protected $modelsToAudit =[
         User::class,
         Product::class,
+        Order::class,
+        
     ];
 
     /**
@@ -95,6 +100,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Khai báo tạo ví tự động khi tạo tài khoản
         User::observe(UserObserver::class);
+
+        // Khai báo tự động cập nhật đánh giá cho sản phẩm khi có đánh giá mới
+        Review::observe(ReviewObserver::class);
     }
 
 }
