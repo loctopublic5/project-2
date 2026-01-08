@@ -22,13 +22,23 @@ class ProductReviewController extends Controller
         try{
             $user = $request->user();
             $review = $this->reviewService->createReview(
-                $user->id,
+                $user,
                 $productId,
                 $request->validated()
             );
             return $this->success(new ReviewResource($review->load('user')), 'Đánh giá sản phẩm thành công.', 201);
         }catch (Exception $e){
-            return $this->error($e->getMessage(),$e->getCode() ?: 400);
+            // Lấy code từ Exception
+            $statusCode = $e->getCode();
+
+            // ⚠️ QUAN TRỌNG:
+            // Exception của Database (QueryException) thường trả về string "23000", "42S22"...
+            // Exception thông thường trả về 0 nếu không set code.
+            // Ta phải kiểm tra xem nó có phải là HTTP Code hợp lệ (100-599) hay không.
+            if (!is_int($statusCode) || $statusCode < 100 || $statusCode > 599) {
+                $statusCode = 400; // Mặc định về 400 Bad Request nếu mã lỗi lạ
+            }
+            return $this->error($e->getMessage(),$statusCode);
         }
     }
 

@@ -25,7 +25,7 @@ class ReviewResource extends JsonResource
         'user'       => [
             'id'        => $this->user_id,
             'full_name' => $this->user->full_name ?? 'Anonymous',
-            'avatar'    => $this->user->avatar_url ?? null, // Link ảnh đại diện
+            'avatar_url'    => $this->user->avatar_url ??'https://ui-avatars.com/api/?name=' . urlencode($this->user->full_name ?? 'U'),
         ],
     ];
     }
