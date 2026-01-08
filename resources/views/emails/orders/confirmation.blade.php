@@ -12,14 +12,14 @@
     </div>
 
     <div style="padding: 20px; background-color: #ffffff;">
-        <p>Xin chào <strong>{{ $notifiable->full_name ?? 'Quý khách' }}</strong>,</p>
+        <p>Xin chào <strong>{{ $notifiable->full_name ?? $notifiable->name ?? 'Quý khách' }}</strong>,</p>
         <p>Đơn hàng <strong>#{{ $order->id }}</strong> của bạn đã được ghi nhận. Chúng tôi sẽ sớm giao hàng cho bạn.</p>
 
         <div style="background: #f9f9f9; padding: 15px; border-radius: 4px; margin: 15px 0;">
             <strong>Thông tin nhận hàng:</strong><br>
             Người nhận: {{ $order->shipping_name }}<br>
             SĐT: {{ $order->shipping_phone }}<br>
-            Địa chỉ: {{ $order->shipping_address }}
+            Địa chỉ: {{ is_array($order->shipping_address) ? implode(', ', $order->shipping_address) : $order->shipping_address }}
         </div>
 
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
@@ -34,12 +34,12 @@
                 @foreach ($order->items as $item)
                 <tr>
                     <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                        {{ $item->product->name ?? 'Sản phẩm' }}
+                        @if(!empty($item->variant)) <br><small>({{ $item->variant }})</small> @endif
                         @if($item->variant) <br><small>({{ $item->variant }})</small> @endif
                     </td>
                     <td style="text-align: center; padding: 10px; border-bottom: 1px solid #eee;">{{ $item->quantity }}</td>
                     <td style="text-align: right; padding: 10px; border-bottom: 1px solid #eee;">
-                        {{ number_format($item->price, 0, ',', '.') }} đ
+                        {{ number_format($item->price ?? 0, 0, ',', '.') }} đ
                     </td>
                 </tr>
                 @endforeach
@@ -48,7 +48,7 @@
 
         <div style="margin-top: 20px; text-align: right;">
             <p>Phí vận chuyển: {{ number_format($order->shipping_fee ?? 0, 0, ',', '.') }} đ</p>
-            <h3 style="color: #4F46E5;">Tổng thanh toán: {{ number_format($order->total_amount, 0, ',', '.') }} đ</h3>
+            <h3 style="color: #4F46E5;">Tổng thanh toán: {{ number_format($order->total_amount ?? 0, 0, ',', '.') }} đ</h3>
         </div>
 
         <div style="text-align: center; margin-top: 30px;">
