@@ -6,13 +6,14 @@ use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\WalletController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Order\OrderHistoryController;
-use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Product\ProductReviewController;
 use App\Http\Controllers\Product\PublicProductController;
 
 /*
@@ -60,6 +61,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('products')->group(function () {
         Route::get('/', [PublicProductController::class, 'index']);
         Route::get('/{id}', [PublicProductController::class, 'show']);
+        // Xem danh sách review của sản phẩm
+        Route::get('/{id}/reviews', [ProductReviewController::class, 'index']);
     });
 
 
@@ -110,6 +113,9 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', [CartController::class, 'destroy']); 
             Route::delete('/', [CartController::class, 'clear']);
         });
+
+        // PRODUCT REVIEW ROUTES (Role: Customer)
+        Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store']);
     });
     
     /* =================================================================

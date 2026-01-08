@@ -18,6 +18,10 @@ class Review extends Model
     public function product(): BelongsTo{
         return $this->belongsTo(Product::class);
     }
+
+    public function user(): BelongsTo{
+        return $this->belongsTo(User::class);
+    }
 }
 
 

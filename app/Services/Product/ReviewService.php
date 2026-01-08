@@ -60,7 +60,17 @@ class ReviewService
             'comment'    => $data['comment'] ?? null,
             'is_active'  => true,
         ]);
-
         return $review;
+    }
+
+    /**
+     * Lấy danh sách review của sản phẩm (Public)
+     */
+    public function getProductReviews($productId, $perPage = 10){
+        return Review::where('product_id', $productId)
+                     ->where('is_active', true) // Chỉ lấy review đã duyệt
+                     ->with('user') // Eager load user để hiển thị tên người đánh giá
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($perPage);
     }
 }  
