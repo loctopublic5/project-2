@@ -13,6 +13,7 @@ use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Order\OrderHistoryController;
+use App\Http\Controllers\System\NotificationController;
 use App\Http\Controllers\Product\ProductReviewController;
 use App\Http\Controllers\Product\PublicProductController;
 
@@ -116,8 +117,15 @@ Route::prefix('v1')->group(function () {
 
         // PRODUCT REVIEW ROUTES (Role: Customer)
         Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store']);
+
+        // Notification Routes
+        Route::prefix('notifications')->middleware('auth:sanctum')->group(function(){
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::patch('/read-all', [NotificationController::class, 'markAllRead']);
+        });
     });
-    
+
     /* =================================================================
         4. ADMIN MODULE (Role: Admin)
         URL: /api/v1/admin/...

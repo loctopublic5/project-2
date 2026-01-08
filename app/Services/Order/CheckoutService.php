@@ -7,9 +7,11 @@ use App\Models\OrderItem;
 use App\Models\UserAddress;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Services\Customer\CartService;
 use App\Services\System\PricingService;
 use App\Services\Customer\WalletService;
+use App\Notifications\OrderCreatedNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CheckoutService{
@@ -98,9 +100,9 @@ class CheckoutService{
      */
     public function createOrder($user, array $orderData)
     {
-        return DB::transaction(function () use ($user, $orderData) {
+        $order = DB::transaction(function () use ($user, $orderData) {
             
-            // 1. TẠO MÃ ĐƠN HÀNG TRƯỚC (Để log vào ví)
+            // 1. TẠO MÃ ĐƠN HÀNG TRƯỚC (ĐỂ LOG VÀO VÍ)
             do {
                 $orderCode = 'ORD-' . strtoupper(Str::random(8));
             } while (Order::where('code', $orderCode)->exists());
@@ -172,5 +174,21 @@ class CheckoutService{
 
             return $order;
         });
+
+        // ==========================================================
+        // 2. TRIGGER NOTIFICATION (Chỉ chạy khi Transaction OK)
+        // ==========================================================
+    
+        // --- DEBUG LOG ---
+        Log::info('Order created successfully. Order ID: ' . $order->id);
+        Log::info('Preparing to notify user: ' . $user->id);
+
+        try {
+            $user->notify(new OrderCreatedNotification($order));
+            Log::info('Notification dispatched!');
+        }  catch (Exception $e) {
+            Log::error('Notification Error: ' . $e->getMessage());
+        }
+        return $order;
     }
 }

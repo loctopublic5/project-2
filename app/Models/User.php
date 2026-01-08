@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasPermissions, HasApiTokens;
+    use HasFactory, Notifiable, SoftDeletes, HasPermissions, HasApiTokens,Notifiable;
 
     /**
      * The attributes that are mass assignable.
