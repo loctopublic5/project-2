@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
     $table->id();
-    $table->foreignId('role_id')->constrained('roles'); 
+    $table->string('name')->comment('Tên hiển thị (Duyệt đơn hàng)');
     $table->string('resource', 50); // VD: products
     $table->string('action', 50);   // VD: create
     $table->timestamps();
+    $table->unique(['resource', 'action']);
     });
     }
 

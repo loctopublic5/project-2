@@ -38,11 +38,6 @@ class CartApiTest extends TestCase
         $response = $this->actingAs($user)->postJson($this->endpoint, $payload);
 
         // 3. Assertion
-        $response->dump();
-        
-        $response->assertSuccessful(); // Chấp nhận cả 200 hoặc 201
-        
-        // Kiểm tra DB: Lưu ý tên bảng của bạn là 'cart_items' hay 'carts'?
         // Tôi giả định cấu trúc: bảng 'carts' (user_id) -> bảng 'cart_items' (cart_id, product_id, quantity)
         $this->assertDatabaseHas('cart_items', [
             'product_id' => $product->id,

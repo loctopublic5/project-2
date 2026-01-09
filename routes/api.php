@@ -1,16 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
-use App\Http\Controllers\Customer\OrderController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Customer\WalletController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Order\OrderHistoryController;
+use App\Http\Controllers\System\NotificationController;
+use App\Http\Controllers\Product\ProductReviewController;
 use App\Http\Controllers\Product\PublicProductController;
 
 /*
@@ -58,6 +63,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('products')->group(function () {
         Route::get('/', [PublicProductController::class, 'index']);
         Route::get('/{id}', [PublicProductController::class, 'show']);
+        // Xem danh sách review của sản phẩm
+        Route::get('/{id}/reviews', [ProductReviewController::class, 'index']);
     });
 
 
@@ -68,7 +75,13 @@ Route::prefix('v1')->group(function () {
     Route::prefix('customer')->group(function(){
         // ORDER ROUTES (Role: Customer)
         Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
-            Route::post('/', [OrderController::class, 'store']);});
+            Route::post('/', [OrderController::class, 'store']);
+            // Order History
+            Route::get('/', [OrderHistoryController::class, 'index']);
+            Route::get('/{id}', [OrderHistoryController::class, 'show']);
+            Route::put('/{id}/cancel', [OrderHistoryController::class, 'cancel']);
+        });
+            
         //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
         Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
@@ -102,20 +115,29 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', [CartController::class, 'destroy']); 
             Route::delete('/', [CartController::class, 'clear']);
         });
+
+        // PRODUCT REVIEW ROUTES (Role: Customer)
+        Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store']);
+
+        // Notification Routes
+        Route::prefix('notifications')->middleware('auth:sanctum')->group(function(){
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::patch('/read-all', [NotificationController::class, 'markAllRead']);
+        });
     });
-    
+
     /* =================================================================
         4. ADMIN MODULE (Role: Admin)
         URL: /api/v1/admin/...
     ================================================================= */
-    Route::prefix('admin')->group(function(){
-        Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
+    Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function(){
+        // 1. ADMIN WALLET ROUTES
             // POST /api/admin/wallet/refund -> Hoàn tiền cho khách
-            Route::post('/refund', [AdminWalletController::class, 'refund']);
-        });
+            Route::post('/wallet/refund', [AdminWalletController::class, 'refund']);
     
         // 2. ADMIN API (Dùng AdminProductController)
-        Route::prefix('products')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::prefix('products')->group(function() {
             Route::post('/', [AdminProductController::class, 'store']);
             /* Lách luật bằng kỹ thuật Method Spoofing:
             Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).
@@ -124,6 +146,10 @@ Route::prefix('v1')->group(function () {
             Route::put('/{id}', [AdminProductController::class, 'update']);
             Route::delete('/{id}', [AdminProductController::class, 'destroy']);
         });
+
+        // 3. Dashboard Analytics
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard/refresh', [DashboardController::class, 'refresh']);
     });
 
     /* =================================================================
@@ -133,8 +159,16 @@ Route::prefix('v1')->group(function () {
             // POST api/upload
             Route::post('/upload', [FileController::class, 'store']);
         });
-    
+
+    /* =================================================================
+    6. ADMIN ORDER ROUTES (Role: Admin/Warehouse)
+    ================================================================= */
+    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin')->group(function() {
+        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
+    });
 });
+
+
 
 
 // Syntax cũ dành cho đọc folder api để gọi api theo cách làm việc tránh conflict trước kia khi cả 2 cùng làm backend

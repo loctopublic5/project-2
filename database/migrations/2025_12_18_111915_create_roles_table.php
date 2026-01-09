@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+    Schema::create('roles', function (Blueprint $table) {
     $table->id(); // INT PK AI (Theo spec dùng INT) [cite: 20]
     $table->string('name', 50)->unique();
     $table->string('slug', 50)->unique();

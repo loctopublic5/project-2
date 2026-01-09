@@ -23,6 +23,10 @@ return new class extends Migration
     $table->text('description')->nullable();
     $table->json('attributes')->nullable()->comment('Lưu Size, Color...');
     $table->integer('view_count')->default(0);
+    // Rating trung bình (VD: 4.5), mặc định 0
+    $table->decimal('rating_avg', 3, 2)->default(0)->index(); 
+    // Tổng số lượng review (VD: 120), mặc định 0
+    $table->unsignedInteger('review_count')->default(0);
     $table->boolean('is_active')->default(true);
     $table->timestamps();
     $table->softDeletes();

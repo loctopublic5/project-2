@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\OrderItem;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -37,6 +39,8 @@ class Order extends Model
         'voucher_discount' => 'float',
         'shipping_address' => 'array', // Tự động decode JSON thành Array PHP
         'created_at'       => 'datetime',
+        'status'           => OrderStatus::class,
+        'payment_status'   => PaymentStatus::class,
     ];
 
     // --- RELATIONSHIPS (Quan hệ) ---

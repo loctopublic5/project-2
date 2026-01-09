@@ -18,7 +18,10 @@ class Role extends Model
         return $this->belongsToMany(User::class, 'user_roles', 'role_id', 'user_id');
     }
 
-    public function permissions(): hasMany {
-        return $this->hasMany(Permission::class, 'role_id', 'id');
+    public function permissions()
+    {
+    // Quan hệ Many-to-Many chuẩn Laravel
+    // Tham số thứ 2 là tên bảng trung gian: 'permission_role'
+    return $this->belongsToMany(Permission::class, 'permission_role', 'role_id', 'permission_id');
     }
 }

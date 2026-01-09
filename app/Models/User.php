@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\UserWallet;
 use App\Models\UserAddress;
 use App\Models\VoucherUsage;
-use App\Models\DealerRequest;
 use App\Traits\HasPermissions;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasPermissions, HasApiTokens;
+    use HasFactory, Notifiable, SoftDeletes, HasPermissions, HasApiTokens,Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -65,31 +64,17 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles', 'user_id','role_id');
     }
 
-    public function dealerRequests(){
-        return $this->hasMany(DealerRequest::class);
-    }
-
-    public function latestDealerRequest(){
-        return $this->hasOne(DealerRequest::class)->latestOfMany();
-    }
-
-    /**
-    * Kiểm tra user có role cụ thể nào đó không (dựa vào slug)
-    * @param string $roleSlug (VD: 'admin')
-    * @return bool
-    */
-    public function hasRole(string $roleSlug):bool {
-        // Dùng collection method 'contains' để check trong danh sách roles đã eager load
-         // Lưu ý: $this->roles là Collection (do Eloquent trả về)
-        return $this->roles->contains('slug', $roleSlug);
-    }
-
     public function wallet(): HasOne{
         return $this->hasOne(UserWallet::class);
     }
 
     public function order(): HasOne{
         return $this->hasOne(Order::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 
     public function voucherUsages()

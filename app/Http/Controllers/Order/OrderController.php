@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Order;
 
-use App\Traits\ApiResponse;
 use Exception;
+use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
-use App\Services\Order\OrderService;
-use App\Http\Resources\Customer\OrderResource;
-use App\Http\Requests\Customer\StoreOrderRequest;
+use App\Services\Order\CheckoutService;
+use App\Http\Resources\Order\OrderResource;
+use App\Http\Requests\Order\StoreOrderRequest;
 
 
 class OrderController extends Controller
 {
     use ApiResponse;
     public function __construct(
-        protected OrderService $orderService
+        protected CheckoutService $checkoutService
     ) {}
 
     public function store(StoreOrderRequest $request)
@@ -26,7 +26,7 @@ class OrderController extends Controller
 
             // 2. Prepare Data (Gọi Service bước chuẩn bị)
             // Controller chỉ làm nhiệm vụ "người vận chuyển" dữ liệu
-            $orderData = $this->orderService->prepareOrderData(
+            $orderData = $this->checkoutService->prepareOrderData(
                 $user,
                 $request->address_id,
                 $request->payment_method,
@@ -35,8 +35,7 @@ class OrderController extends Controller
             );
 
             // 3. Create Order (Gọi Service bước Transaction)
-            $order = $this->orderService->createOrder($user, $orderData);
-
+            $order = $this->checkoutService->createOrder($user, $orderData);
             // 4. Eager load items để trả về Resource đẹp luôn (Tránh N+1 khi format JSON)
             $order->load('items');
 
