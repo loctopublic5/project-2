@@ -1,33 +1,35 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+<div class="pre-header">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">RETAIL B2C</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Sản phẩm</a></li>
-            </ul>
-            
-            <ul class="navbar-nav ms-auto">
-                @auth
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDrop" data-bs-toggle="dropdown">
-                            {{ Auth::user()->full_name ?? 'User' }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/profile">Ví: {{ number_format(Auth::user()->wallet_balance ?? 0) }} đ</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#">Đăng xuất</a></li>
-                        </ul>
-                    </li>
-                @else
-                    <li class="nav-item"><a class="nav-link" href="/login">Đăng nhập</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/register">Đăng ký</a></li>
-                @endauth
-            </ul>
-        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-6 additional-shop-info">
+                <ul class="list-unstyled list-inline">
+                    <li><i class="fa fa-phone"></i><span>+1 456 6717</span></li>
+                    <li><i class="fa fa-envelope-o"></i><span>info@retail-b2c.com</span></li>
+                </ul>
+            </div>
+            <div class="col-md-6 col-sm-6 additional-nav">
+                <ul class="list-unstyled list-inline pull-right" id="auth-section">
+                    </ul>
+            </div>
+            </div>
     </div>
-</nav>
+</div>
+<div class="header">
+    <div class="container">
+        <a class="site-logo" href="/"><img src="{{ asset('assets/corporate/img/logos/logo-shop-red.png') }}" alt="Metronic Shop UI"></a>
+
+        <a href="javascript:void(0);" class="mobi-toggler"><i class="fa fa-bars"></i></a>
+
+        <div class="top-cart-block">
+            <div class="top-cart-info">
+                <a href="javascript:void(0);" class="top-cart-info-count" id="cart-count">0 items</a>
+                <a href="javascript:void(0);" class="top-cart-info-value" id="cart-total">0 đ</a>
+            </div>
+            <i class="fa fa-shopping-cart"></i>
+        </div>
+        <div class="header-navigation">
+            <ul id="category-menu">
+                </ul>
+        </div>
+        </div>
+</div>

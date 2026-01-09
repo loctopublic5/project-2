@@ -1,17 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
 
 const axiosClient = axios.create({
-    baseURL: '/api', // Base URL cho API Laravel
+    baseURL: "http://127.0.0.1:8000/api/v1",
     headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
     },
 });
 
 // 1. Interceptor Request: Tự động gắn Token
 axiosClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem("access_token");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -25,24 +25,34 @@ axiosClient.interceptors.request.use(
 // 2. Interceptor Response: Xử lý Data & Lỗi Global
 axiosClient.interceptors.response.use(
     (response) => {
-        // Trả về data trực tiếp để code gọn hơn
+        /**
+         * Theo quy chuẩn dự án, trả về response.data trực tiếp
+         * để ở ngoài app.js bạn có thể lấy dữ liệu ngay lập tức.
+         */
         return response.data;
     },
     (error) => {
         const { response } = error;
-        
+
         if (response) {
-            // Xử lý lỗi 401 (Unauthorized) -> Logout & Redirect
+            // Xử lý lỗi 401 (Unauthorized): Token sai hoặc hết hạn
             if (response.status === 401) {
-                localStorage.removeItem('access_token');
-                // Chỉ redirect nếu không phải đang ở trang login để tránh loop
-                if (!window.location.pathname.includes('/login')) {
-                    window.location.href = '/login';
+                localStorage.removeItem("access_token");
+
+                // Tránh lặp vô hạn nếu đang ở trang login
+                if (!window.location.pathname.includes("/login")) {
+                    window.location.href = "/login";
                 }
             }
+
+            // Log lỗi để dễ debug trong quá trình phát triển (Bad Case)
+            console.error(
+                `[API Error] ${response.status}:`,
+                response.data.message || "Lỗi hệ thống"
+            );
         }
-        
-        throw error;
+
+        return Promise.reject(error);
     }
 );
 
