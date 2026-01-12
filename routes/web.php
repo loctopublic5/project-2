@@ -1,17 +1,23 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Customer\ProductController;
+use App\Http\Controllers\ProductController;
+
 
 // 1. Trang chủ (Trả về view home chứ không phải layout app)
 Route::get('/', function () {
     return view('pages.home'); 
-});
+})->name('home');
 
 // 2. Trang danh sách sản phẩm (Sửa lỗi 404 khi ấn "Sản phẩm")
-Route::get('/products', function () {
-    return view('pages.products');
-})->name('products');
+
+
+Route::get('/products', [ProductController::class, 'index'])
+    ->name('products');
+
+Route::get('/products/{slug}', [ProductController::class, 'show'])
+    ->name('products.show');
+
 
 // 3. Các trang Auth (Sửa lỗi 404 khi ấn Đăng nhập/Đăng ký)
 Route::get('/login', function () {
@@ -26,3 +32,11 @@ Route::get('/register', function () {
 Route::get('/profile', function () {
     return view('pages.auth.profile');
 })->name('profile');
+
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
+
+
+
+
