@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,24 +21,8 @@ Route::group([], function () {
 // 1. Trang chủ (Trả về view home chứ không phải layout app)
 Route::get('/', function () {
     return view('pages.home'); 
-});
+})->name('home');
 
-// 2. Trang danh sách sản phẩm (Sửa lỗi 404 khi ấn "Sản phẩm")
-Route::get('/products', function () {
-    return view('pages.products');
-})->name('products');
 
-// 3. Các trang Auth (Sửa lỗi 404 khi ấn Đăng nhập/Đăng ký)
-Route::get('/login', function () {
-    return view('pages.auth.login');
-})->name('login');
 
-Route::get('/register', function () {
-    return view('pages.auth.register');
-})->name('register');
-
-// 4. Trang Profile (Để không bị lỗi khi ấn vào ví tiền)
-Route::get('/profile', function () {
-    return view('pages.auth.profile');
-})->name('profile');
 
