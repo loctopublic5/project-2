@@ -148,7 +148,8 @@ Route::prefix('v1')->group(function () {
         });
 
         // 3. Dashboard Analytics
-        Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('admin.dashboard.api');
         Route::get('/dashboard/refresh', [DashboardController::class, 'refresh']);
     });
 
