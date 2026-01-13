@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,17 +26,32 @@ class Category extends Model
         'parent_id' => 'integer',
     ];
 
-    /**
-     * Config cho Trait HasSlug: Sinh slug từ column 'name'
-     */
-    public function generateSlug(): array
-    {
-        return [
-            'source' => 'name',
-            'destination' => 'slug'
-        ];
-    }
 
+    /**
+     * TỰ ĐỘNG SINH SLUG KHI TẠO MỚI (Model Event)
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Sự kiện "creating": Chạy ngay trước khi lệnh INSERT được gửi xuống DB
+        static::creating(function ($model) {
+            // Nếu slug chưa có hoặc bị rỗng -> Tự sinh từ name
+            if (empty($model->slug)) {
+                // Gọi hàm generateSlug từ Trait (protected vẫn gọi được vì đang ở trong class)
+                $model->slug = $model->generateSlug($model->name);
+            }
+        });
+        
+        // Optional: Sự kiện "updating": Nếu muốn đổi tên thì đổi luôn slug (cẩn thận SEO)
+        
+        static::updating(function ($model) {
+            if ($model->isDirty('name') && !$model->isDirty('slug')) {
+                $model->slug = $model->generateSlug($model->name);
+            }
+        });
+        
+    }
     /**
      * Quan hệ 1-N: Một danh mục có nhiều sản phẩm
      */

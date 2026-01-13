@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Admin;
 
 use Exception;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\Product\CategoryService;
-use App\Http\Resources\AdminCategoryResource;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
+use App\Http\Resources\Admin\AdminCategoryResource;
 
 class AdminCategoryController extends Controller
 {
@@ -66,10 +66,10 @@ class AdminCategoryController extends Controller
         ]);
     }
 
-    public function update(UpdateCategoryRequest $request, Category $category)
+    public function update(UpdateCategoryRequest $request, $id)
     {
         try {
-            $updatedCategory = $this->categoryService->update($category, $request->validated());
+            $updatedCategory = $this->categoryService->update($id, $request->validated());
 
             return response()->json([
                 'status' => true,
@@ -80,14 +80,14 @@ class AdminCategoryController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Lỗi cập nhật: ' . $e->getMessage()
-            ], 500);
+            ], 400);
         }
     }
 
-    public function destroy(Category $category)
+    public function destroy($id)
     {
         try {
-            $this->categoryService->delete($category);
+            $this->categoryService->delete($id);
 
             return response()->json([
                 'status' => true,

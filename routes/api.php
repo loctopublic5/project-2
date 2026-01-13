@@ -15,10 +15,11 @@ use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Order\OrderHistoryController;
+use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\System\NotificationController;
 use App\Http\Controllers\Product\ProductReviewController;
 use App\Http\Controllers\Product\PublicProductController;
-use App\Http\Controllers\Api\Admin\AdminCategoryController;
+
 
 /*
 |--------------------------------------------------------------------------
