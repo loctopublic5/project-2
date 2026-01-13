@@ -1,9 +1,5 @@
-/**
- * File: public/admin_assets/js/pages/dashboard.js
- * Update: Refactor để sử dụng Global Axios Config (Bỏ CSRF/Cookie)
- */
 
-// 1. Cấu hình Chart (Giữ nguyên)
+// 1. Cấu hình Chart 
 const chartOptions = {
     series: [{ name: 'Doanh thu', data: [] }],
     chart: { height: 350, type: 'area', toolbar: { show: false } },

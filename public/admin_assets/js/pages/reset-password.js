@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             text: 'Không tìm thấy Email. Vui lòng thực hiện lại.',
             allowOutsideClick: false
         }).then(() => {
-            window.location.href = '/admin/forgot-password';
+            window.location.href = '/forgot-password';
         });
     }
 
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     showConfirmButton: false
                 });
 
-                window.location.href = '/admin/login';
+                window.location.href = '/login';
 
             } catch (error) {
                 console.error("Reset Password Error:", error);

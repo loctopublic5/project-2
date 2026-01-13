@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 Toast.fire({ icon: 'success', title: 'Đã gửi mã xác nhận!' });
 
                 // Chuyển trang ngay lập tức
-                window.location.href = `/admin/reset-password?email=${encodeURIComponent(email)}`;
+                window.location.href = `/reset-password?email=${encodeURIComponent(email)}`;
 
             } catch (error) {
                 console.error("Forgot Password Error:", error);

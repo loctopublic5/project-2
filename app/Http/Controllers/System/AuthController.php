@@ -64,7 +64,7 @@ class AuthController
     // $request->validate(['email' => 'required|email']);
     $request->validate(['email'=> 'required|email']);
     if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-        return $this->error('Email không hợp lệ.', 400);
+        return $this->error('Email không hợp lệ.',422);
     };
     // 2. Gọi Service
     // $this->authService->forgotPassword($request->email);
