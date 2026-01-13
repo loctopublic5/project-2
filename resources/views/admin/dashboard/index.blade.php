@@ -114,13 +114,19 @@
     <script src="{{ asset('admin_assets/js/pages/dashboard.js') }}"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Lấy URL API từ Laravel Router
-            // Lưu ý: route() này trỏ đến route trong api.php mà ta đã đặt tên ở PHẦN 2
-            const apiRoute = "{{ route('admin.dashboard.api') }}";
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lấy URL từ Laravel route (chuẩn chỉ)
+            // Route này bạn đã khai báo trong api.php: ->name('admin.dashboard.api')
+            const apiUrl = "{{ route('admin.dashboard.api') }}"; 
+
+            console.log("🏁 Blade: Bắt đầu gọi initDashboard...");
             
-            // Gọi hàm init
-            initDashboard(apiRoute);
+            // Kích hoạt hàm
+            if (typeof initDashboard === 'function') {
+                initDashboard(apiUrl);
+            } else {
+                console.error("❌ Lỗi: Không tìm thấy hàm initDashboard. Kiểm tra lại đường dẫn file JS.");
+            }
         });
     </script>
 @endpush

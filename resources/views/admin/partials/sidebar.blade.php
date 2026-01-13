@@ -70,13 +70,10 @@
 
                 {{-- LOGOUT --}}
                 <li class="sidebar-item mt-4">
-                    <form action="{{ url('/logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="sidebar-link btn w-100 text-start border-0 bg-transparent">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Đăng xuất</span>
-                        </button>
-                    </form>
+                    <a href="#" id="btn-logout" class='sidebar-link'>
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Đăng xuất</span>
+                    </a>
                 </li>
             </ul>
         </div>

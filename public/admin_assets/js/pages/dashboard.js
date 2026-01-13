@@ -1,8 +1,9 @@
 /**
  * File: public/admin_assets/js/pages/dashboard.js
+ * Update: Refactor để sử dụng Global Axios Config (Bỏ CSRF/Cookie)
  */
 
-// 1. Cấu hình Chart
+// 1. Cấu hình Chart (Giữ nguyên)
 const chartOptions = {
     series: [{ name: 'Doanh thu', data: [] }],
     chart: { height: 350, type: 'area', toolbar: { show: false } },
@@ -17,67 +18,65 @@ const chartOptions = {
 
 let revenueChart;
 
-// 2. Hàm format tiền
+// 2. Hàm format tiền (Giữ nguyên)
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 };
 
-// 3. Hàm render giao diện sau khi có dữ liệu
+// 3. Hàm render giao diện (Giữ nguyên)
 const renderDashboard = (data) => {
-    // Ẩn spinner, hiện số liệu
-    // Overview
+    // Overview Cards
     document.getElementById('stat-revenue').innerText = formatCurrency(data.overview.total_revenue);
     document.getElementById('stat-orders').innerText = data.overview.new_orders_today;
     document.getElementById('stat-customers').innerText = data.overview.total_customers;
     document.getElementById('stat-pending').innerText = data.overview.pending_orders;
 
-    // Chart
+    // Chart Update
     revenueChart.updateOptions({ xaxis: { categories: data.chart.labels } });
     revenueChart.updateSeries([{ data: data.chart.values }]);
 
-    // Table Low Stock
+    // Table Update
     const tableBody = document.getElementById('low-stock-list');
-    tableBody.innerHTML = '';
-    data.low_stock.forEach(item => {
-        tableBody.insertAdjacentHTML('beforeend', `
-            <tr>
-                <td>${item.name}</td>
-                <td class="text-center"><span class="badge bg-danger">${item.stock_qty}</span></td>
-                <td class="text-end">${formatCurrency(item.price)}</td>
-            </tr>
-        `);
-    });
+    if (tableBody) {
+        tableBody.innerHTML = '';
+        data.low_stock.forEach(item => {
+            tableBody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td>${item.name}</td>
+                    <td class="text-center"><span class="badge bg-danger">${item.stock_qty}</span></td>
+                    <td class="text-end">${formatCurrency(item.price)}</td>
+                </tr>
+            `);
+        });
+    }
 };
 
-// 4. Hàm Main: Khởi chạy
+// 4. Hàm Main: Khởi chạy (ĐÃ ĐƯỢC LÀM GỌN)
 const initDashboard = async (apiUrl) => {
-    // 1. Init Chart
     revenueChart = new ApexCharts(document.querySelector("#revenue-chart"), chartOptions);
     revenueChart.render();
 
-    // 2. Lấy CSRF Token từ thẻ meta (QUAN TRỌNG)
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
     try {
-        const response = await axios.get(apiUrl, {
-            withCredentials: true, // Cho phép gửi Cookie Session
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken // <--- GỬI KÈM CHÌA KHÓA BẢO MẬT
-            }
-        });
+        // 👇👇👇 QUAN TRỌNG: DÙNG window.api 👇👇👇
+        console.log("🚀 Đang gọi API bằng window.api...");
         
-        // ... (Đoạn xử lý data giữ nguyên) ...
+        // Kiểm tra xem window.api đã có chưa
+        if (!window.api) {
+            throw new Error("Lỗi: window.api chưa được khởi tạo. Kiểm tra lại axios-config.js");
+        }
+
+        // Gọi API bằng instance đã được cấu hình Token
+        const response = await window.api.get(apiUrl);
+        
         const result = response.data;
         if (result.status || result.success) {
-            renderDashboard(result.data); // hoặc result.data.data
+            renderDashboard(result.data);
+        } else {
+            console.error("API trả về logic false:", result);
         }
 
     } catch (error) {
-        console.error("Lỗi:", error);
-        if (error.response && error.response.status === 401) {
-            alert("Vui lòng đăng nhập lại!");
-            // window.location.reload();
-        }
+        console.error("❌ Lỗi tải Dashboard:", error);
+        // Không cần xử lý 401 ở đây nữa vì window.api đã tự lo rồi
     }
 };
