@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, HasSlug;
     protected $fillable = [
         'parent_id',
         'name',
@@ -21,9 +22,21 @@ class Category extends Model
     protected $cats = [
         'is_active' => 'boolean',
         'level'     => 'integer',
+        'parent_id' => 'integer',
     ];
 
-/**
+    /**
+     * Config cho Trait HasSlug: Sinh slug từ column 'name'
+     */
+    public function generateSlug(): array
+    {
+        return [
+            'source' => 'name',
+            'destination' => 'slug'
+        ];
+    }
+
+    /**
      * Quan hệ 1-N: Một danh mục có nhiều sản phẩm
      */
     public function products(): HasMany

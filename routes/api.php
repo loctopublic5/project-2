@@ -17,6 +17,7 @@ use App\Http\Controllers\Order\OrderHistoryController;
 use App\Http\Controllers\System\NotificationController;
 use App\Http\Controllers\Product\ProductReviewController;
 use App\Http\Controllers\Product\PublicProductController;
+use App\Http\Controllers\Api\Admin\AdminCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -151,6 +152,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('admin.dashboard.api');
         Route::get('/dashboard/refresh', [DashboardController::class, 'refresh']);
+
+        // 4. ADMIN CATEGORY ROUTES
+        // Route resource tự động sinh: index, store, show, update, destroy
+        Route::apiResource('categories', AdminCategoryController::class);
+
     });
 
     /* =================================================================
