@@ -5,6 +5,7 @@ use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Admin\AdminOrderController;
@@ -156,6 +157,18 @@ Route::prefix('v1')->group(function () {
         // 4. ADMIN CATEGORY ROUTES
         // Route resource tự động sinh: index, store, show, update, destroy
         Route::apiResource('categories', AdminCategoryController::class);
+
+        // --- USER MANAGEMENT MODULE ---
+    
+        // 1. Analytics (Đặt trước route có tham số {id} để tránh xung đột)
+        Route::get('/users/analytics', [AdminUserController::class, 'analytics']);
+
+        // 2. List & Detail
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::get('/users/{id}', [AdminUserController::class, 'show']);
+
+        // 3. Update Status (Dùng PATCH cho update 1 phần)
+        Route::patch('/users/{id}/status', [AdminUserController::class, 'updateStatus']);
 
     });
 
