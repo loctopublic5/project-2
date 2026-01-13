@@ -59,15 +59,21 @@ class AuthController
 
     public function forgotPassword(Request $request)
     {
-    
+    try{
     // 1. Validate Input
     // $request->validate(['email' => 'required|email']);
     $request->validate(['email'=> 'required|email']);
+    if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+        return $this->error('Email không hợp lệ.', 400);
+    };
     // 2. Gọi Service
     // $this->authService->forgotPassword($request->email);
     $this->auth_service->forgotPassword($request->email);
     // 3. Trả về JSON Success
     return $this->success(null, 'Vui lòng kiểm tra email để lấy lại mật khẩu.',200);
+    } catch(Exception $e){
+        return $this->error($e->getMessage(), 500);
+    }
     }
 
     public function resetPassword(ResetPasswordRequest $request){
