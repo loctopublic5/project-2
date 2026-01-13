@@ -2,4 +2,5 @@
                 <a href="#" class="burger-btn d-block d-xl-none">
                     <i class="bi bi-justify fs-3"></i>
                 </a>
-            </header>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</header>

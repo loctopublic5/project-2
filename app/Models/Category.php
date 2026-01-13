@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,7 +24,18 @@ class Category extends Model
         'level'     => 'integer',
     ];
 
-/**
+    /**
+     * Config cho Trait HasSlug: Sinh slug từ column 'name'
+     */
+    public function generateSlug(): array
+    {
+        return [
+            'source' => 'name',
+            'destination' => 'slug'
+        ];
+    }
+
+    /**
      * Quan hệ 1-N: Một danh mục có nhiều sản phẩm
      */
     public function products(): HasMany

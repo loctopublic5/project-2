@@ -11,4 +11,8 @@ Route::prefix('admin')->group(function () {
         return view('admin.dashboard.index');
     })->name('admin.dashboard.view');
 
+    Route::get('/categories', function () {
+        return view('admin.dashboard.category');
+    })->name('admin.categories.view');
+
 });
