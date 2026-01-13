@@ -15,4 +15,20 @@ Route::prefix('admin')->group(function () {
         return view('admin.dashboard.index');
     })->name('admin.dashboard.view');
 
+    // 3. Đăng ký
+    Route::get('/register', function () {
+        return view('admin.auth.register');
+    })->name('admin.register');
+
+    // 4. Quên mật khẩu (Form nhập email)
+    Route::get('/forgot-password', function () {
+        return view('admin.auth.forgot-password');
+    })->name('admin.password.request');
+
+    // 5. Đặt lại mật khẩu (Form nhập pass mới)
+    // Route này sẽ nhận ?token=...&email=... từ URL
+    Route::get('/reset-password', function () {
+        return view('admin.auth.reset-password');
+    })->name('admin.password.reset');
+
 });
