@@ -1,9 +1,10 @@
 # 📘 PROJECT DOCUMENTATION & WORKFLOW
 
 Tài liệu hướng dẫn quy trình phát triển, cài đặt và cấu trúc dự án.
-**Mô hình áp dụng:** MVC mở rộng (Controller -> Service -> Repository).
-
----
+**Quy trình luồng dữ liệu (Data Flow) bắt buộc:**
+1.  **Input:** Route (Modular) -> Request (Validation) -> Controller -> Service (Logic) -> DB.
+2.  **Output:** DB -> Service -> Controller -> Resource (Transform JSON) -> View (Blade/JSON Response).
+-------------------------------------------------------------------------------------------------------
 
 ## 🛠 1. Cài đặt dự án (Cho thành viên mới)
 
@@ -260,3 +261,30 @@ PHP
 
 TenModel::factory(100)->create(); // Tạo 100 dòng giả
 Chạy lệnh nạp: php artisan db:seed
+----------------------------------------------------------------------------------------
+8. Sơ đồ ASCII mô phỏng luồng đi:
+[USER / CLIENT]
+             |
+             v  (Gửi Request)
+             |
+      [ ROUTES / API.PHP ]  <-- (1) Điều hướng: "Đến Controller nào?"
+             |
+             v
+   +---------------------+
+   |   MIDDLEWARE LAYER  |  <-- (2) VÙNG KIỂM SOÁT
+   |  [ AuthMiddleware ] |  <-- Check 1: Có vé (Token) chưa? -> OK đi tiếp
+   |         |           |
+   |  [ RoleMiddleware ] |  <-- Check 2: Có phải Admin không? -> OK đi tiếp
+   +---------------------+
+             |
+             v
+      [ CONTROLLER ]        <-- (3) XỬ LÝ CHÍNH (Vua làm việc)
+             |
+             v  (Trả về Data)
+             |
+   +---------------------+
+   |   MIDDLEWARE LAYER  |  <-- (4) Xử lý đầu ra (Log, Format headers...)
+   +---------------------+
+             |
+             v
+      [ JSON RESPONSE ]     <-- (5) Trả kết quả về Client

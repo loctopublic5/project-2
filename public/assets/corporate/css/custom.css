@@ -1,0 +1,21 @@
+/* ===== FIX SIZE & COLOR ALIGN METRONIC ===== */
+
+.product-page-options {
+    margin-top: 15px;
+}
+
+.product-page-options-item {
+    display: flex;
+    align-items: center; /* căn giữa theo chiều dọc */
+    margin-bottom: 20px; /* khoảng cách giữa Size & Color */
+}
+
+.product-page-options-item label {
+    width: 60px; /* cố định chiều rộng label */
+    margin: 0;
+    font-weight: 600;
+}
+
+.product-page-options-item select {
+    width: 120px;
+}

@@ -1,13 +1,13 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Application;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Throwable;
-use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,7 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'permission' => App\Http\Middleware\CheckPermission::class,
+        ]);
+        $middleware->alias([
+            'role' => App\Http\Middleware\CheckRoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 1. Chỉ trả về JSON nếu request là API
@@ -43,7 +48,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => 'Method not found'
             ], 405);
         });
-        // 4. Bắt TẤT CẢ các lỗi còn lại (Lỗi code 500, lỗi DB...)
+        // 4. Tùy chỉnh lỗi Authentication (Chưa đăng nhập) -> Trả về 401
+        // QUAN TRỌNG: Phải import class này ở đầu file: use Illuminate\Auth\AuthenticationException;
+        $exceptions->render(function(AuthenticationException $e, Request $request){
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthenticated.'
+                ], 401);
+            }
+        });
+        // 5. Bắt TẤT CẢ các lỗi còn lại (Lỗi code 500, lỗi DB...)
         // Đây là cái lưới cuối cùng để đảm bảo App không bao giờ chết
         $exceptions->render(function(Throwable $e, Request $request){
             if($request->is('api/*')){
