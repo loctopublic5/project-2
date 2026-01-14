@@ -24,8 +24,9 @@ class UserResource extends JsonResource
             'status' => $this->is_active ? 'active' : 'banned',
             'is_active' => (bool) $this->is_active,
             
-            // Roles (Lấy tên role từ Spatie Permission)
-            'roles' => $this->getRoleNames(), 
+            // Lấy trực tiếp từ quan hệ roles() đã định nghĩa trong Model
+            // pluck('name') sẽ lấy cột name trong bảng roles trả về mảng ['admin', 'manager']
+            'roles' => $this->roles->pluck('name'), 
 
             'joined_at' => $this->created_at->format('d/m/Y H:i'),
 

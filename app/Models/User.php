@@ -10,21 +10,21 @@ use App\Models\VoucherUsage;
 use App\Traits\HasPermissions;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Cart;   // Nhớ import Cart
+use App\Models\Role;   // Nhớ import Role
+use App\Models\Review; // Nhớ import Review
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Import HasMany
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasPermissions, HasApiTokens,Notifiable;
+    // Đã xóa Notifiable bị lặp
+    use HasFactory, Notifiable, SoftDeletes, HasApiTokens, HasPermissions;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'full_name',
         'email',
@@ -33,24 +33,13 @@ class User extends Authenticatable
         'avatar_url',
         'is_active',
         'last_login_at',
-
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -60,53 +49,76 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles():  BelongsToMany{
-        return $this->belongsToMany(Role::class, 'user_roles', 'user_id','role_id');
+    // --- RELATIONSHIPS ---
+
+    // 1. Roles (Thủ công - Chuẩn theo DB của bạn)
+    public function roles(): BelongsToMany {
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id');
     }
 
-    public function wallet(): HasOne{
+    // 2. Wallet
+    public function wallet(): HasOne {
         return $this->hasOne(UserWallet::class);
     }
 
-    public function order(): HasOne{
-        return $this->hasOne(Order::class);
+    // 3. Orders (SỬA: Đổi thành orders số nhiều và hasMany)
+    public function orders(): HasMany {
+        return $this->hasMany(Order::class);
     }
 
-    public function reviews()
-    {
+    // 4. Reviews
+    public function reviews(): HasMany { // Đã thêm type hint HasMany
         return $this->hasMany(Review::class);
     }
 
-    public function voucherUsages()
-    {
+    // 5. Voucher Usage
+    public function voucherUsages(): HasMany { // Đã thêm type hint HasMany
         return $this->hasMany(VoucherUsage::class);
     }   
 
-    // Lấy giỏ hàng hiện tại của User
-    // Dùng hasOne vì tại 1 thời điểm, 1 user chỉ active 1 giỏ hàng (giỏ cũ nhất hoặc mới nhất)
-    public function cart()
-    {
+    // 6. Cart
+    public function cart() {
         return $this->hasOne(Cart::class)->latestOfMany(); 
     }
 
-    // Helper function tiện lợi
-    public function hasUsedVoucher($voucherId)
-    {
-        // Kiểm tra nhanh xem user đã dùng voucher này chưa
-        return $this->voucherUsages()->where('voucher_id', $voucherId)->exists();
-    }
-
-    // 1. Lấy toàn bộ danh sách địa chỉ của User
-    public function addresses()
-    {
+    // 7. Addresses
+    public function addresses(): HasMany { // Đã thêm type hint HasMany
         return $this->hasMany(UserAddress::class);
     }
 
-    // 2. Lấy địa chỉ mặc định (Logic "One Default")
-    // Helper cực tiện lợi để gọi: $user->defaultAddress
-    public function defaultAddress()
-    {
+    // --- HELPERS ---
+
+    public function hasUsedVoucher($voucherId) {
+        return $this->voucherUsages()->where('voucher_id', $voucherId)->exists();
+    }
+
+    public function defaultAddress() {
         return $this->hasOne(UserAddress::class)->where('is_default', true);
     }
 
+    /**
+     * 1. Hàm kiểm tra User có role này không (Thay thế cho Spatie)
+     * Cách dùng: $user->hasRole('admin') -> trả về true/false
+     */
+    public function hasRole($roleName)
+    {
+        // Nếu đã load quan hệ roles rồi thì check trong Collection (nhanh hơn)
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->contains('name', $roleName);
+        }
+        
+        // Nếu chưa load thì query database
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * 2. Hàm Scope để query nhanh (Dùng cho Analytics)
+     * Cách dùng: User::role('customer')->count()
+     */
+    public function scopeRole($query, $roleName)
+    {
+        return $query->whereHas('roles', function ($q) use ($roleName) {
+            $q->where('name', $roleName);
+        });
+    }
 }
