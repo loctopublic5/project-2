@@ -69,7 +69,7 @@
                     </form>
 
                     <div class="text-center mt-5 text-lg fs-4">
-                        <p class='text-gray-600'>Đã có tài khoản? <a href="{{ route('admin.login') }}" class="font-bold">Đăng nhập</a>.</p>
+                        <p class='text-gray-600'>Đã có tài khoản? <a href="{{ route('login') }}" class="font-bold">Đăng nhập</a>.</p>
                     </div>
                 </div>
             </div>
