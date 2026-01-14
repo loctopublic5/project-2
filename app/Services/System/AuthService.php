@@ -2,16 +2,15 @@
 
 namespace App\Services\System;
 
-use Exception;
-use Carbon\Carbon;
-use App\Models\Role;
 use App\Models\User;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use Exception;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\ResetPasswordMail;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
@@ -138,8 +137,8 @@ class AuthService
 }
     // 3. Xóa token cũ của email này (nếu có) để tránh rác trong bảng `password_reset_tokens`
     DB::table('password_reset_tokens')->where('email', $email)->delete();
-    // 4. Tạo Token ngẫu nhiên là 6 số 
-    $token = Str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT); 
+    // 4. Tạo Token ngẫu nhiên (chuỗi Raw)
+    $token = Str::random(60);
     // 5. Lưu vào DB `password_reset_tokens`
     // Cần lưu: 'email', 'token' (Nhớ Hash::make($token)), 'created_at' (now())
     DB::table('password_reset_tokens')->insert([
@@ -164,8 +163,8 @@ class AuthService
             throw ValidationException::withMessages(['token'=>['Mã token không hợp lệ hoặc sai.']]);
         }
         
-        $tokenCreateAt = Carbon::parse($resetRecord->created_at);
-        if($tokenCreateAt->addMinutes(5)->isPast()){
+        $tokenCreateAt = \Carbon\Carbon::parse($resetRecord->created_at);
+        if($tokenCreateAt->addMinutes(60)->isPast()){
             DB::table('password_reset_tokens')->where('email', $email)->delete();
             throw new Exception("Mã token đã hết hạn, vui lòng gửi yêu cầu mới.", 400);
         }

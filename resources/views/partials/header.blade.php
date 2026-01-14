@@ -4,10 +4,10 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 additional-shop-info">
                 <ul class="list-unstyled list-inline">
-                    <li><i class="fa fa-phone"></i><span>+1 456 6717</span></li>
+                    <li><i class="fa fa-phone"></i><span>0987123666</span></li>
                     <li class="shop-currencies">
-                        <a href="javascript:;">€</a>
-                        <a href="javascript:;">£</a>
+                        <a href="javascript:;">đ</a>
+                        <a href="javascript:;">VND</a>
                         <a href="javascript:;" class="current">$</a>
                     </li>
                     <li class="langs-block">

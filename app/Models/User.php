@@ -109,4 +109,8 @@ class User extends Authenticatable
         return $this->hasOne(UserAddress::class)->where('is_default', true);
     }
 
+    // Tạm thời trong lúc dev giao diện
+public function hasRole($roleName) {
+    return true; // Luôn đúng để hiện hết menu ra test
+}
 }
