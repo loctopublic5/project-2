@@ -22,3 +22,5 @@ use Illuminate\Support\Facades\Route;
     Route::get('/reset-password', function () {
         return view('admin.auth.reset-password');
     })->name('admin.password.reset');
+
+    // 
