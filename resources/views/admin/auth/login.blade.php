@@ -58,8 +58,8 @@
                     </form>
                     
                     <div class="text-center mt-5 text-lg fs-4">
-                        <p class="text-gray-600">Chưa có tài khoản? <a href="{{ route('admin.register') }}" class="font-bold">Đăng ký ngay</a>.</p>
-                        <p><a class="font-bold" href="{{ route('admin.password.request') }}">Quên mật khẩu?</a>.</p>
+                        <p class="text-gray-600">Chưa có tài khoản? <a href="{{ route('register') }}" class="font-bold">Đăng ký ngay</a>.</p>
+                        <p><a class="font-bold" href="{{ route('password.request') }}">Quên mật khẩu?</a>.</p>
                     </div>
                 </div>
             </div>
