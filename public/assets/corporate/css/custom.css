@@ -7,7 +7,7 @@
 .product-page-options-item {
     display: flex;
     align-items: center; /* căn giữa theo chiều dọc */
-    margin-bottom: 12px; /* khoảng cách giữa Size & Color */
+    margin-bottom: 20px; /* khoảng cách giữa Size & Color */
 }
 
 .product-page-options-item label {

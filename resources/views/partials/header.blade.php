@@ -6,7 +6,7 @@
                 <ul class="list-unstyled list-inline">
                     <li><i class="fa fa-phone"></i><span>0987123666</span></li>
                     <li class="shop-currencies">
-                        <a href="javascript:;">đ</a>
+                        
                         <a href="javascript:;">VND</a>
                         <a href="javascript:;" class="current">$</a>
                     </li>
