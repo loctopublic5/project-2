@@ -103,7 +103,7 @@ class ProductService
         default:
             $query->latest(); // Tương đương orderBy('created_at', 'desc')
     }
-
+    
     return $query->paginate($filters['limit'] ?? 20);
 }
 

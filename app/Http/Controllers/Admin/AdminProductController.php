@@ -85,15 +85,7 @@ class AdminProductController extends Controller
     {
         try{
         // Lấy các tham số filter từ request
-        $filters = $request->only([
-            'category_id', 
-            'keyword', 
-            'min_price', 
-            'max_price', 
-            'sort_by', 
-            'limit'
-        ]);
-        
+        $filters = $request->all();
 
         // Gọi Service xử lý query
         // LƯU Ý: Service của bạn đang dùng Product::active(). 

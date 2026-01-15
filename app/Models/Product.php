@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Builder;
 
 class Product extends Model
 {
@@ -61,10 +60,6 @@ class Product extends Model
                 // generateUniqueCode(cột, tiền tố, độ dài)
                 $product->sku = $product->generateUniqueCode('sku', 'SP', 6);
             }
-            // Đây là Global Scope: Nó tự động thêm "WHERE is_active = 1" vào MỌI câu truy vấn
-            static::addGlobalScope('active', function (Builder $builder) {
-                $builder->where('is_active', 1);
-            });
         });
     }
 
@@ -87,6 +82,10 @@ class Product extends Model
 
     public function reviews(): HasMany{
         return $this->hasMany(Review::class);
+    }
+
+    public function scopeActive($query){
+        return $query->where('is_active', true);
     }
 
     // Quan hệ này ít dùng trực tiếp, nhưng hữu ích khi muốn check:
