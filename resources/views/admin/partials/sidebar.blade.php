@@ -66,10 +66,10 @@
                 {{-- NHÓM VẬN HÀNH --}}
                 <li class="sidebar-title role-operation d-none">Vận hành</li>
 
-                <li class="sidebar-item role-operation d-none {{ request()->is('admin/orders*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
+                <li class="sidebar-item role-admin role-operation d-none {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.orders.index') }}" class='sidebar-link'>
                         <i class="bi bi-cart-check-fill"></i>
-                        <span>Đơn hàng</span>
+                        <span>Vận đơn</span>
                     </a>
                 </li>
 

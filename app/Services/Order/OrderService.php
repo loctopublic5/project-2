@@ -9,6 +9,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use Illuminate\Support\Facades\DB;
 use App\Services\Customer\WalletService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -17,6 +18,75 @@ class OrderService
 {
 
     public function __construct(protected WalletService $walletService){}
+    // =========================================================================
+    // 1. DÀNH CHO ADMIN (QUẢN LÝ TOÀN BỘ)
+    // =========================================================================
+
+    /**
+     * Admin lấy danh sách đơn hàng (Full quyền, Full Search)
+     */
+    public function getOrdersForAdmin(array $filters = [], $perPage = 20)
+    {
+        // Khởi tạo query không có điều kiện user_id -> Lấy hết
+        $query = Order::query();
+
+        // 1. EAGER LOADING
+        // Admin cần biết chi tiết User (Tên, SĐT) và Items để preview
+        $query->with(['items.product', 'user:id,full_name,email,phone']);
+
+        // 2. FILTERING CHUNG
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+        if (!empty($filters['payment_status'])) {
+            $query->where('payment_status', $filters['payment_status']);
+        }
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
+        // 3. ADVANCED SEARCH (Dành riêng cho Admin)
+        // Admin cần tìm theo: Mã đơn OR Tên khách OR SĐT khách
+        if (!empty($filters['keyword'])) {
+            $keyword = $filters['keyword'];
+            $query->where(function (Builder $q) use ($keyword) {
+                // Tìm theo Code
+                $q->where('code', 'like', "%{$keyword}%")
+                  // Hoặc tìm trong bảng User
+                  ->orWhereHas('user', function ($subQ) use ($keyword) {
+                      $subQ->where('full_name', 'like', "%{$keyword}%")
+                           ->orWhere('phone', 'like', "%{$keyword}%")
+                           ->orWhere('email', 'like', "%{$keyword}%");
+                  });
+            });
+        }
+
+        // 4. SORTING
+        $query->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage);
+    }
+
+    /**
+     * Admin xem chi tiết đơn hàng (Không check owner)
+     */
+    public function getOrderDetailForAdmin($id)
+    {
+        $order = Order::with([ 'user:id,full_name,email,phone', 'items.product'])
+            ->where(function($q) use ($id) {
+                $q->where('id', $id)->orWhere('code', $id);
+            })
+            ->first();
+
+        if (!$order) {
+            throw new ModelNotFoundException("Đơn hàng không tồn tại.");
+        }
+
+        return $order;
+    }
     /**
      * Lấy danh sách đơn hàng (Dùng chung cho cả Admin và Customer)
      * * @param int|null $userId : Nếu null -> Admin (lấy hết). Nếu có ID -> Customer (lấy của mình).
@@ -151,7 +221,7 @@ class OrderService
      * @return Order
      * @throws ModelNotFoundException | Exception
      */
-    public function updateStatusByAdmin($orderId, $newStatus,User $actor){
+    public function updateStatusByAdmin($orderId, $newStatus,User $actor,$reason = null){
         // 1. DB: Tìm đơn hàng (Nếu không có -> Ném ModelNotFoundException -> Controller xử lý 404)
         $order = Order::where('id', $orderId)
                     ->orWhere('code', $orderId)
@@ -218,7 +288,14 @@ class OrderService
                     }
                     
                     // *** SIDE EFFECT 2: HOÀN TIỀN (Refund) ***
-                    $this->processRefundIfNeeded($order, "Admin hủy đơn hàng");
+                    $this->processRefundIfNeeded($order, $reason ?? "Admin hủy đơn");
+                    if ($newStatus === 'cancelled' && $reason) {
+                        // Dùng " ||| " làm vách ngăn giữa Note khách và Lý do Admin
+                        // Logic: Note cũ + Vách ngăn + Lý do mới
+                            $order->note = $order->note . " ||| " . $reason;
+                        // Hoàn tiền nếu cần (Code cũ của bạn)
+                        $this->processRefundIfNeeded($order, $reason);
+                    }
                     break;
                 
                 // --- CASE D: HOÀN THÀNH (Force Complete) ---

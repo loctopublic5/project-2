@@ -191,8 +191,10 @@ Route::prefix('v1')->group(function () {
     /* =================================================================
     6. ADMIN ORDER ROUTES (Role: Admin/Warehouse)
     ================================================================= */
-    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin')->group(function() {
-        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
+    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin/orders')->group(function() {
+        Route::patch('/{id}/status', [AdminOrderController::class, 'updateStatus']);
+        Route::get('/',[AdminOrderController::class, 'index'] );
+        Route::get('/{id}', [AdminOrderController::class, 'show']);
     });
 });
 

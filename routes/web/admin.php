@@ -27,4 +27,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/products', function(){
         return view('admin.products.index');
     })->name('admin.products.index');
+
+    // 4. Trang Vận đơn (index)
+    Route::get('/orders', function(){
+        return view('admin.orders.index');
+    })->name('admin.orders.index');
 });
