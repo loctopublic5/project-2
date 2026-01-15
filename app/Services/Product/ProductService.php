@@ -54,6 +54,59 @@ class ProductService
         return $query->paginate($filters['limit'] ?? 20);
     }
 
+    //List cho Admin
+    public function listAdmin(array $filters){
+    // 1. Khởi tạo Query
+    // QUAN TRỌNG: Thêm withoutGlobalScopes() để Admin thấy được sản phẩm ẩn (nếu Model có cài Scope)
+    $query = Product::withoutGlobalScopes() 
+                    ->with(['category', 'images']); 
+
+    // 2. Filter Keyword (Gộp logic tìm kiếm vào 1 chỗ duy nhất)
+    if (!empty($filters['keyword'])) {
+        $keyword = $filters['keyword'];
+        $query->where(function($q) use ($keyword) {
+            $q->where('name', 'like', "%{$keyword}%")
+              ->orWhere('sku', 'like', "%{$keyword}%");
+        });
+    }
+
+    // 3. Filter theo Trạng thái (Quan trọng)
+    // Kiểm tra kỹ cả chuỗi "0" và số 0
+    if (isset($filters['is_active']) && $filters['is_active'] !== '' && $filters['is_active'] !== null) {
+        $query->where('is_active', (int)$filters['is_active']);
+    }
+
+    // 4. Filter theo Category
+    if(!empty($filters['category_id'])){
+        $query->where('category_id', $filters['category_id']);
+    }
+
+    // (ĐÃ XÓA ĐOẠN FILTER KEYWORD BỊ LẶP Ở ĐÂY)
+
+    // 5. Filter theo Giá
+    if (!empty($filters['min_price'])) {
+        $query->where('price', '>=', $filters['min_price']);
+    }
+    if (!empty($filters['max_price'])) {
+        $query->where('price', '<=', $filters['max_price']);
+    }
+
+    // 6. Sorting
+    $sortBy = $filters['sort_by'] ?? 'latest';
+    switch ($sortBy){
+        case 'price_asc':
+            $query->orderBy('price', 'asc');
+            break;
+        case 'price_desc':
+            $query->orderBy('price', 'desc');
+            break;
+        default:
+            $query->latest(); // Tương đương orderBy('created_at', 'desc')
+    }
+    
+    return $query->paginate($filters['limit'] ?? 20);
+}
+
     public function getProductDetail($id){
         return Product::active()
             ->with(['images', 'category', 'reviews'])

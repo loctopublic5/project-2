@@ -142,6 +142,12 @@ Route::prefix('v1')->group(function () {
     
         // 2. ADMIN API (Dùng AdminProductController)
         Route::prefix('products')->group(function() {
+            // GET /api/v1/admin/products
+            Route::get('/', [AdminProductController::class, 'index']); 
+        
+            // GET /api/v1/admin/products/{id}
+            Route::get('/{id}', [AdminProductController::class, 'show']);
+            
             Route::post('/', [AdminProductController::class, 'store']);
             /* Lách luật bằng kỹ thuật Method Spoofing:
             Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).
@@ -185,8 +191,10 @@ Route::prefix('v1')->group(function () {
     /* =================================================================
     6. ADMIN ORDER ROUTES (Role: Admin/Warehouse)
     ================================================================= */
-    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin')->group(function() {
-        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
+    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin/orders')->group(function() {
+        Route::patch('/{id}/status', [AdminOrderController::class, 'updateStatus']);
+        Route::get('/',[AdminOrderController::class, 'index'] );
+        Route::get('/{id}', [AdminOrderController::class, 'show']);
     });
 });
 

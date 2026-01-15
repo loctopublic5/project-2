@@ -87,7 +87,7 @@ class Product extends Model
     }
 
     public function scopeActive($query){
-        return $this->where('is_active', true);
+        return $query->where('is_active', true);
     }
 
     // Quan hệ này ít dùng trực tiếp, nhưng hữu ích khi muốn check:

@@ -15,8 +15,7 @@
 
         <div class="sidebar-menu">
             <ul class="menu">
-                
-                {{-- 1. PROFILE WIDGET (Hiển thị tên Admin đang đăng nhập) --}}
+                {{-- PROFILE WIDGET --}}
                 <li class="sidebar-item">
                     <div class="d-flex align-items-center px-3 py-2">
                         <div class="avatar avatar-md me-2">
@@ -31,7 +30,6 @@
 
                 <li class="sidebar-title">Menu Chính</li>
 
-                {{-- DASHBOARD (Ai cũng thấy) --}}
                 <li class="sidebar-item {{ request()->is('admin/dashboard*') ? 'active' : '' }}">
                     <a href="{{ url('/admin/dashboard') }}" class='sidebar-link'>
                         <i class="bi bi-grid-fill"></i>
@@ -39,9 +37,7 @@
                     </a>
                 </li>
 
-                {{-- 2. NHÓM QUẢN LÝ CỬA HÀNG --}}
-                {{-- Mặc định thêm class 'd-none' và 'role-admin' để JS xử lý --}}
-                
+                {{-- NHÓM QUẢN LÝ CỬA HÀNG (Admin only) --}}
                 <li class="sidebar-title role-admin d-none">Quản lý Cửa hàng</li>
 
                 <li class="sidebar-item role-admin d-none {{ request()->is('admin/categories*') ? 'active' : '' }}">
@@ -50,106 +46,59 @@
                         <span>Danh mục</span>
                     </a>
                 </li>
-
+                {{-- 👇 2. SẢN PHẨM (THÊM MỚI TẠI ĐÂY) 👇 --}}
                 <li class="sidebar-item role-admin d-none {{ request()->is('admin/products*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-box-seam"></i>
+                    <a href="{{ url('/admin/products') }}" class='sidebar-link'>
+                        <i class="bi bi-box-seam-fill"></i>
                         <span>Sản phẩm</span>
                     </a>
                 </li>
+                {{-- 👆 ------------------------------- 👆 --}}
 
+                {{-- Sửa: Thêm role-admin và logic active cho Users --}}
                 <li class="sidebar-item role-admin d-none {{ request()->is('admin/users*') ? 'active' : '' }}">
                     <a href="{{ url('/admin/users') }}" class='sidebar-link'>
                         <i class="bi bi-people-fill"></i>
                         <span>Khách hàng</span>
-                            {{-- Badge user mới nếu cần --}}
-                            <span class="badge bg-danger ms-auto d-none" id="new-user-badge">New</span>
                     </a>
                 </li>
 
-                {{-- 3. NHÓM VẬN HÀNH (Admin + Warehouse thấy) --}}
-                <li class="sidebar-title role-operation d-none">Vận hành & Đơn hàng</li>
+                {{-- NHÓM VẬN HÀNH --}}
+                <li class="sidebar-title role-operation d-none">Vận hành</li>
 
-                <li class="sidebar-item role-operation d-none {{ request()->is('admin/orders*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
+                <li class="sidebar-item role-admin role-operation d-none {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.orders.index') }}" class='sidebar-link'>
                         <i class="bi bi-cart-check-fill"></i>
-                        <span>Đơn hàng</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item role-operation d-none {{ request()->is('admin/shipments*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-truck"></i>
-                        <span>Vận chuyển</span>
+                        <span>Vận đơn</span>
                     </a>
                 </li>
 
                 {{-- LOGOUT --}}
                 <li class="sidebar-item mt-4">
-                    <form action="{{ url('/logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="sidebar-link btn w-100 text-start border-0 bg-transparent">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span>Đăng xuất</span>
-                        </button>
-                    </form>
+                    {{-- Sửa: Thêm ID để JS bắt sự kiện --}}
+                    <a href="#" id="btn-logout-sidebar" class="sidebar-link btn w-100 text-start border-0 bg-transparent text-danger">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Đăng xuất</span>
+                    </a>
                 </li>
             </ul>
         </div>
     </div>
 </div>
+{{-- Logic: Nếu URL bắt đầu bằng admin/dashboard thì active --}}
+<li class="sidebar-item {{ request()->is('admin/dashboard*') ? 'active' : '' }}">
+    <a href="{{ url('/admin/dashboard') }}" class='sidebar-link'>
+        <i class="bi bi-grid-fill"></i>
+        <span>Dashboard</span>
+    </a>
+</li>
 
-{{-- SCRIPT XỬ LÝ HIỂN THỊ MENU TỪ LOCALSTORAGE --}}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // 1. Lấy thông tin từ LocalStorage
-        const userRaw = localStorage.getItem('admin_user');
-        const token = localStorage.getItem('admin_token');
+{{-- Logic: Nếu URL bắt đầu bằng admin/users thì active --}}
+<li class="sidebar-item {{ request()->is('admin/users*') ? 'active' : '' }}">
+    <a href="{{ url('/admin/users') }}" class='sidebar-link'>
+        <i class="bi bi-people-fill"></i>
+        <span>Khách hàng</span>
+    </a>
+</li>
 
-        // Nếu không có token -> Đá về login ngay (bảo mật frontend)
-        if (!token || !userRaw) {
-            window.location.href = '/admin/login';
-            return;
-        }
-
-        const user = JSON.parse(userRaw);
-        const roles = user.roles || []; // Ví dụ: ["admin"] hoặc ["warehouse"]
-
-        // 2. Hiển thị thông tin user lên sidebar
-        document.getElementById('sidebar-user-name').innerText = user.name || user.full_name || 'Admin';
-        document.getElementById('sidebar-user-role').innerText = roles.join(', ').toUpperCase();
-
-        // 3. LOGIC PHÂN QUYỀN HIỂN THỊ MENU
-        
-        // CASE A: Nếu là ADMIN hoặc SUPER_ADMIN -> Hiện tất cả menu admin
-        if (roles.includes('admin') || roles.includes('super_admin')) {
-            // Hiện nhóm Admin
-            document.querySelectorAll('.role-admin').forEach(el => el.classList.remove('d-none'));
-            // Hiện nhóm Vận hành (Admin cũng cần xem đơn)
-            document.querySelectorAll('.role-operation').forEach(el => el.classList.remove('d-none'));
-        }
-
-        // CASE B: Nếu là WAREHOUSE (Thủ kho) -> Chỉ hiện nhóm Vận hành
-        else if (roles.includes('warehouse')) {
-            document.querySelectorAll('.role-operation').forEach(el => el.classList.remove('d-none'));
-        }
-
-        // 4. Xử lý Đăng xuất (Logout)
-        document.getElementById('btn-logout-sidebar').addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Xóa LocalStorage
-            localStorage.removeItem('admin_token');
-            localStorage.removeItem('admin_user');
-            
-            // Gọi API Logout (Optional - để hủy token trên server)
-            if(window.api) {
-                window.api.post('/api/v1/auth/logout').finally(() => {
-                    window.location.href = '/admin/login';
-                });
-            } else {
-                window.location.href = '/admin/login';
-            }
-        });
-    });
-</script>
+<script src="{{ asset('admin_assets/js/components/sidebar.js') }}"></script>

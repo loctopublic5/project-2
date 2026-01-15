@@ -10,6 +10,17 @@ class AdminOrderResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        // 1. XỬ LÝ TÁCH NOTE VÀ REASON
+        // Mặc định note là toàn bộ chuỗi
+        $customerNote = $this->note;
+        $cancelReason = null;
+
+        // Nếu tìm thấy vách ngăn " ||| "
+        if ($this->note && str_contains($this->note, ' ||| ')) {
+            $parts = explode(' ||| ', $this->note);
+            $customerNote = $parts[0]; // Phần đầu là note của khách
+            $cancelReason = $parts[1] ?? null; // Phần sau là lý do hủy
+        }
         return [
             'id'             => $this->id,
             'code'           => $this->code,
@@ -34,7 +45,8 @@ class AdminOrderResource extends JsonResource
             
             // Địa chỉ & Note
             'shipping_address' => $this->shipping_address, // Giả sử cột này lưu JSON
-            'note'             => $this->note,
+            'note'          => $customerNote,  // Chỉ hiện note của khách ("Giao giờ hành chính...")
+            'cancel_reason' => $cancelReason,
 
             // Thời gian
             'created_at'     => $this->created_at->format('d/m/Y H:i'),
