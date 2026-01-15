@@ -13,9 +13,7 @@ use App\Http\Controllers\ProductController;
 
 
     // Danh sách sản phẩm
-    Route::get('/products', [ProductController::class, 'index'])
-        ->name('products');
+    Route::get('/products', [ProductController::class, 'index'])->name('products');
 
     // Chi tiết sản phẩm (slug)
-    Route::get('/products/{slug}', [ProductController::class, 'show'])
-        ->name('products.show');
+    Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
