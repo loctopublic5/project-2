@@ -23,4 +23,8 @@ Route::prefix('admin')->group(function () {
         return view('admin.users.show', ['id' => $id]);
     })->name('admin.users.show');
 
+    // 3. Trang sản phẩm (Index)
+    Route::get('/products', function(){
+        return view('admin.products.index');
+    })->name('admin.products.index');
 });

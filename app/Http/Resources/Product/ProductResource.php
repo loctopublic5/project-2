@@ -15,10 +15,25 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $rawAttributes = $this->resource->attributes; 
+
+        // 2. Decode nếu nó là String
+        $specifications = $rawAttributes;
+        if (is_string($rawAttributes)) {
+            $specifications = json_decode($rawAttributes, true);
+        }
+        // Đảm bảo luôn là object/array rỗng nếu null
+        if (!$specifications) {
+            $specifications = [];
+        }
         // 1. Logic xử lý Thumbnail (Ảnh đại diện)
         // Lấy ảnh đầu tiên làm thumbnail nếu danh sách ảnh đã được load và không rỗng
         $thumbnail = null;
         if ($this->relationLoaded('images') && $this->images->isNotEmpty()){
+            $thumbnail = Storage::url($this->images->first()->path);
+        }
+        // Fallback: Nếu load 'images' (số nhiều) -> lấy cái đầu tiên
+        elseif ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
             $thumbnail = Storage::url($this->images->first()->path);
         }
         return [
@@ -69,7 +84,7 @@ class ProductResource extends JsonResource
             ],
 
             // Attributes (JSON) - Luôn trả về Object, tránh null
-            'specifications' => $this->attributes ?? (object)[], 
+            'specifications' => $specifications, 
 
             // Meta
             'is_active'  => (bool) $this->is_active,

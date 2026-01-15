@@ -142,6 +142,12 @@ Route::prefix('v1')->group(function () {
     
         // 2. ADMIN API (Dùng AdminProductController)
         Route::prefix('products')->group(function() {
+            // GET /api/v1/admin/products
+            Route::get('/', [AdminProductController::class, 'index']); 
+        
+            // GET /api/v1/admin/products/{id}
+            Route::get('/{id}', [AdminProductController::class, 'show']);
+            
             Route::post('/', [AdminProductController::class, 'store']);
             /* Lách luật bằng kỹ thuật Method Spoofing:
             Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).

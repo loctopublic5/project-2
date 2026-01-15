@@ -46,6 +46,14 @@
                         <span>Danh mục</span>
                     </a>
                 </li>
+                {{-- 👇 2. SẢN PHẨM (THÊM MỚI TẠI ĐÂY) 👇 --}}
+                <li class="sidebar-item role-admin d-none {{ request()->is('admin/products*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/products') }}" class='sidebar-link'>
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                </li>
+                {{-- 👆 ------------------------------- 👆 --}}
 
                 {{-- Sửa: Thêm role-admin và logic active cho Users --}}
                 <li class="sidebar-item role-admin d-none {{ request()->is('admin/users*') ? 'active' : '' }}">
