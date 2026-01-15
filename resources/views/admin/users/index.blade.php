@@ -1,10 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Quản lý Khách hàng (CRM)')
+@section('title', 'Quản lý Khách hàng')
 
 @section('content')
 <div class="page-heading">
-    <h3>Danh sách Khách hàng</h3>
 </div>
 
 <div class="page-content">

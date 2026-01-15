@@ -1,10 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Thống kê tổng quan')
+@section('title', 'Dashboard')
 
 @section('content')
 <div class="page-heading">
-    <h3>Dashboard Analytics</h3>
 </div>
 
 <div class="page-content">

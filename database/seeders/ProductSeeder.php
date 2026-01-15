@@ -19,7 +19,7 @@ class ProductSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
 
         // 2. Lấy danh sách ID của Category đã có
-        $categories = Category::pluck('id')->toArray();
+        $categories = Category::pluck('id', null)->toArray();
 
         if (empty($categories)) {
             $this->command->warn('Chưa có category, hãy seed category trước (php artisan db:seed --class=CategorySeeder).');

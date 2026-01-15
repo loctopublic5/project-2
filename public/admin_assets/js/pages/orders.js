@@ -15,6 +15,16 @@ const STATUS_COLORS = {
 document.addEventListener('DOMContentLoaded', function () {
     const modalEl = document.getElementById('orderDetailModal');
     if(modalEl) orderModal = new bootstrap.Modal(modalEl);
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status'); // Lấy giá trị 'pending' từ URL
+
+    if (statusParam) {
+        // Nếu có param, set filter và active tab tương ứng
+        filterStatus(statusParam);
+    } else {
+        // Nếu không có, load mặc định (Tất cả)
+        loadOrders();
+    }
     
     loadOrders();
 });
@@ -31,7 +41,10 @@ window.filterStatus = function(status) {
     currentStatusFilter = status;
     // Update Active Tab UI
     document.querySelectorAll('#orderStatusTabs .nav-link').forEach(el => el.classList.remove('active'));
-    document.querySelector(`#orderStatusTabs .nav-link[data-status="${status}"]`).classList.add('active');
+    const targetTab = document.querySelector(`#orderStatusTabs .nav-link[data-status="${status}"]`);
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
     
     loadOrders(1);
 }
