@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\UpdateUserStatusRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Services\Dashboard\UserService;
 use Illuminate\Http\Request;
@@ -21,7 +20,16 @@ class AdminUserController extends Controller
     // 1. Danh sách Users
     public function index(Request $request)
     {
-        $users = $this->userService->getUsers($request->all());
+        $params = [
+        'keyword' => $request['keyword'],
+        'status' => $request['status'],
+        'role' => $request['role'],
+        'limit' => 10,
+        // Truyền thẳng giá trị sort_spending (asc/desc/null) sang Service
+        'sort_spending' => $request['sort_spending'],
+        ];
+
+        $users = $this->userService->getUsers($params);
         
         return UserResource::collection($users)->additional([
             'status' => true,
@@ -44,10 +52,10 @@ class AdminUserController extends Controller
     }
 
     // 3. Cập nhật trạng thái (Block/Unblock)
-    public function updateStatus(UpdateUserStatusRequest $request, $id)
+    public function updateStatus($id)
     {
         try {
-            $user = $this->userService->updateStatus($id, $request->is_active);
+            $user = $this->userService->updateStatus($id);
             
             $statusText = $user->is_active ? 'Mở khóa' : 'Đã khóa';
             return response()->json([

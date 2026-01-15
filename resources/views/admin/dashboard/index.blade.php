@@ -103,6 +103,29 @@
                 </div>
             </div>
         </div>
+        <div class="card">
+    <div class="card-header">
+        <h4>Sản phẩm bán chạy</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-lg">
+                <thead>
+                    <tr>
+                        <th>Tên sản phẩm</th>
+                        <th class="text-center">Đã bán</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end">Doanh thu</th>
+                    </tr>
+                </thead>
+                <tbody id="top-products-list">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
     </section>
 </div>
 @endsection

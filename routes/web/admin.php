@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminUserController;
 
 Route::prefix('admin')->group(function () {
     // 2. Route Dashboard 
@@ -11,5 +12,15 @@ Route::prefix('admin')->group(function () {
     Route::get('/categories', function () {
         return view('admin.dashboard.category');
     })->name('admin.categories.view');
+
+    // 1. Trang danh sách (Index)
+    Route::get('/users', function(){
+        return view('admin.users.index');
+    })->name('admin.users.index');
+    
+    // 2. Trang chi tiết (Show/Profile 360)
+    Route::get('/users/{id}', function($id){
+        return view('admin.users.show', ['id' => $id]);
+    })->name('admin.users.show');
 
 });

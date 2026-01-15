@@ -50,29 +50,33 @@ class DashboardService
     // 2. Low Stock Alert (Cảnh báo nhập hàng)
     private function getLowStockProducts()
     {
+        // Ngưỡng cảnh báo: Dưới 10 sản phẩm
+        $threshold = 10;
+
         return Product::select('id', 'name', 'stock_qty', 'price')
-            ->where('stock_qty', '<', 10) // Ngưỡng cảnh báo là 10
-            ->orderBy('stock_qty', 'asc') // Ưu tiên hiển thị hàng sắp hết nhất
-            ->limit(5)
+            ->where('is_active', 1) // QUAN TRỌNG: Chỉ cảnh báo hàng đang bán (tránh hàng đã ngừng kinh doanh)
+            ->where('stock_qty', '<=', $threshold) 
+            ->orderBy('stock_qty', 'asc') // Ưu tiên hiển thị hàng còn ít nhất (0, 1, 2...)
+            ->limit(5) // Chỉ lấy top 5 khẩn cấp nhất
             ->get();
     }
 
     // 3. Top Best Sellers (Sản phẩm bán chạy)
     private function getTopSellingProducts()
     {
-        // Join bảng order_items để tính tổng quantity
-        // Lưu ý: Chỉ tính các item nằm trong đơn hàng ĐÃ THANH TOÁN hoặc HOÀN THÀNH
-        return DB::table('order_items')
+        return Product::query()
+            ->join('order_items', 'products.id', '=', 'order_items.product_id')
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->join('products', 'products.id', '=', 'order_items.product_id')
-            ->where('orders.status', 'completed') // Chỉ tính đơn thành công
+            ->where('orders.status', 'completed')
             ->select(
                 'products.id',
                 'products.name',
+                'products.stock_qty',
+                'products.price',
                 DB::raw('SUM(order_items.quantity) as total_sold'),
-                DB::raw('SUM(products.price * order_items.quantity) as total_revenue')
+                DB::raw('SUM(order_items.quantity * products.price) as total_revenue')
             )
-            ->groupBy('products.id', 'products.name')
+            ->groupBy('products.id', 'products.name', 'products.stock_qty', 'products.price')
             ->orderByDesc('total_sold')
             ->limit(5)
             ->get();
