@@ -31,10 +31,27 @@
 
 {{-- JS --}}
 <script src="{{ asset('assets/plugins/jquery.min.js') }}"></script>
+<script src="{{ asset('assets/plugins/fancybox/source/jquery.fancybox.pack.js') }}"></script>
 <script src="{{ asset('assets/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
 <script src="{{ asset('assets/plugins/owl.carousel/owl.carousel.min.js') }}"></script>
 <script src="{{ asset('assets/pages/scripts/app.js') }}"></script>
 <script src="{{ asset('assets/pages/scripts/shop-index.js') }}"></script>
+
+<script>
+    jQuery(document).ready(function () {
+        if ($(".fancybox-button").length) {
+            $(".fancybox-button").fancybox({
+                prevEffect: 'none',
+                nextEffect: 'none',
+                closeBtn: true,
+                helpers: {
+                    title: { type: 'inside' },
+                    buttons: {}
+                }
+            });
+        }
+    });
+</script>
 
 <script>
     jQuery(document).ready(function() {
@@ -42,5 +59,11 @@
         App.initBxSlider();
     });
 </script>
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
 </body>
 </html>

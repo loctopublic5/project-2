@@ -18,12 +18,35 @@
 
                 <div class="row">
 
-                    {{-- IMAGE --}}
-                    <div class="col-md-6 col-sm-6">
+                        {{-- IMAGE --}}
+                        <div class="col-md-6 col-sm-6">
+
+                        {{-- ẢNH CHÍNH --}}
                         <img src="{{ $imageUrl }}"
-                             class="img-responsive"
-                             alt="{{ $product->name }}">
+                            class="img-responsive"
+                            alt="{{ $product->name }}"
+                            style="border:1px solid #ddd; margin-bottom:10px;">
+
+                        {{-- ẢNH NHỎ --}}
+                        @php
+                        $images = $product->images()->get();
+                    @endphp
+
+                    @if($images->count() > 1)
+
+                            <div class="row">
+                                @foreach($product->images as $img)
+                                    <div class="col-xs-4">
+                                        <img src="{{ asset('storage/' . $img->path) }}"
+                                            class="img-responsive"
+                                            style="cursor:pointer;border:1px solid #eee;margin-bottom:5px;">
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
                     </div>
+
 
                     {{-- INFO --}}
                     <div class="col-md-6 col-sm-6">

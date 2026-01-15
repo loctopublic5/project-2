@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ProductImage;
+
 
 class Product extends Model
 {
@@ -94,5 +96,7 @@ class Product extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+
+
 
 }

@@ -57,20 +57,18 @@
                                         <a href="{{ $image
                                                 ? asset('storage/' . $image->path)
                                                 : asset('assets/pages/img/products/default.jpg') }}"
-                                           class="btn btn-default fancybox-button">
-                                            Zoom
+                                            class="btn btn-default fancybox-button"
+                                            rel="fancybox-button">
+                                                Zoom
                                         </a>
 
-                                        {{-- ✅ SỬA CHỖ NÀY --}}
-                                        {{-- TRƯỚC: link sang trang detail --}}
-                                        {{-- SAU: mở QUICK VIEW MODAL --}}
+
                                         <a href="#"
                                            class="btn btn-default"
                                            data-toggle="modal"
                                            data-target="#productQuickView-{{ $product->id }}">
                                             View
                                         </a>
-                                        {{-- ✅ KẾT THÚC SỬA --}}
                                     </div>
                                 </div>
 
@@ -99,10 +97,9 @@
                             </div>
                         </div>
 
-                        {{-- ✅ THÊM DÒNG NÀY --}}
-                        {{-- LOAD QUICK VIEW MODAL CHO TỪNG SẢN PHẨM --}}
+
                         @include('components.product-quick-view', ['product' => $product])
-                        {{-- ✅ KẾT THÚC --}}
+
 
                     @empty
                         <div class="col-md-12 text-center">
