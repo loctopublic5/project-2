@@ -76,9 +76,9 @@ Route::prefix('v1')->group(function () {
         3. CUSTOMER MODULE (Yêu cầu Login)
         URL: /api/v1/customer/...
     ================================================================= */
-    Route::prefix('customer')->group(function(){
+    Route::prefix('customer')->middleware('auth:sanctum','role:customer')->group(function(){->group(function(){
         // ORDER ROUTES (Role: Customer)
-        Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('orders')->group(function(){
             Route::post('/', [OrderController::class, 'store']);
             // Order History
             Route::get('/', [OrderHistoryController::class, 'index']);
@@ -88,19 +88,19 @@ Route::prefix('v1')->group(function () {
             
         //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
-        Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('wallet')->group(function(){
             // GET /api/wallet/me -> Xem số dư & lịch sử
             Route::get('/', [WalletController::class, 'getMe']);
             // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
             Route::post('/deposit', [WalletController::class, 'deposit']);
         });
 
-        Route::prefix('payment')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('payment')->group(function(){
             Route::post( '/',[PaymentController::class, 'payByWallet']);
         });
 
         // ADDRESS ROUTES
-        Route::prefix('addresses')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('addresses')->group(function(){
             Route::get('/', [AddressController::class, 'index']);
             Route::post('/', [AddressController::class, 'store']);
             Route::get('/{id}', [AddressController::class, 'show']);
@@ -112,7 +112,7 @@ Route::prefix('v1')->group(function () {
     });
 
         // CART ROUTES (Role: Customer)
-        Route::prefix('cart')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('cart')->group(function(){
             Route::get('/', [CartController::class, 'index']);      
             Route::post('/', [CartController::class, 'store']);     
             Route::put('/{id}', [CartController::class, 'update']); 
@@ -124,7 +124,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store']);
 
         // Notification Routes
-        Route::prefix('notifications')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('notifications')->group(function(){
             Route::get('/', [NotificationController::class, 'index']);
             Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
             Route::patch('/read-all', [NotificationController::class, 'markAllRead']);

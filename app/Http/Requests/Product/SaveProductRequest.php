@@ -37,9 +37,8 @@ class SaveProductRequest extends BaseFormRequest
 
             'attributes'  => ['nullable', 'array'],
             // 'attributes.*' nghĩa là duyệt qua từng phần tử trong mảng attributes
-            'attributes.*' => ['nullable', 'string', 'max:255'],
-            //Nếu muốn bắt buộc phải có key cụ thể (VD: material)
-            // 'attributes.material' => ['required', 'string'],
+            'attributes.*.name'  => ['required_with:attributes', 'string', 'max:255'],
+            'attributes.*.value' => ['required_with:attributes', 'string', 'max:255']
         ];
     }
 
@@ -76,8 +75,8 @@ class SaveProductRequest extends BaseFormRequest
 
             // Attributes (JSON)
             'attributes.array'    => 'Thuộc tính mở rộng phải là định dạng JSON Object hợp lệ.',
-            'attributes.*.string' => 'Giá trị của thuộc tính phải là dạng chuỗi (không hỗ trợ mảng con).',
-            'attributes.*.max'    => 'Giá trị thuộc tính quá dài (tối đa 255 ký tự).',
+            'attributes.*.name.required_with' => 'Tên thuộc tính không được để trống.',
+            'attributes.*.value.required_with'=> 'Giá trị thuộc tính không được để trống.',
         ];
     }
 

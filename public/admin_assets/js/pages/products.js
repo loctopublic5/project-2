@@ -250,17 +250,17 @@ window.openCreateModal = function() {
 // --- 1. HÀM THÊM DÒNG ATTRIBUTE (Gắn vào window) ---
 window.addAttributeRow = function(key = '', value = '') {
     const container = document.getElementById('attribute-list');
-    const index = container.children.length; // Để tạo ID unique nếu cần
+    const rowId = 'attr-row-' + Date.now() + Math.random().toString(36).substr(2, 9);
     
     const row = `
-        <tr class="attribute-item">
+        <tr id="${rowId}" class="attribute-item">
             <td>
-                <input type="text" class="form-control form-control-sm attr-key" 
-                       list="attribute-suggestions" placeholder="VD: Màu sắc" value="${key}">
+                <input type="text" class="form-control form-control-sm attr-name" 
+                        list="attribute-suggestions" placeholder="VD: Màu sắc" value="${name}">
             </td>
             <td>
                 <input type="text" class="form-control form-control-sm attr-value" 
-                       placeholder="VD: Đỏ, Xanh, L, XL" value="${value}">
+                        placeholder="VD: Đỏ, Xanh, L, XL" value="${value}">
             </td>
             <td>
                 <button type="button" class="btn btn-sm btn-light text-danger" onclick="this.closest('tr').remove()">
@@ -270,6 +270,32 @@ window.addAttributeRow = function(key = '', value = '') {
         </tr>
     `;
     container.insertAdjacentHTML('beforeend', row);
+}
+/**
+ * Quét toàn bộ bảng để lấy dữ liệu attribute
+ * return Array
+ */
+function collectAttributes() {
+    const attributes = [];
+    
+    // 1. Tìm tất cả các dòng có class 'attribute-item'
+    const rows = document.querySelectorAll('.attribute-item');
+    
+    rows.forEach(row => {
+        // 2. Lấy input con của dòng đó
+        const nameInput = row.querySelector('.attr-name');
+        const valueInput = row.querySelector('.attr-value');
+        
+        // 3. Chỉ lấy khi có nhập tên (Giá trị có thể rỗng tùy logic của bạn)
+        if (nameInput && nameInput.value.trim() !== '') {
+            attributes.push({
+                name: nameInput.value.trim(),
+                value: valueInput ? valueInput.value.trim() : ''
+            });
+        }
+    });
+
+    return attributes;
 }
 
 async function editProduct(id) {
@@ -339,27 +365,58 @@ async function editProduct(id) {
 // --- 3. LƯU DỮ LIỆU ---
 
 async function saveProduct() {
+    console.log("--- BẮT ĐẦU SAVE PRODUCT ---");
+
+    // 1. Kiểm tra xem có tìm thấy dòng nào không?
     const attrRows = document.querySelectorAll('.attribute-item');
-    const attributesObj = {};
-    attrRows.forEach(row => {
-        const key = row.querySelector('.attr-key').value.trim();
-        const value = row.querySelector('.attr-value').value.trim();
+    console.log(`Tìm thấy ${attrRows.length} dòng attribute.`);
+
+    const attributes = []; 
+
+    attrRows.forEach((row, index) => {
+        // 2. Log xem class bạn đang query có khớp với HTML thực tế không
+        const nameEl = row.querySelector('.attr-name'); // Kiểm tra kỹ class này trong HTML
+        const valueEl = row.querySelector('.attr-value'); // Kiểm tra kỹ class này trong HTML
+
+        console.log(`Dòng ${index}:`, {
+            inputName: nameEl,
+            inputValue: valueEl,
+            valName: nameEl ? nameEl.value : 'NULL',
+            valValue: valueEl ? valueEl.value : 'NULL'
+        });
+
+        const key = nameEl ? nameEl.value.trim() : ''; 
+        const value = valueEl ? valueEl.value.trim() : '';
+
         if(key && value) {
-            // Lưu dạng Key: Value (VD: "Màu sắc": "Đỏ, Xanh")
-            attributesObj[key] = value;
+            attributes.push({ name: key, value: value });
         }
     });
+
+    console.log("Mảng attributes thu được:", attributes);
 
     const id = document.getElementById('product_id').value;
     const form = document.getElementById('productForm');
 
     const formData = new FormData(form);
 
+    attributes.forEach((item, index) => {
+        formData.append(`attributes[${index}][name]`, item.name);
+        formData.append(`attributes[${index}][value]`, item.value);
+    }); // Kết quả gửi đi sẽ dạng: attributes[0][name]="Màu", attributes[0][value]="Đỏ"...
+
     
     if(!document.getElementById('is_active').checked) {
         formData.append('is_active', 0); 
     } else {
         formData.set('is_active', 1);
+    }
+    // 3. Log FormData TRƯỚC khi gửi (FormData không log trực tiếp được, phải dùng cách này)
+    console.log("--- CHECK FORMDATA ---");
+    for (var pair of formData.entries()) {
+        if(pair[0].includes('attributes')) {
+            console.log(pair[0] + ', ' + pair[1]); 
+        }
     }
 
     try {
