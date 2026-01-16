@@ -113,6 +113,25 @@ class ProductService
             ->findOrFail($id);
     }
 
+    // Hàm Helper để chuẩn hóa Attribute
+    // Input:  [ ["name" => "Màu", "value" => "Đỏ, Xanh"], ... ]
+    // Output: [ "Màu" => ["Đỏ", "Xanh"], ... ]
+    private function formatAttributes(array $rawAttributes): array
+    {
+        $formatted = [];
+        foreach ($rawAttributes as $item) {
+            if (!empty($item['name']) && !empty($item['value'])) {
+                // 1. Tách chuỗi "a,b,c" thành mảng ["a", "b", "c"]
+                // 2. Trim bỏ khoảng trắng thừa
+                $values = array_map('trim', explode(',', $item['value']));
+                
+                // 3. Gán vào key là tên thuộc tính
+                // Kết quả: $formatted["Màu"] = ["Đỏ", "Xanh"]
+                $formatted[$item['name']] = $values;
+            }
+        }
+        return $formatted;
+    }
     public function createProduct($data){
 
         // 1. Validate Logic Nghiệp vụ
@@ -124,6 +143,9 @@ class ProductService
         //2. Khởi tạo DB Transaction:
         DB::beginTransaction();
         try{
+            if (isset($data['attributes']) && is_array($data['attributes'])) {
+                $data['attributes'] = $this->formatAttributes($data['attributes']);
+            }
             // Bước A: Tạo Product trước 
             $product = Product::create($data);
 
@@ -159,6 +181,9 @@ class ProductService
         // 3. Transaction Start:
         DB::beginTransaction();
         try{
+            if (isset($data['attributes']) && is_array($data['attributes'])) {
+                $data['attributes'] = $this->formatAttributes($data['attributes']);
+            }
             // a. Update thông tin cơ bản:
             $product->update($data);
 

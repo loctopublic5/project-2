@@ -49,7 +49,7 @@
                     alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
                     localStorage.removeItem('admin_token');
                     localStorage.removeItem('admin_user');
-                    window.location.href = '/admin/login';
+                    window.location.href = '/login';
                 }
             }
             return Promise.reject(error);

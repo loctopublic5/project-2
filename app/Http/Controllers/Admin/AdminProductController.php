@@ -29,10 +29,6 @@ class AdminProductController extends Controller
             $data = $request->validated();
             // 2. Chuẩn bị Data cho Service
             $data = $request->except(['image']); // Lấy hết input trừ file image raw
-            // Decode JSON string từ Frontend thành Array PHP để Model lưu đúng format
-            if ($request->filled('attributes')) {
-                $data['attributes'] = json_decode($request->input('attributes'), true);
-            }
     
         
             // Chuẩn hóa 'image' đơn lẻ từ Request thành mảng 'images' cho Service
@@ -53,10 +49,6 @@ class AdminProductController extends Controller
                 $data = $request->validated();
                 // 2. Chuẩn bị Data cho Service
                 $data = $request->except(['image']); // Lấy hết input trừ file image raw
-                // Decode JSON string từ Frontend thành Array PHP để Model lưu đúng format
-                if ($request->filled('attributes')) {
-                    $data['attributes'] = json_decode($request->input('attributes'), true);
-                }
 
                 // Chuẩn hóa 'image' đơn lẻ từ Request thành mảng 'images' cho Service
                     if ($request->hasFile('image')) {
