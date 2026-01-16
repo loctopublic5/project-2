@@ -76,7 +76,7 @@ Route::prefix('v1')->group(function () {
         3. CUSTOMER MODULE (Yêu cầu Login)
         URL: /api/v1/customer/...
     ================================================================= */
-    Route::prefix('customer')->middleware('auth:sanctum','role:customer')->group(function(){->group(function(){
+    Route::prefix('customer')->middleware(['auth:sanctum', 'role:customer'])->group(function(){
         // ORDER ROUTES (Role: Customer)
         Route::prefix('orders')->group(function(){
             Route::post('/', [OrderController::class, 'store']);
