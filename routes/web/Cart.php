@@ -15,10 +15,10 @@ Route::post('/cart/add', function (
     AddToCartRequest $request,
     CartService $cartService
 ) {
-    $userId = auth()->id();
+
 
     $cartService->addToCart(
-        $userId,
+        1,
         $request->product_id,
         $request->quantity,
         $request->options ?? []
@@ -28,10 +28,12 @@ Route::post('/cart/add', function (
 })->name('cart.add');
 
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     // Trang giỏ hàng
-    Route::get('/cart', [CartController::class, 'index'])
+    Route::get('/cart', function(){
+        return view('admin.orders.index');
+    })
         ->name('cart.index');
 
     // Add to cart
