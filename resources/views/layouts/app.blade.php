@@ -2,17 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>@yield('title', 'Shop')</title>
-
+    <title>@yield('title', 'Metronic Shop')</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    {{-- CSS --}}
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|PT+Sans+Narrow|Source+Sans+Pro:200,300,400,600,700,900&amp;subset=all" rel="stylesheet" type="text/css">
+    {{-- CSS Global Styles --}}
     <link rel="stylesheet" href="{{ asset('assets/plugins/font-awesome/css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/pages/css/animate.css') }}">
+    
+    {{-- Page Level Plugin Styles --}}
     <link rel="stylesheet" href="{{ asset('assets/plugins/fancybox/source/jquery.fancybox.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/owl.carousel/assets/owl.carousel.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/pages/css/animate.css') }}">
 
+    {{-- Theme Styles --}}
     <link rel="stylesheet" href="{{ asset('assets/pages/css/components.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/pages/css/slider.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/pages/css/style-shop.css') }}">
@@ -23,47 +27,43 @@
 </head>
 <body class="ecommerce">
 
-@include('partials.header')
+    @include('partials.header')
 
-@yield('content')
+    @yield('content')
 
-@include('partials.footer')
+    @include('partials.footer')
 
-{{-- JS --}}
-<script src="{{ asset('assets/plugins/jquery.min.js') }}"></script>
-<script src="{{ asset('assets/plugins/fancybox/source/jquery.fancybox.pack.js') }}"></script>
-<script src="{{ asset('assets/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('assets/plugins/owl.carousel/owl.carousel.min.js') }}"></script>
-<script src="{{ asset('assets/pages/scripts/app.js') }}"></script>
-<script src="{{ asset('assets/pages/scripts/shop-index.js') }}"></script>
+    {{-- JavaScripts --}}
+    <script src="{{ asset('assets/plugins/jquery.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/jquery-migrate.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/bootstrap/js/bootstrap.min.js') }}" type="text/javascript"></script>      
+    <script src="{{ asset('assets/corporate/scripts/back-to-top.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js') }}" type="text/javascript"></script>
 
-<script>
-    jQuery(document).ready(function () {
-        if ($(".fancybox-button").length) {
-            $(".fancybox-button").fancybox({
-                prevEffect: 'none',
-                nextEffect: 'none',
-                closeBtn: true,
-                helpers: {
-                    title: { type: 'inside' },
-                    buttons: {}
-                }
-            });
-        }
-    });
-</script>
+    <script src="{{ asset('assets/plugins/fancybox/source/jquery.fancybox.pack.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/owl.carousel/owl.carousel.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/zoom/jquery.zoom.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js') }}" type="text/javascript"></script>
 
-<script>
-    jQuery(document).ready(function() {
-        App.init();
-        App.initBxSlider();
-    });
-</script>
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
+    <script src="{{ asset('assets/corporate/scripts/layout.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/pages/scripts/bs-carousel.js') }}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            Layout.init();    
+            Layout.initOWL();
+            Layout.initImageZoom();
+            Layout.initTouchspin();
+            // Layout.initTwitter(); // Bỏ comment nếu bạn có dùng twitter widget
+        });
+    </script>
+
+    {{-- Hiển thị thông báo --}}
+    @if(session('success'))
+        <script>
+            alert("{{ session('success') }}");
+        </script>
+    @endif
 
 </body>
 </html>
