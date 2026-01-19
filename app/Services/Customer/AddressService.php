@@ -5,34 +5,73 @@ use App\Models\UserAddress;
 use Illuminate\Support\Facades\DB;
 
 class AddressService{
-    public function createAddress($userId,$data){
-        return DB::transaction(function() use($userId,$data){
-            // 1. Logic UX: Nếu đây là địa chỉ ĐẦU TIÊN của user
-            // Thì BẮT BUỘC nó phải là default (Dù FE có gửi false lên cũng kệ)
-            $count = UserAddress::where('user_id', $userId)->count();
-            if($count === 0){
-                $data['is_default'] = true;
-            }
+    public function createAddress($userId, $data) {
+    return DB::transaction(function() use($userId, $data) {
+        // 1. Chuẩn hóa giá trị boolean ngay từ đầu
+        $isDefault = isset($data['is_default']) ? filter_var($data['is_default'], FILTER_VALIDATE_BOOLEAN) : false;
 
-            // 2. Logic "Truất ngôi": Nếu input yêu cầu set default
-            if(isset($data['is_default']) && $data['is_default'] === true){
-                // Reset toàn bộ địa chỉ cũ của user này về false
+        // 2. Kiểm tra nếu là địa chỉ đầu tiên
+        $count = UserAddress::where('user_id', $userId)->count();
+        if($count === 0) {
+            $isDefault = true;
+        }
+
+        // 3. Nếu thằng này là mặc định, reset những thằng khác
+        if($isDefault === true) {
+            UserAddress::where('user_id', $userId)->update(['is_default' => false]);
+        }
+
+        // 4. Tạo mới
+        return UserAddress::create([
+            'user_id'        => $userId,
+            'recipient_name' => $data['recipient_name'],
+            'phone'          => $data['phone'],
+            'province_id'    => $data['province_id'],
+            'district_id'    => $data['district_id'],
+            'ward_id'        => $data['ward_id'],
+            'address_detail' => $data['address_detail'],
+            'is_default'     => $isDefault, // Sử dụng biến đã chuẩn hóa
+            'is_active'      => true,
+        ]);
+    });
+    }
+
+    public function updateAddress(int $userId, int $addressId, array $data)
+    {
+        return DB::transaction(function () use ($userId, $addressId, $data) {
+            // 1. Tìm địa chỉ (IDOR Protection)
+            $address = UserAddress::where('user_id', $userId)->findOrFail($addressId);
+
+            // 2. Chuẩn hóa Boolean (Safe Casting)
+            // Chuyển mọi thể loại "1", "true", 1 về true/false chuẩn của PHP
+            $wantsToBeDefault = isset($data['is_default']) 
+                                ? filter_var($data['is_default'], FILTER_VALIDATE_BOOLEAN) 
+                                : null;
+
+            // 3. Xử lý Logic "Tranh ngôi" (Set Default)
+            if ($wantsToBeDefault === true) {
+                // Nếu muốn làm vua -> Truất ngôi tất cả thằng khác
                 UserAddress::where('user_id', $userId)
-                            ->update(['is_default' => false]);
+                    ->where('id', '!=', $addressId)
+                    ->update(['is_default' => false]);
             }
 
-            // 3. Tạo mới an toàn
-            return UserAddress::create([
-                'user_id' => $userId,
-                'recipient_name' => $data['recipient_name'],
-                'phone'          => $data['phone'],
-                'province_id'    => $data['province_id'],
-                'district_id'    => $data['district_id'],
-                'ward_id'        => $data['ward_id'],
-                'address_detail' => $data['address_detail'],
-                'is_default'     => $data['is_default'] ?? false,
-                'is_active'      => true,
-            ]);
+            // 4. Xử lý Edge Case: "Vua không được tự thoái vị"
+            // Nếu đang là Default mà user gửi lên false -> Lờ đi (Xóa khỏi data update)
+            // Hoặc nếu user không gửi is_default -> Cũng không sao, Eloquent không update field đó
+            if ($address->is_default && $wantsToBeDefault === false) {
+            unset($data['is_default']); 
+            }
+
+            // 5. Cập nhật dữ liệu
+            // Gán lại giá trị chuẩn boolean vào data để Eloquent lưu cho đúng (tránh lưu string "true")
+            if (isset($data['is_default'])) {
+                $data['is_default'] = $wantsToBeDefault;
+            }
+            
+            $address->update($data);
+
+            return $address;
         });
     }
 
@@ -77,42 +116,5 @@ class AddressService{
         return UserAddress::where('user_id', $userId)->findOrFail($addressId);
     }
 
-    public function updateAddress(int $userId, int $addressId, array $data)
-    {
-        return DB::transaction(function () use ($userId, $addressId, $data) {
-            // 1. Tìm địa chỉ (IDOR Protection)
-            $address = UserAddress::where('user_id', $userId)->findOrFail($addressId);
-
-            // 2. Chuẩn hóa Boolean (Safe Casting)
-            // Chuyển mọi thể loại "1", "true", 1 về true/false chuẩn của PHP
-            $wantsToBeDefault = isset($data['is_default']) 
-                                ? filter_var($data['is_default'], FILTER_VALIDATE_BOOLEAN) 
-                                : null;
-
-            // 3. Xử lý Logic "Tranh ngôi" (Set Default)
-            if ($wantsToBeDefault === true) {
-                // Nếu muốn làm vua -> Truất ngôi tất cả thằng khác
-                UserAddress::where('user_id', $userId)
-                    ->where('id', '!=', $addressId)
-                    ->update(['is_default' => false]);
-            }
-
-            // 4. Xử lý Edge Case: "Vua không được tự thoái vị"
-            // Nếu đang là Default mà user gửi lên false -> Lờ đi (Xóa khỏi data update)
-            // Hoặc nếu user không gửi is_default -> Cũng không sao, Eloquent không update field đó
-            if ($address->is_default && $wantsToBeDefault === false) {
-            unset($data['is_default']); 
-            }
-
-            // 5. Cập nhật dữ liệu
-            // Gán lại giá trị chuẩn boolean vào data để Eloquent lưu cho đúng (tránh lưu string "true")
-            if (isset($data['is_default'])) {
-                $data['is_default'] = $wantsToBeDefault;
-            }
-            
-            $address->update($data);
-
-            return $address;
-        });
-    }
+    
 }

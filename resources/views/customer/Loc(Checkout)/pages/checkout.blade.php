@@ -543,7 +543,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
             <div id="address-items" class="margin-bottom-20">
                 <p class="text-muted">Đang tải danh sách địa chỉ...</p>
             </div>
-            <button class="btn btn-default btn-sm" onclick="Checkout.toggleNewAddressForm()">
+            <button class="btn btn-default btn-sm" onclick="Checkout.Address.toggleNewAddressForm()">
                 <i class="fa fa-plus"></i> Thêm địa chỉ mới
             </button>
         </div>
@@ -606,11 +606,11 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                     <label><input type="checkbox" id="is_default"> Đặt làm địa chỉ mặc định</label>
                 </div>
                 <div class="margin-top-10">
-        <button type="button" class="btn btn-primary" id="btn-save-address" onclick="Checkout.saveAddressManual()">
+        <button type="button" class="btn btn-primary" id="btn-save-address" onclick="Checkout.Address.saveAddressManual()">
         Lưu địa chỉ
     </button>
     
-    <button type="button" class="btn btn-default" onclick="Checkout.toggleNewAddressForm(false)">
+    <button type="button" class="btn btn-default" onclick="Checkout.Address.toggleNewAddressForm(false)">
         Hủy
     </button>
     </div>
@@ -619,7 +619,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
 
         <div class="col-md-12 margin-top-20">
             <hr>
-            <button class="btn btn-primary pull-right" type="button" id="btn-continue-shipping" onclick="Checkout.confirmAddress()">
+            <button class="btn btn-primary pull-right" type="button" id="btn-continue-shipping" onclick="Checkout.Address.confirmAddress()">
                 Tiếp tục phương thức vận chuyển
             </button>
         </div>
@@ -1021,7 +1021,9 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
 
     <script src="/admin_assets/js/axios-config.js"></script>
 
-    <script src="assets/js/pages/Loc/checkout.js" type="text/javascript"></script>
+    <script src="assets/js/pages/checkout/checkout-core.js" type="text/javascript"></script>
+    <script src="assets/js/pages/checkout/checkout-auth.js" type="text/javascript"></script>
+    <script src="assets/js/pages/checkout/checkout-address.js" type="text/javascript"></script>
     <script type="text/javascript">
     jQuery(document).ready(function() {
         Layout.init();    
