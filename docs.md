@@ -4,6 +4,12 @@ Tài liệu hướng dẫn quy trình phát triển, cài đặt và cấu trúc
 **Quy trình luồng dữ liệu (Data Flow) bắt buộc:**
 1.  **Input:** Route (API) -> Request (Validation) -> Controller -> Service (Logic) -> DB.
 2.  **Output:** DB -> Service -> Controller -> Resource (Transform JSON) -> JS -> View (Blade/JSON Response) -> Route (Web) -> UI.
+
+
+1. Update Gemini CLi
+npm install -g @google/gemini-cli@latest
+2. run version 2.5
+gemini -m gemini-2.5-flash
 -------------------------------------------------------------------------------------------------------
 
 ## 🛠 1. Cài đặt dự án (Cho thành viên mới)
