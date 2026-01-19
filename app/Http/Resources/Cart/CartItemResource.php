@@ -9,6 +9,7 @@ class CartItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        
         // 1. SAFETY CHECK (Phòng thủ)
         // Dù Service đã eager load, nhưng lỡ sản phẩm bị Soft Delete hoặc lỗi data
         // thì $this->product có thể null. Check để tránh crash API 500.
@@ -58,6 +59,7 @@ class CartItemResource extends JsonResource
                 // Đảm bảo avatar luôn là chuỗi (hoặc null), tránh lỗi nếu DB null
                 'avatar' => $product->avatar ?? '', 
                 'sku'    => $product->sku,
+                'avatar' => $this->getAvatarUrl($product),
             ],
 
             'price'        => $realPrice,
@@ -78,4 +80,13 @@ class CartItemResource extends JsonResource
             'max_qty'       => (int) $product->stock_qty,
         ];
     }
+    private function getAvatarUrl($product) {
+    // Eager load quan hệ 'images' để lấy file
+    $image = $product->images->first(); 
+    if ($image && $image->path) {
+        // Trả về URL đầy đủ. Theo ERD lưu tại public/storage/upload 
+        return asset('storage/' . $image->path);
+    }
+    return asset('assets/pages/img/no-image.png');
+}
 }

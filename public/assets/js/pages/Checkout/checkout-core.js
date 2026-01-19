@@ -20,7 +20,7 @@ var Checkout = (function () {
             // Khởi tạo các module con nếu chúng tồn tại
             if (this.Auth) this.Auth.init();
             if (this.Address) this.Address.init();
-            if (this.Shipping) this.Shipping.init();
+            if (this.Shipping) this.Review.init();
             if (this.Payment) this.Payment.init();
         },
 

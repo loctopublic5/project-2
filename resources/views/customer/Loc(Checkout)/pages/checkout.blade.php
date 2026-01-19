@@ -749,7 +749,6 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
         </div>
     </div>
 </div>
-
                 <div class="margin-top-20">
                     <button class="btn btn-primary pull-right" type="button" id="btn-confirm-payment" onclick="Checkout.Payment.confirmPayment()">
                         Tiếp tục
@@ -762,7 +761,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
               <!-- END PAYMENT METHOD -->
 
               <!-- BEGIN CONFIRM -->
-              <div id="confirm" class="panel panel-default">
+              < id="confirm" class="panel panel-default">
                 <div class="panel-heading">
                   <h2 class="panel-title">
                     <a data-toggle="collapse" data-parent="#checkout-page" href="#confirm-content" class="accordion-toggle">
@@ -771,88 +770,42 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                   </h2>
                 </div>
                 <div id="confirm-content" class="panel-collapse collapse">
-                  <div class="panel-body row">
-                    <div class="col-md-12 clearfix">
-                      <div class="table-wrapper-responsive">
-                      <table>
+    <div class="panel-body row">
+        <div class="col-md-12 clearfix">
+            <div class="table-wrapper-responsive">
+                <table id="table-confirm-order">
+                    <thead>
                         <tr>
-                          <th class="checkout-image">Image</th>
-                          <th class="checkout-description">Description</th>
-                          <th class="checkout-model">Model</th>
-                          <th class="checkout-quantity">Quantity</th>
-                          <th class="checkout-price">Price</th>
-                          <th class="checkout-total">Total</th>
+                            <th class="checkout-image">Hình ảnh</th>
+                            <th class="checkout-description">Mô tả</th>
+                            <th class="checkout-model">Mã SKU</th>
+                            <th class="checkout-quantity">Số lượng</th>
+                            <th class="checkout-price">Giá tiền</th>
+                            <th class="checkout-total">Thành tiền</th>
                         </tr>
-                        <tr>
-                          <td class="checkout-image">
-                            <a href="javascript:;"><img src="assets/pages/img/products/model3.jpg" alt="Berry Lace Dress"></a>
-                          </td>
-                          <td class="checkout-description">
-                            <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                            <p><strong>Item 1</strong> - Color: Green; Size: S</p>
-                            <em>More info is here</em>
-                          </td>
-                          <td class="checkout-model">RES.193</td>
-                          <td class="checkout-quantity">1</td>
-                          <td class="checkout-price"><strong><span>$</span>47.00</strong></td>
-                          <td class="checkout-total"><strong><span>$</span>47.00</strong></td>
-                        </tr>
-                        <tr>
-                          <td class="checkout-image">
-                            <a href="javascript:;"><img src="assets/pages/img/products/model4.jpg" alt="Berry Lace Dress"></a>
-                          </td>
-                          <td class="checkout-description">
-                            <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                            <p><strong>Item 1</strong> - Color: Green; Size: S</p>
-                            <em>More info is here</em>
-                          </td>
-                          <td class="checkout-model">RES.193</td>
-                          <td class="checkout-quantity">1</td>
-                          <td class="checkout-price"><strong><span>$</span>47.00</strong></td>
-                          <td class="checkout-total"><strong><span>$</span>47.00</strong></td>
-                        </tr>
-                      </table>
-                      </div>
-                      <div class="checkout-total-block">
-                        <ul>
-                          <li>
-                            <em>Sub total</em>
-                            <strong class="price"><span>$</span>47.00</strong>
-                          </li>
-                          <li>
-                            <em>Shipping cost</em>
-                            <strong class="price"><span>$</span>3.00</strong>
-                          </li>
-                          <li>
-                            <em>Eco Tax (-2.00)</em>
-                            <strong class="price"><span>$</span>3.00</strong>
-                          </li>
-                          <li>
-                            <em>VAT (17.5%)</em>
-                            <strong class="price"><span>$</span>3.00</strong>
-                          </li>
-                          <li class="checkout-total-price">
-                            <em>Total</em>
-                            <strong class="price"><span>$</span>56.00</strong>
-                          </li>
-                        </ul>
-                      </div>
-                      <div class="clearfix"></div>
-                      <button class="btn btn-primary pull-right" type="submit" id="button-confirm">Confirm Order</button>
-                      <button type="button" class="btn btn-default pull-right margin-right-20">Cancel</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- END CONFIRM -->
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
             </div>
-            <!-- END CHECKOUT PAGE -->
-          </div>
-          <!-- END CONTENT -->
+
+            <div class="checkout-total-block">
+                <ul id="checkout-final-summary">
+                    </ul>
+            </div>
+
+            <div class="clearfix"></div>
+            <button class="btn btn-primary pull-right" type="button" id="button-confirm" onclick="Checkout.OrderReview.placeOrder()">
+                Xác nhận đơn hàng
+            </button>
+            <button type="button" class="btn btn-default pull-right margin-right-20" onclick="window.location.reload()">Hủy bỏ</button>
         </div>
-        <!-- END SIDEBAR & CONTENT -->
-      </div>
     </div>
+</div>
+
+
+<!-- END REVIEW & CONFIRM -->
+    
 
     <!-- BEGIN STEPS -->
     <div class="steps-block steps-block-red">
@@ -1028,7 +981,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <script src="assets/js/pages/checkout/checkout-auth.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-address.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-payment.js" type="text/javascript"></script>
-    <script src="assets/js/pages/checkout/checkout-shipping.js" type="text/javascript"></script>
+    <script src="assets/js/pages/checkout/checkout-review.js" type="text/javascript"></script>
     <script type="text/javascript">
     jQuery(document).ready(function() {
         Layout.init();    
@@ -1043,8 +996,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
             Checkout.init();
         }
     });
-</script
-    <!-- END PAGE LEVEL JAVASCRIPTS -->
+</script>
 </body>
 <!-- END BODY -->
 </html>
