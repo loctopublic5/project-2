@@ -431,167 +431,100 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
             <div class="panel-group checkout-page accordion scrollable" id="checkout-page">
 
               <!-- BEGIN CHECKOUT -->
-            <div id="checkout" class="panel panel-default">
-                <div class="panel-heading">
-                  <h2 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#checkout-page" href="#checkout-content" class="accordion-toggle">
-                      Step 1: Checkout Options
-                    </a>
-                  </h2>
+<div id="checkout" class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            <a data-toggle="collapse" data-parent="#checkout-page" href="#checkout-content" class="accordion-toggle">
+                Step 1: Checkout Options
+            </a>
+        </h2>
+    </div>
+    <div id="checkout-content" class="panel-collapse collapse in">
+        <div class="panel-body row">
+            <div class="col-md-6 col-sm-6">
+                <h3>Khách hàng mới</h3>
+                <p>Tùy chọn thanh toán:</p>
+                <div class="radio-list">
+                    <label><input type="radio" name="account" value="register" checked> Đăng ký tài khoản</label>
                 </div>
-                <div id="checkout-content" class="panel-collapse collapse in">
-                  <div class="panel-body row">
-                    <div class="col-md-6 col-sm-6">
-                      <h3>New Customer</h3>
-                      <p>Checkout Options:</p>
-                      <div class="radio-list">
-                        <label>
-                          <input type="radio" name="account"  value="register"> Register Account
-                        </label>
-                        <label>
-                          <input type="radio" name="account"  value="guest"> Guest Checkout
-                        </label> 
-                      </div>
-                      <p>By creating an account you will be able to shop faster, be up to date on an order's status, and keep track of the orders you have previously made.</p>
-                      <button class="btn btn-primary" type="submit" data-toggle="collapse" data-parent="#checkout-page" data-target="#payment-address-content">Continue</button>
+                <p>Tạo tài khoản giúp bạn quản lý đơn hàng tốt hơn và nhận nhiều ưu đãi.</p>
+                <button class="btn btn-primary" type="button" onclick="Checkout.proceedToStep2()">Tiếp tục</button>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <h3>Khách hàng cũ</h3>
+                <p>Tôi đã có tài khoản.</p>
+                <form id="form-login-checkout">
+                    <div class="form-group">
+                        <label for="email-login">E-Mail <span class="require">*</span></label>
+                        <input type="email" id="email-login" class="form-control">
                     </div>
-                    <div class="col-md-6 col-sm-6">
-                      <h3>Returning Customer</h3>
-                      <p>I am a returning customer.</p>
-                      <form role="form" action="#">
-                        <div class="form-group">
-                          <label for="email-login">E-Mail</label>
-                          <input type="text" id="email-login" class="form-control">
-                        </div>
-                        <div class="form-group">
-                          <label for="password-login">Password</label>
-                          <input type="password" id="password-login" class="form-control">
-                        </div>
-                        <a href="javascript:;">Forgotten Password?</a>
-                        <div class="padding-top-20">                  
-                          <button class="btn btn-primary" type="submit">Login</button>
-                        </div>
-                        <hr>
-                        <div class="login-socio">
-                          <p class="text-muted">or login using:</p>
-                          <ul class="social-icons">
-                            <li><a href="javascript:;" data-original-title="facebook" class="facebook" title="facebook"></a></li>
-                            <li><a href="javascript:;" data-original-title="Twitter" class="twitter" title="Twitter"></a></li>
-                            <li><a href="javascript:;" data-original-title="Google Plus" class="googleplus" title="Google Plus"></a></li>
-                            <li><a href="javascript:;" data-original-title="Linkedin" class="linkedin" title="LinkedIn"></a></li>
-                          </ul>
-                        </div>
-                      </form>
+                    <div class="form-group">
+                        <label for="password-login">Mật khẩu <span class="require">*</span></label>
+                        <input type="password" id="password-login" class="form-control">
                     </div>
-                  </div>
-                </div>
-              </div>
+                    <div class="padding-top-20">                  
+                        <button class="btn btn-primary" type="submit" id="btn-login-checkout">Đăng nhập</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
               <!-- END CHECKOUT -->
 
               <!-- BEGIN PAYMENT ADDRESS -->
-              <div id="payment-address" class="panel panel-default">
-                <div class="panel-heading">
-                  <h2 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#checkout-page" href="#payment-address-content" class="accordion-toggle">
-                      Step 2: Account &amp; Billing Details
-                    </a>
-                  </h2>
+<div id="payment-address-content" class="panel-collapse collapse">
+    <div class="panel-body row">
+        <form id="form-register-checkout">
+            <div class="col-md-6 col-sm-6">
+                <h3>Your Personal Details</h3>
+                <div class="form-group">
+                    <label for="firstname">First Name <span class="require">*</span></label>
+                    <input type="text" id="firstname" class="form-control" placeholder="Nguyễn" required>
                 </div>
-                <div id="payment-address-content" class="panel-collapse collapse">
-                  <div class="panel-body row">
-                    <div class="col-md-6 col-sm-6">
-                      <h3>Your Personal Details</h3>
-                      <div class="form-group">
-                        <label for="firstname">First Name <span class="require">*</span></label>
-                        <input type="text" id="firstname" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="lastname">Last Name <span class="require">*</span></label>
-                        <input type="text" id="lastname" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="email">E-Mail <span class="require">*</span></label>
-                        <input type="text" id="email" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="telephone">Telephone <span class="require">*</span></label>
-                        <input type="text" id="telephone" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="fax">Fax</label>
-                        <input type="text" id="fax" class="form-control">
-                      </div>
+                <div class="form-group">
+                    <label for="lastname">Last Name <span class="require">*</span></label>
+                    <input type="text" id="lastname" class="form-control" placeholder="Văn A" required>
+                </div>
+                <div class="form-group">
+                    <label for="email-reg">E-Mail <span class="require">*</span></label>
+                    <input type="email" id="email-reg" class="form-control" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="telephone">Telephone <span class="require">*</span></label>
+                    <input type="text" id="telephone" class="form-control" placeholder="09xxxxxxx" required>
+                </div>
+            </div>
 
-                      <h3>Your Password</h3>
-                      <div class="form-group">
-                        <label for="password">Password <span class="require">*</span></label>
-                        <input type="password" id="password" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="password-confirm">Password Confirm <span class="require">*</span></label>
-                        <input type="text" id="password-confirm" class="form-control">
-                      </div>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                      <h3>Your Address</h3>
-                      <div class="form-group">
-                        <label for="company">Company</label>
-                        <input type="text" id="company" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="address1">Address 1</label>
-                        <input type="text" id="address1" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="address2">Address 2</label>
-                        <input type="text" id="address2" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="city">City <span class="require">*</span></label>
-                        <input type="text" id="city" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="post-code">Post Code <span class="require">*</span></label>
-                        <input type="text" id="post-code" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="country">Country <span class="require">*</span></label>
-                        <select class="form-control input-sm" id="country">
-                          <option value=""> --- Please Select --- </option>
-                          <option value="244">Aaland Islands</option>
-                          <option value="1">Afghanistan</option>
-                          <option value="2">Albania</option>
-                        </select>
-                      </div>
-                      <div class="form-group">
-                        <label for="region-state">Region/State <span class="require">*</span></label>
-                        <select class="form-control input-sm" id="region-state">
-                          <option value=""> --- Please Select --- </option><option value="3513">Aberdeen</option><option value="3514">Aberdeenshire</option><option value="3515">Anglesey</option>
-                        </select>
-                      </div>
-                    </div>
-                    <hr>
-                    <div class="col-md-12">                      
-                      <div class="checkbox">
-                        <label>
-                          <input type="checkbox"> I wish to subscribe to the OXY newsletter. 
-                        </label>
-                      </div>
-                      <div class="checkbox">
-                        <label>
-                          <input type="checkbox" checked="checked"> My delivery and billing addresses are the same.
-                        </label>
-                      </div>
-                      <button class="btn btn-primary  pull-right" type="submit" data-toggle="collapse" data-parent="#checkout-page" data-target="#shipping-address-content" id="button-payment-address">Continue</button>
-                      <div class="checkbox pull-right">
-                        <label>
-                          <input type="checkbox"> I have read and agree to the <a title="Privacy Policy" href="javascript:;">Privacy Policy</a> &nbsp;&nbsp;&nbsp; 
-                        </label>
-                      </div>                        
-                    </div>
-                  </div>
+            <div class="col-md-6 col-sm-6">
+                <h3>Your Password</h3>
+                <div class="form-group">
+                    <label for="password-reg">Password <span class="require">*</span></label>
+                    <input type="password" id="password-reg" class="form-control" required>
                 </div>
-              </div>
+                <div class="form-group">
+                    <label for="password-confirm">Password Confirm <span class="require">*</span></label>
+                    <input type="password" id="password-confirm" class="form-control" required>
+                </div>
+                
+                <div style="margin-top: 20px;" class="hidden-xs"></div>
+                <p class="text-muted"><i class="fa fa-info-circle"></i> Đảm bảo mật khẩu của bạn có ít nhất 6 ký tự để bảo mật tốt nhất.</p>
+            </div>
+
+            <div class="col-md-12">
+                <hr>
+                <div class="pull-right" style="margin-left: 15px;">
+                    <button class="btn btn-primary" type="submit" id="btn-register-checkout">Continue</button>
+                </div>
+                <div class="checkbox pull-right">
+                    <label>
+                        <input type="checkbox" id="agree-reg" checked> I have read and agree to the <a href="javascript:;">Privacy Policy</a>
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
               <!-- END PAYMENT ADDRESS -->
 
               <!-- BEGIN SHIPPING ADDRESS -->
@@ -994,18 +927,27 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <script src="assets/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
 
     <script src="assets/corporate/scripts/layout.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="/admin_assets/js/axios-config.js"></script>
+
     <script src="assets/js/pages/Loc/checkout.js" type="text/javascript"></script>
     <script type="text/javascript">
-        jQuery(document).ready(function() {
-            Layout.init();    
-            Layout.initOWL();
-            Layout.initTwitter();
-            Layout.initImageZoom();
-            Layout.initTouchspin();
-            Layout.initUniform(); 
+    jQuery(document).ready(function() {
+        Layout.init();    
+        Layout.initOWL();
+        Layout.initTwitter();
+        Layout.initImageZoom();
+        Layout.initTouchspin();
+        Layout.initUniform(); 
+        
+        // Kích hoạt logic Checkout của chúng ta
+        if (typeof Checkout !== 'undefined') {
             Checkout.init();
-        });
-    </script>
+        }
+    });
+</script
     <!-- END PAGE LEVEL JAVASCRIPTS -->
 </body>
 <!-- END BODY -->
