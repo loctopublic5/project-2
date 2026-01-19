@@ -116,7 +116,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                         <li><a href="shop-account.html">My Account</a></li>
                         <li><a href="shop-wishlist.html">My Wishlist</a></li>
                         <li><a href="shop-checkout.html">Checkout</a></li>
-                        <li><a href="page-login.html">Log In</a></li>
+                        <li><a href="/login">Log In</a></li>
                     </ul>
                 </div>
                 <!-- END TOP BAR MENU -->
@@ -466,7 +466,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                         <button class="btn btn-primary" type="submit" id="btn-login-checkout">Đăng nhập</button>
                     </div>
                 </form>
-            </div>
+            </div> 
         </div>
     </div>
 </div>
@@ -532,77 +532,166 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                 <div class="panel-heading">
                   <h2 class="panel-title">
                     <a data-toggle="collapse" data-parent="#checkout-page" href="#shipping-address-content" class="accordion-toggle">
-                      Step 3: Delivery Details
-                    </a>
+    Step 2: Delivery Details
+</a>
                   </h2>
                 </div>
                 <div id="shipping-address-content" class="panel-collapse collapse">
-                  <div class="panel-body row">
-                    <div class="col-md-6 col-sm-6">
-                      <div class="form-group">
-                        <label for="firstname-dd">First Name <span class="require">*</span></label>
-                        <input type="text" id="firstname-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="lastname-dd">Last Name <span class="require">*</span></label>
-                        <input type="text" id="lastname-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="email-dd">E-Mail <span class="require">*</span></label>
-                        <input type="text" id="email-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="telephone-dd">Telephone <span class="require">*</span></label>
-                        <input type="text" id="telephone-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="fax-dd">Fax</label>
-                        <input type="text" id="fax-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="company-dd">Company</label>
-                        <input type="text" id="company-dd" class="form-control">
-                      </div>
+    <div class="panel-body row">
+        <div class="col-md-12" id="address-list-container">
+            <h3>Địa chỉ nhận hàng của bạn</h3>
+            <div id="address-items" class="margin-bottom-20">
+                <p class="text-muted">Đang tải danh sách địa chỉ...</p>
+            </div>
+            <button class="btn btn-default btn-sm" onclick="Checkout.toggleNewAddressForm()">
+                <i class="fa fa-plus"></i> Thêm địa chỉ mới
+            </button>
+        </div>
+
+        <div class="col-md-12" id="new-address-form-wrapper" style="display: none; margin-top: 20px;">
+            <hr>
+            <h3>Thêm địa chỉ mới</h3>
+            <form id="form-add-address">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="recipient_name">Tên người nhận <span class="require">*</span></label>
+                            <input type="text" id="recipient_name" class="form-control" required>
+                        </div>
                     </div>
-                    <div class="col-md-6 col-sm-6">
-                      <div class="form-group">
-                        <label for="address1-dd">Address 1</label>
-                        <input type="text" id="address1-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="address2-dd">Address 2</label>
-                        <input type="text" id="address2-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="city-dd">City <span class="require">*</span></label>
-                        <input type="text" id="city-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="post-code-dd">Post Code <span class="require">*</span></label>
-                        <input type="text" id="post-code-dd" class="form-control">
-                      </div>
-                      <div class="form-group">
-                        <label for="country-dd">Country <span class="require">*</span></label>
-                        <select class="form-control input-sm" id="country-dd">
-                          <option value=""> --- Please Select --- </option>
-                          <option value="244">Aaland Islands</option>
-                          <option value="1">Afghanistan</option>
-                          <option value="2">Albania</option>
-                        </select>
-                      </div>
-                      <div class="form-group">
-                        <label for="region-state-dd">Region/State <span class="require">*</span></label>
-                        <select class="form-control input-sm" id="region-state-dd">
-                          <option value=""> --- Please Select --- </option><option value="3513">Aberdeen</option><option value="3514">Aberdeenshire</option><option value="3515">Anglesey</option><option value="3516">Angus</option>
-                        </select>
-                      </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="address_phone">Số điện thoại <span class="require">*</span></label>
+                            <input type="text" id="address_phone" class="form-control" required>
+                        </div>
                     </div>
-                    <div class="col-md-12">
-                      <button class="btn btn-primary  pull-right" type="submit" id="button-shipping-address" data-toggle="collapse" data-parent="#checkout-page" data-target="#shipping-method-content">Continue</button>
-                    </div>
-                  </div>
                 </div>
-              </div>
+                <div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label for="address_detail">Địa chỉ chi tiết (Số nhà, tên đường...) <span class="require">*</span></label>
+            <input type="text" id="address_detail" class="form-control" placeholder="Ví dụ: 123 Đường ABC, Phường 1" required>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Tỉnh/Thành phố <span class="require">*</span></label>
+            <select id="province_id" class="form-control input-sm" required>
+                <option value="">-- Chọn Tỉnh --</option>
+                <option value="1">Hà Nội</option>
+                <option value="2">TP. Hồ Chí Minh</option>
+                </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Quận/Huyện <span class="require">*</span></label>
+            <select id="district_id" class="form-control input-sm" required>
+                <option value="">-- Chọn Huyện --</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Phường/Xã <span class="require">*</span></label>
+            <select id="ward_id" class="form-control input-sm" required>
+                <option value="">-- Chọn Xã --</option>
+            </select>
+        </div>
+    </div>
+</div>
+                <div class="checkbox">
+                    <label><input type="checkbox" id="is_default"> Đặt làm địa chỉ mặc định</label>
+                </div>
+                <div class="margin-top-10">
+        <button type="button" class="btn btn-primary" id="btn-save-address" onclick="Checkout.saveAddressManual()">
+        Lưu địa chỉ
+    </button>
+    
+    <button type="button" class="btn btn-default" onclick="Checkout.toggleNewAddressForm(false)">
+        Hủy
+    </button>
+    </div>
+            </form>
+        </div>
+
+        <div class="col-md-12 margin-top-20">
+            <hr>
+            <button class="btn btn-primary pull-right" type="button" id="btn-continue-shipping" onclick="Checkout.confirmAddress()">
+                Tiếp tục phương thức vận chuyển
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tổng thể khung địa chỉ */
+    .address-item { 
+        position: relative;
+        border: 1px solid #ddd; 
+        padding: 15px; 
+        margin-bottom: 12px; 
+        cursor: pointer; 
+        border-radius: 4px; 
+        transition: all 0.2s ease-in-out;
+        background: #fff;
+        opacity: 1 !important; /* Đảm bảo không bị mờ */
+    }
+
+    /* Hiệu ứng khi di chuột qua */
+    .address-item:hover { 
+        border-color: #999;
+        background: #f9f9f9;
+    }
+
+    /* TRẠNG THÁI ACTIVE (KHI ĐƯỢC CHỌN) */
+    .address-item.active { 
+        border-color: #e84d1c !important; 
+        border-width: 2px;
+        background: #fffcfb !important; 
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ÉP CHỮ ĐEN ĐẬM KHI ACTIVE */
+    .address-item.active strong,
+    .address-item.active p,
+    .address-item.active small,
+    .address-item.active i {
+        color: #000 !important; /* Đen tuyền */
+        text-shadow: none !important; /* Loại bỏ bóng mờ hoàn toàn */
+        opacity: 1 !important;
+    }
+
+    .address-item.active strong {
+        font-size: 15px;
+        font-weight: 700; /* Đậm nhất cho tên người nhận */
+    }
+
+    .address-item.active p {
+        font-weight: 500; /* Đậm vừa cho địa chỉ */
+        line-height: 1.5;
+    }
+
+    /* Icon checkmark ở góc phải để nhận diện tốt hơn */
+    .address-item.active::after {
+        content: "\f058"; /* fa-check-circle */
+        font-family: 'FontAwesome';
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: #e84d1c;
+        font-size: 20px;
+    }
+
+    /* Badge mặc định */
+    .address-item .badge { 
+        background-color: #e84d1c; 
+        font-weight: 600;
+        padding: 3px 8px;
+    }
+</style>
               <!-- END SHIPPING ADDRESS -->
 
               <!-- BEGIN SHIPPING METHOD -->
