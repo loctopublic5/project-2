@@ -194,7 +194,7 @@ Checkout.Address = (function () {
     
         // Ở đây ta sẽ mở Step 3: Shipping Method (Hoặc Step 4 tùy cấu trúc của bạn)
         // Giả sử bước tiếp theo là #shipping-method-content
-        $('#shipping-method-content').collapse('show');
+        $('#payment-method-content').collapse('show');
 
         // Thêm icon check hoàn thành cho Step địa chỉ
         $('a[href="#shipping-address-content"]').find('.fa-check').remove();

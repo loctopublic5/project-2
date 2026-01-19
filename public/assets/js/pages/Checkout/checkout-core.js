@@ -24,6 +24,9 @@ var Checkout = (function () {
             if (this.Payment) this.Payment.init();
         },
 
+        formatPrice: function (amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        },
         // Tiện ích: Chuyển bước mượt mà (Metronic Accordion)
         goToStep: function (stepContentId) {
             // Đóng tất cả các panel khác (tùy chọn)

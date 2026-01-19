@@ -694,68 +694,71 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
 </style>
               <!-- END SHIPPING ADDRESS -->
 
-              <!-- BEGIN SHIPPING METHOD -->
-              <div id="shipping-method" class="panel panel-default">
-                <div class="panel-heading">
-                  <h2 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#checkout-page" href="#shipping-method-content" class="accordion-toggle">
-                      Step 4: Delivery Method
-                    </a>
-                  </h2>
-                </div>
-                <div id="shipping-method-content" class="panel-collapse collapse">
-                  <div class="panel-body row">
-                    <div class="col-md-12">
-                      <p>Please select the preferred shipping method to use on this order.</p>
-                      <h4>Flat Rate</h4>
-                      <div class="radio-list">
-                        <label>
-                          <input type="radio" name="FlatShippingRate" value="FlatShippingRate"> Flat Shipping Rate
-                        </label>
-                      </div>
-                      <div class="form-group">
-                        <label for="delivery-comments">Add Comments About Your Order</label>
-                        <textarea id="delivery-comments" rows="8" class="form-control"></textarea>
-                      </div>
-                      <button class="btn btn-primary  pull-right" type="submit" id="button-shipping-method" data-toggle="collapse" data-parent="#checkout-page" data-target="#payment-method-content">Continue</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- END SHIPPING METHOD -->
-
               <!-- BEGIN PAYMENT METHOD -->
               <div id="payment-method" class="panel panel-default">
-                <div class="panel-heading">
-                  <h2 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#checkout-page" href="#payment-method-content" class="accordion-toggle">
-                      Step 5: Payment Method
-                    </a>
-                  </h2>
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            <a data-toggle="collapse" data-parent="#checkout-page" href="#payment-method-content" class="accordion-toggle">
+                Step 3: Payment Method
+            </a>
+        </h2>
+    </div>
+    <div id="payment-method-content" class="panel-collapse collapse">
+        <div class="panel-body row">
+            <div class="col-md-12">
+                <p>Vui lòng chọn phương thức thanh toán ưu tiên cho đơn hàng này.</p>
+                <div class="radio-list">
+                    <label>
+                        <input type="radio" name="payment_method" value="cod" checked> Thanh toán khi giao hàng (COD)
+                    </label>
+                    <label>
+                        <input type="radio" name="payment_method" value="wallet"> Thanh toán qua Ví điện tử
+                    </label>
                 </div>
-                <div id="payment-method-content" class="panel-collapse collapse">
-                  <div class="panel-body row">
-                    <div class="col-md-12">
-                      <p>Please select the preferred payment method to use on this order.</p>
-                      <div class="radio-list">
-                        <label>
-                          <input type="radio" name="CashOnDelivery" value="CashOnDelivery"> Cash On Delivery
-                        </label>
-                      </div>
-                      <div class="form-group">
-                        <label for="delivery-payment-method">Add Comments About Your Order</label>
-                        <textarea id="delivery-payment-method" rows="8" class="form-control"></textarea>
-                      </div>
-                      <button class="btn btn-primary  pull-right" type="submit" id="button-payment-method" data-toggle="collapse" data-parent="#checkout-page" data-target="#confirm-content">Continue</button>
-                      <div class="checkbox pull-right">
-                        <label>
-                          <input type="checkbox"> I have read and agree to the <a title="Terms & Conditions" href="javascript:;">Terms & Conditions </a> &nbsp;&nbsp;&nbsp; 
-                        </label>
-                      </div>  
+
+                <div id="wallet-info-container" style="display: none; margin-top: 15px; padding: 15px; background: #f9f9f9; border-left: 4px solid #e84d1c;">
+                    <h4>Thông tin ví của bạn</h4>
+                    <div id="wallet-status-content">
+                        <i class="fa fa-spinner fa-spin"></i> Đang kiểm tra số dư...
                     </div>
-                  </div>
                 </div>
-              </div>
+
+                <div class="form-group margin-top-20">
+                    <label for="delivery-payment-method">Ghi chú về đơn hàng</label>
+                    <textarea id="delivery-payment-method" rows="3" class="form-control"></textarea>
+                </div>
+
+                <div class="checkbox pull-right">
+                    <label>
+                        <input type="checkbox" id="agree-terms"> Tôi đã đọc và đồng ý với <a href="javascript:;">Điều khoản & Điều kiện</a>
+                    </label>
+                </div>
+
+                <div id="recharge-section" class="margin-top-15" style="display:none;">
+    <div class="alert alert-warning">
+        <p><i class="fa fa-info-circle"></i> Bạn không đủ số dư để thực hiện thanh toán này.</p>
+        <div class="margin-top-10">
+            <a href="/customer/wallet/deposit?redirect_to=checkout" 
+               class="btn btn-danger btn-sm" 
+               id="btn-quick-recharge">
+               <i class="fa fa-plus"></i> Nạp tiền ngay
+            </a>
+            <p class="text-muted small margin-top-5">
+                * Sau khi nạp tiền thành công, hệ thống sẽ đưa bạn quay lại bước này.
+            </p>
+        </div>
+    </div>
+</div>
+
+                <div class="margin-top-20">
+                    <button class="btn btn-primary pull-right" type="button" id="btn-confirm-payment" onclick="Checkout.Payment.confirmPayment()">
+                        Tiếp tục
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
               <!-- END PAYMENT METHOD -->
 
               <!-- BEGIN CONFIRM -->
@@ -1024,6 +1027,8 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <script src="assets/js/pages/checkout/checkout-core.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-auth.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-address.js" type="text/javascript"></script>
+    <script src="assets/js/pages/checkout/checkout-payment.js" type="text/javascript"></script>
+    <script src="assets/js/pages/checkout/checkout-shipping.js" type="text/javascript"></script>
     <script type="text/javascript">
     jQuery(document).ready(function() {
         Layout.init();    
