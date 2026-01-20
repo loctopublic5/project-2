@@ -208,10 +208,12 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
           </div>            
         </div>
         <!--END CART -->
-
+<!---------------------------------------------------------------------------------------------------------------------------------------->
         <!-- BEGIN NAVIGATION -->
         <div class="header-navigation">
           <ul>
+            <li><a href="/">Trang chủ</a></li>
+
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
                 Woman 
@@ -306,107 +308,49 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                 </li>
               </ul>
             </li>
-            <li><a href="shop-item.html">Kids</a></li>
+            
             <li class="dropdown dropdown100 nav-catalogue">
-              <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
-                New
-                
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <div class="header-navigation-content">
-                    <div class="row">
-                      <div class="col-md-3 col-sm-4 col-xs-6">
-                        <div class="product-item">
-                          <div class="pi-img-wrapper">
-                            <a href="shop-item.html"><img src="assets/pages/img/products/model4.jpg" class="img-responsive" alt="Berry Lace Dress"></a>
-                          </div>
-                          <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-                          <div class="pi-price">$29.00</div>
-                          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                        </div>
-                      </div>
-                      <div class="col-md-3 col-sm-4 col-xs-6">
-                        <div class="product-item">
-                          <div class="pi-img-wrapper">
-                            <a href="shop-item.html"><img src="assets/pages/img/products/model3.jpg" class="img-responsive" alt="Berry Lace Dress"></a>
-                          </div>
-                          <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-                          <div class="pi-price">$29.00</div>
-                          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                        </div>
-                      </div>
-                      <div class="col-md-3 col-sm-4 col-xs-6">
-                        <div class="product-item">
-                          <div class="pi-img-wrapper">
-                            <a href="shop-item.html"><img src="assets/pages/img/products/model7.jpg" class="img-responsive" alt="Berry Lace Dress"></a>
-                          </div>
-                          <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-                          <div class="pi-price">$29.00</div>
-                          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                        </div>
-                      </div>
-                      <div class="col-md-3 col-sm-4 col-xs-6">
-                        <div class="product-item">
-                          <div class="pi-img-wrapper">
-                            <a href="shop-item.html"><img src="assets/pages/img/products/model4.jpg" class="img-responsive" alt="Berry Lace Dress"></a>
-                          </div>
-                          <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-                          <div class="pi-price">$29.00</div>
-                          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </li>
-            <li class="dropdown active">
-              <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
-                Pages 
-                
-              </a>
-                
-              <ul class="dropdown-menu">
-                <li><a href="shop-index.html">Home Default</a></li>
-                <li><a href="shop-index-header-fix.html">Home Header Fixed</a></li>
-                <li><a href="shop-index-light-footer.html">Home Light Footer</a></li>
-                <li><a href="/view/customer/Huy(Product-Cart)/pages/home.blade.php">Product List</a></li>
-                <li><a href="shop-search-result.html">Search Result</a></li>
-                <li><a href="shop-item.html">Product Page</a></li>
-                <li><a href="shop-shopping-cart-null.html">Shopping Cart (Null Cart)</a></li>
-                <li><a href="shop-shopping-cart.html">Shopping Cart</a></li>
-                <li class="active"><a href="shop-checkout.html">Checkout</a></li>
-                <li><a href="shop-about.html">About</a></li>
-                <li><a href="shop-contacts.html">Contacts</a></li>
-                <li><a href="shop-account.html">My account</a></li>
-                <li><a href="shop-wishlist.html">My Wish List</a></li>
-                <li><a href="shop-goods-compare.html">Product Comparison</a></li>
-                <li><a href="shop-standart-forms.html">Standart Forms</a></li>
-                <li><a href="shop-faq.html">FAQ</a></li>
-                <li><a href="shop-privacy-policy.html">Privacy Policy</a></li>
-                <li><a href="shop-terms-conditions-page.html">Terms &amp; Conditions</a></li>
-              </ul>
-            </li>
-            
-            
-            <li><a href="http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes&amp;utm_source=download&amp;utm_medium=banner&amp;utm_campaign=metronic_frontend_freebie" target="_blank">Admin theme</a></li>
+      <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">New</a>
+      <ul class="dropdown-menu">
+        <li>
+          <div class="header-navigation-content">
+            <div class="row" id="js-new-arrivals">
+               <div class="col-md-12"><p>Đang tải sản phẩm...</p></div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </li>
 
             <!-- BEGIN TOP SEARCH -->
-            <li class="menu-search">
-              <span class="sep"></span>
-              <i class="fa fa-search search-btn"></i>
-              <div class="search-box">
-                <form action="#">
-                  <div class="input-group">
-                    <input type="text" placeholder="Search" class="form-control">
-                    <span class="input-group-btn">
-                      <button class="btn btn-primary" type="submit">Search</button>
-                    </span>
-                  </div>
-                </form>
-              </div> 
-            </li>
+<li class="menu-search">
+    <span class="sep"></span>
+    <i class="fa fa-search search-btn"></i>
+    <div class="search-box">
+        <form id="header-search-form" action="/search" method="GET">
+            <div class="input-group search-complex-wrapper">
+                
+                <select name="category_id" id="search-category-id" class="form-control select-filter">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+
+                <input type="text" name="keyword" id="search-keyword" placeholder="Bạn tìm gì..." class="form-control input-keyword">
+
+                <select name="sort_by" id="search-sort-by" class="form-control select-sort">
+                    <option value="latest">Mới nhất</option>
+                    <option value="price_asc">Giá tăng dần</option>
+                    <option value="price_desc">Giá giảm dần</option>
+                </select>
+
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fa fa-search"></i>
+                    </a>
+                </span>
+            </div>
+        </form>
+    </div> 
+</li>
             <!-- END TOP SEARCH -->
           </ul>
         </div>
@@ -414,6 +358,55 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
       </div>
     </div>
     <!-- Header END -->
+    <style>
+/* Container bọc 3 ô */
+.search-complex-wrapper {
+    display: flex !important;
+    width: 550px !important; /* Độ rộng đủ cho 3 thành phần */
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Các ô Select và Input */
+.select-filter {
+    width: 140px !important;
+    border: none !important;
+    border-right: 1px solid #ddd !important;
+    background: #f9f9f9 !important;
+    height: 38px !important;
+}
+
+.input-keyword {
+    flex-grow: 1; /* Ô này sẽ tự giãn ra */
+    border: none !important;
+    height: 38px !important;
+}
+
+.select-sort {
+    width: 120px !important;
+    border: none !important;
+    border-left: 1px solid #ddd !important;
+    height: 38px !important;
+    color: #666;
+    font-size: 12px;
+}
+
+/* Nút tìm kiếm */
+.search-complex-wrapper .btn-primary {
+    height: 38px !important;
+    padding: 0 15px !important;
+    border-radius: 0 !important;
+}
+
+/* Hiệu ứng khi focus */
+.search-complex-wrapper select:focus, 
+.search-complex-wrapper input:focus {
+    outline: none;
+    box-shadow: none;
+}
+</style>
+<!---------------------------------------------------------------------------------------------------------------------------------------->
 
     <div class="main">
       <div class="container">
@@ -430,7 +423,9 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
             <!-- BEGIN CHECKOUT PAGE -->
             <div class="panel-group checkout-page accordion scrollable" id="checkout-page">
 
-              <!-- BEGIN CHECKOUT -->
+
+<!---------------------------------------------------------------------------------------------------------------------------------------->
+<!-- BEGIN CHECKOUT -->
 <div id="checkout" class="panel panel-default">
     <div class="panel-heading">
         <h2 class="panel-title">
@@ -695,7 +690,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
               <!-- END SHIPPING ADDRESS -->
 
               <!-- BEGIN PAYMENT METHOD -->
-              <div id="payment-method" class="panel panel-default">
+<div id="payment-method" class="panel panel-default">
     <div class="panel-heading">
         <h2 class="panel-title">
             <a data-toggle="collapse" data-parent="#checkout-page" href="#payment-method-content" class="accordion-toggle">
@@ -735,20 +730,16 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
                 </div>
 
                 <div id="recharge-section" class="margin-top-15" style="display:none;">
-    <div class="alert alert-warning">
-        <p><i class="fa fa-info-circle"></i> Bạn không đủ số dư để thực hiện thanh toán này.</p>
-        <div class="margin-top-10">
-            <a href="/customer/wallet/deposit?redirect_to=checkout" 
-               class="btn btn-danger btn-sm" 
-               id="btn-quick-recharge">
-               <i class="fa fa-plus"></i> Nạp tiền ngay
-            </a>
-            <p class="text-muted small margin-top-5">
-                * Sau khi nạp tiền thành công, hệ thống sẽ đưa bạn quay lại bước này.
-            </p>
-        </div>
-    </div>
-</div>
+                    <div class="alert alert-warning">
+                        <p><i class="fa fa-info-circle"></i> Bạn không đủ số dư để thực hiện thanh toán này.</p>
+                        <div class="margin-top-10">
+                            <a href="/customer/wallet/deposit?redirect_to=checkout" class="btn btn-danger btn-sm">
+                                <i class="fa fa-plus"></i> Nạp tiền ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="margin-top-20">
                     <button class="btn btn-primary pull-right" type="button" id="btn-confirm-payment" onclick="Checkout.Payment.confirmPayment()">
                         Tiếp tục
@@ -760,52 +751,61 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
 </div>
               <!-- END PAYMENT METHOD -->
 
-              <!-- BEGIN CONFIRM -->
-              < id="confirm" class="panel panel-default">
-                <div class="panel-heading">
-                  <h2 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#checkout-page" href="#confirm-content" class="accordion-toggle">
-                      Step 6: Confirm Order
-                    </a>
-                  </h2>
+<div id="confirm" class="panel panel-default">
+    <div class="panel-heading">
+        <h2 class="panel-title">
+            <a data-toggle="collapse" data-parent="#checkout-page" href="#confirm-content" class="accordion-toggle">
+                Step 4: Confirm Order
+            </a>
+        </h2>
+    </div>
+    <div id="confirm-content" class="panel-collapse collapse">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-wrapper-responsive">
+                        <table id="table-confirm-order" class="table table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="checkout-image">HÌNH ẢNH</th>
+                                    <th class="checkout-description">MÔ TẢ</th>
+                                    <th class="checkout-model">SKU</th>
+                                    <th class="checkout-quantity">SỐ LƯỢNG</th>
+                                    <th class="checkout-price">GIÁ</th>
+                                    <th class="checkout-total">THÀNH TIỀN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="checkout-total-block clearfix">
+                        <ul id="checkout-final-summary" class="list-unstyled">
+                            </ul>
+                    </div>
+
+                    <div class="clearfix" style="clear: both; margin-bottom: 20px;"></div>
+                    <hr>
+
+                    <div class="confirm-order-actions text-right">
+                        <button type="button" class="btn btn-default" style="margin-right: 10px;" onclick="window.location.reload()">
+                            HỦY BỎ
+                        </button>
+                        <button class="btn btn-primary" type="button" id="button-confirm" onclick="Checkout.OrderReview.placeOrder()">
+                            XÁC NHẬN ĐẶT HÀNG
+                        </button>
+                    </div>
                 </div>
-                <div id="confirm-content" class="panel-collapse collapse">
-    <div class="panel-body row">
-        <div class="col-md-12 clearfix">
-            <div class="table-wrapper-responsive">
-                <table id="table-confirm-order">
-                    <thead>
-                        <tr>
-                            <th class="checkout-image">Hình ảnh</th>
-                            <th class="checkout-description">Mô tả</th>
-                            <th class="checkout-model">Mã SKU</th>
-                            <th class="checkout-quantity">Số lượng</th>
-                            <th class="checkout-price">Giá tiền</th>
-                            <th class="checkout-total">Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
             </div>
-
-            <div class="checkout-total-block">
-                <ul id="checkout-final-summary">
-                    </ul>
-            </div>
-
-            <div class="clearfix"></div>
-            <button class="btn btn-primary pull-right" type="button" id="button-confirm" onclick="Checkout.OrderReview.placeOrder()">
-                Xác nhận đơn hàng
-            </button>
-            <button type="button" class="btn btn-default pull-right margin-right-20" onclick="window.location.reload()">Hủy bỏ</button>
         </div>
     </div>
 </div>
-
+<div class="steps-block steps-block-red">
+    </div>
 
 <!-- END REVIEW & CONFIRM -->
-    
+<!---------------------------------------------------------------------------------------------------------------------------------------->
 
     <!-- BEGIN STEPS -->
     <div class="steps-block steps-block-red">
@@ -972,16 +972,21 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <script src="assets/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
 
     <script src="assets/corporate/scripts/layout.js" type="text/javascript"></script>
+    <!-- JS Config) -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script src="/admin_assets/js/axios-config.js"></script>
 
+    <!-- JS Core) -->
     <script src="assets/js/pages/checkout/checkout-core.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-auth.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-address.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-payment.js" type="text/javascript"></script>
     <script src="assets/js/pages/checkout/checkout-review.js" type="text/javascript"></script>
+
+    <!-- JS Header) -->
+    <script src="assets/js/pages/Header/Navigative.js" type="text/javascript"></script>
+    <script src="assets/js/pages/Header/new.js" type="text/javascript"></script>
     <script type="text/javascript">
     jQuery(document).ready(function() {
         Layout.init();    
