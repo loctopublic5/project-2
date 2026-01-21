@@ -22,6 +22,7 @@ class Product extends Model
         'category_id',
         'name',
         'sku',
+        'thumbnail',
         'slug',
         'price',
         'sale_price',
@@ -62,6 +63,25 @@ class Product extends Model
                 $product->sku = $product->generateUniqueCode('sku', 'SP', 6);
             }
         });
+    }
+
+    /**
+     * Accessor: Tự động tạo URL đầy đủ cho thumbnail
+     * Giúp code ở Resource hoặc Controller sạch hơn
+     */
+    public function getThumbnailUrlAttribute()
+    {
+        if (!$this->thumbnail) {
+            return null; // Hoặc return một link ảnh default "no-image.png"
+        }
+
+        // Nếu path lưu dưới dạng link tuyệt đối (http...) thì trả về luôn
+        if (filter_var($this->thumbnail, FILTER_VALIDATE_URL)) {
+            return $this->thumbnail;
+        }
+
+        // Mặc định dùng Storage disk public
+        return \Illuminate\Support\Facades\Storage::url($this->thumbnail);
     }
 
     /**

@@ -26,23 +26,6 @@ class ProductResource extends JsonResource
         if (!$specifications) {
             $specifications = [];
         }
-        
-        $imagesList = [];
-        $thumbnail = null;
-
-        if ($this->relationLoaded('images')) {
-        $imagesList = $this->images->map(function($file) {
-            return [
-                'id'  => $file->id,
-                'url' => Storage::url($file->path)
-            ];
-        })->toArray();
-
-        // Lấy ảnh đầu tiên làm thumbnail nếu có
-        if (count($imagesList) > 0) {
-            $thumbnail = $imagesList[0]['url'];
-        }
-    }
         return [
             'id'   => $this->id,
             
@@ -52,7 +35,15 @@ class ProductResource extends JsonResource
                 'sku'  => $this->sku,
                 'slug' => $this->slug,
                 'description' => $this->description,
-                'thumbnail'   => $thumbnail,
+                'thumbnail'   => $this->thumbnail_url, 
+            
+                // Trả về gallery cho JS xử lý renderExistingGalleryItem
+                'images'      => $this->whenLoaded('images', function() {
+                    return $this->images->map(fn($file) => [
+                        'id'  => $file->id,
+                        'url' => Storage::url($file->path)
+                    ]);
+                }),
             ],
 
             // Danh mục (Chỉ hiện khi đã load để tối ưu performance)
@@ -63,9 +54,6 @@ class ProductResource extends JsonResource
                     'slug' => $this->category->slug,
                 ];
             }),
-
-            // Trả về danh sách URL tuyệt đối cho Frontend
-            'images' => $imagesList,
 
             // Giá cả (Logic Pricing Service đính kèm)
             'pricing' => $this->calculated_price ?? [

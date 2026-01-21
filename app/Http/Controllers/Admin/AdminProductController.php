@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Product\ProductService;
 use App\Http\Resources\Product\ProductResource;
@@ -26,10 +25,7 @@ class AdminProductController extends Controller
     
     public function store(SaveProductRequest $request){
         try{
-            $data = $request->validated();
-            
-            $data['image'] = $request->file('image');
-            $data['gallery'] = $request->file('gallery');  
+            $data = $request->validated(); 
 
             $product = $this->productService->createProduct($data);
 
@@ -41,13 +37,7 @@ class AdminProductController extends Controller
 
     public function update(SaveProductRequest $request, $id){
             try{
-                $data = $request->validated();
-
-                // 2. Lấy thêm các file và dữ liệu đặc biệt không nằm trong validation cơ bản hoặc cần lấy trực tiếp
-                // Lưu ý: Request->file() trả về đối tượng file, rất sạch sẽ.
-                $data['image'] = $request->file('image');
-                $data['gallery'] = $request->file('gallery'); 
-                $data['deleted_images'] = $request->input('deleted_images');    
+                $data = $request->validated(); 
 
                 $product = $this->productService->updateProduct($id, $data);
                 return $this->success(new ProductResource($product), 'Cập nhật thông tin sản phẩm thành công !');

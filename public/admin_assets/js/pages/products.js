@@ -4,40 +4,7 @@ let productModal;
 let deletedImageIds = [];
 let selectedGalleryFiles = []; // Lưu các File object mới chọn từ input gallery
 
-// Gắn trực tiếp vào window để HTML luôn tìm thấy
-window.handleGallerySelect = function(event) {
-    console.log("Đã kích hoạt chọn ảnh gallery");
-    const files = Array.from(event.target.files);
-    const container = document.getElementById('gallery-preview-container');
 
-    files.forEach(file => {
-        const fileId = 'new_' + Date.now() + Math.random().toString(36).substr(2, 9);
-        selectedGalleryFiles.push({ id: fileId, file: file });
-
-        const url = URL.createObjectURL(file);
-        
-        const html = `
-            <div class="col-4 gallery-item-new" data-file-id="${fileId}">
-                <div class="position-relative border border-primary rounded overflow-hidden shadow-sm" style="height: 80px;">
-                    <img src="${url}" class="w-100 h-100 object-fit-cover" style="opacity: 0.9">
-                    <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0" 
-                            onclick="window.removeNewSelectedImage(this, '${fileId}')" 
-                            style="width: 20px; height: 20px; line-height: 1; border-radius: 0 0 0 5px;">
-                        <i class="bi bi-x"></i>
-                    </button>
-                    <div class="position-absolute bottom-0 start-0 w-100 bg-primary text-white text-center" style="font-size: 8px;">Mới</div>
-                </div>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', html);
-    });
-    event.target.value = ''; 
-};
-
-window.removeNewSelectedImage = function(btn, fileId) {
-    selectedGalleryFiles = selectedGalleryFiles.filter(item => item.id !== fileId);
-    const col = btn.closest('.col-4');
-    if (col) col.remove();
-};
 // Init
 document.addEventListener('DOMContentLoaded', function () {
     // Khởi tạo Modal Bootstrap
@@ -266,47 +233,7 @@ function renderPagination(meta) {
     html += '</ul></nav>';
     paginationDiv.innerHTML = html;
 }
-// --- 2. CÁC HÀM ACTION (GÁN VÀO WINDOW ĐỂ HTML GỌI ĐƯỢC) ---
 
-window.openCreateModal = function() {
-    const form = document.getElementById('productForm');
-    if(form) form.reset();
-    
-    document.getElementById('attribute-list').innerHTML = '';
-    addAttributeRow() // Thêm sẵn 1 dòng trống
-    document.getElementById('product_id').value = '';
-    document.getElementById('modalTitle').innerText = 'Thêm mới sản phẩm';
-    document.getElementById('image-preview').src = '/assets/static/images/no-image.png';
-    
-    // Reset switch về active
-    document.getElementById('is_active').checked = true;
-
-    if(productModal) productModal.show();
-}
-// --- 1. HÀM THÊM DÒNG ATTRIBUTE (Gắn vào window) ---
-window.addAttributeRow = function(key = '', value = '') {
-    const container = document.getElementById('attribute-list');
-    const rowId = 'attr-row-' + Date.now() + Math.random().toString(36).substr(2, 9);
-    
-    const row = `
-        <tr id="${rowId}" class="attribute-item">
-            <td>
-                <input type="text" class="form-control form-control-sm attr-name" 
-                        list="attribute-suggestions" placeholder="VD: Màu sắc" value="${name}">
-            </td>
-            <td>
-                <input type="text" class="form-control form-control-sm attr-value" 
-                        placeholder="VD: Đỏ, Xanh, L, XL" value="${value}">
-            </td>
-            <td>
-                <button type="button" class="btn btn-sm btn-light text-danger" onclick="this.closest('tr').remove()">
-                    <i class="bi bi-x"></i>
-                </button>
-            </td>
-        </tr>
-    `;
-    container.insertAdjacentHTML('beforeend', row);
-}
 /**
  * Quét toàn bộ bảng để lấy dữ liệu attribute
  * return Array
@@ -335,81 +262,57 @@ function collectAttributes() {
 }
 
 async function editProduct(id) {
+    // 1. Dọn dẹp sạch sẽ trước khi nạp data mới
+    window.resetForm();
+    
+    // 2. Hiện Modal trước để các Element "sẵn sàng" nhận data
+    if(productModal) productModal.show();
+    document.getElementById('modalTitle').innerText = 'Đang tải dữ liệu...';
+
     try {
-        // SỬA LỖI 401 TẠI ĐÂY
         const res = await window.api.get(`${API_URL}/${id}`);
         const p = res.data.data; 
-        
-        // --- RESET GALLERY STATE ---
-        deletedImageIds = [];
-        selectedGalleryFiles = [];
-        const galleryContainer = document.getElementById('gallery-preview-container');
-        if(galleryContainer) galleryContainer.innerHTML = '';
 
+        // 3. Mapping dữ liệu (Sử dụng cấu trúc p.info, p.pricing...)
         document.getElementById('product_id').value = p.id;
         document.getElementById('name').value = p.info.name;
         document.getElementById('sku').value = p.info.sku;
         document.getElementById('description').value = p.info.description || '';
+
+        // Mapping Attributes
         const attrContainer = document.getElementById('attribute-list');
-        attrContainer.innerHTML = ''; // Reset cũ
-
-        // p.specifications bây giờ là Object: { size: ["S", "M"], color: ["Red"] }
-        // Hoặc trường hợp xấu nó vẫn là string, ta parse thủ công để an toàn tuyệt đối
+        attrContainer.innerHTML = ''; 
         let specs = p.specifications;
-        
-        if (typeof specs === 'string') {
-            try {
-                specs = JSON.parse(specs);
-            } catch (e) {
-                specs = {};
-            }
-        }
-
         if (specs && Object.keys(specs).length > 0) {
             Object.entries(specs).forEach(([key, value]) => {
-                // value đang là mảng ["S", "M", "L"]
-                // Cần chuyển thành chuỗi "S, M, L" để hiện vào input
-                let strValue = '';
-                
-                if (Array.isArray(value)) {
-                    strValue = value.join(', '); // Nối mảng thành chuỗi
-                } else {
-                    strValue = value; // Nếu lỡ nó là string thì giữ nguyên
-                }
-
-                addAttributeRow(key, strValue);
+                let strValue = Array.isArray(value) ? value.join(', ') : value;
+                window.addAttributeRow(key, strValue);
             });
-        } else {
-            // Nếu không có thì thêm dòng trống
-            addAttributeRow(); 
         }
-        
-        if (p.category) document.getElementById('category_id').value = p.category.id;
 
+        // Mapping Category, Price, Stock
+        if (p.category) document.getElementById('category_id').value = p.category.id;
         document.getElementById('price').value = p.pricing.original_price;
         document.getElementById('sale_price').value = p.pricing.sale_price;
         document.getElementById('stock_qty').value = p.inventory.stock_qty;
         document.getElementById('is_active').checked = p.is_active;
 
-        // Load ảnh chính
-        const thumb = p.info.thumbnail || '/assets/static/images/no-image.png';
-        document.getElementById('image-preview').src = thumb;
-        document.getElementById('image').value = ''; 
+        // Mapping Images
+        document.getElementById('image-preview').src = p.info.thumbnail || '/admin_assets/assets/compiled/jpg/1.jpg';
 
-        // --- LOAD GALLERY IMAGES FROM API ---
-        if (p.info.images && Array.isArray(p.images)) {
+        // Load Gallery
+        if (p.info.images && Array.isArray(p.info.images)) {
             p.info.images.forEach(img => {
-                // img giả định có {id: 1, url: '...'}
-                renderExistingGalleryItem(img.id, img.url);
+                window.renderExistingGalleryItem(img.id, img.url);
             });
         }
 
-        document.getElementById('modalTitle').innerText = 'Cập nhật sản phẩm';
-        if(productModal) productModal.show();
+        document.getElementById('modalTitle').innerText = 'Cập nhật sản phẩm: ' + p.info.name;
 
     } catch (error) {
-        console.error(error);
-        Swal.fire('Lỗi', 'Không thể tải thông tin chi tiết', 'error');
+        console.error("Lỗi Edit:", error);
+        productModal.hide();
+        Swal.fire('Lỗi', 'Không tìm thấy dữ liệu sản phẩm', 'error');
     }
 }
 
@@ -453,11 +356,9 @@ async function saveProduct() {
         formData.append(`attributes[${index}][value]`, item.value);
     });
 
-    // 3. Thêm Gallery (Ảnh bổ sung mới chọn)
-    // Cần đảm bảo selectedGalleryFiles là mảng chứa các File object thực tế
-    formData.delete('gallery[]'); // Xóa rác nếu có
+    // 3. XỬ LÝ Gallery (Đảm bảo dọn sạch preview sau khi save)
+    formData.delete('gallery[]'); 
     selectedGalleryFiles.forEach((fileObj) => {
-        // Nếu fileObj là object {id, file}, ta lấy .file
         const fileData = fileObj.file ? fileObj.file : fileObj; 
         formData.append('gallery[]', fileData);
     });
@@ -467,16 +368,6 @@ async function saveProduct() {
 
     // 5. Chuẩn hóa trạng thái is_active
     formData.set('is_active', document.getElementById('is_active').checked ? 1 : 0);
-
-    // LOG KIỂM TRA PAYLOAD TRƯỚC KHI GỬI (Quan trọng để debug)
-    console.log("--- CHI TIẾT PAYLOAD GỬI ĐI ---");
-    for (var pair of formData.entries()) {
-        if (pair[1] instanceof File) {
-            console.log(`${pair[0]}: [File] ${pair[1].name}`);
-        } else {
-            console.log(`${pair[0]}: ${pair[1]}`);
-        }
-    }
 
     try {
         let response;
@@ -490,9 +381,24 @@ async function saveProduct() {
         }
 
         if (response.data.status) {
-            productModal.hide();
-            Swal.fire('Thành công', response.data.message, 'success');
-            loadProducts(); 
+            if (productModal) productModal.hide();
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: response.data.message,
+                timer: 1500,
+                showConfirmButton: false
+            });
+            // 3. QUAN TRỌNG: Gọi hàm Reset Form để làm sạch mọi biến global và UI
+            // Điều này giúp lần mở Modal tiếp theo không bị dính ảnh cũ
+            if (typeof window.resetForm === 'function') {
+                window.resetForm();
+            }
+
+            // 4. Reload lại danh sách sản phẩm ở trang chính để cập nhật Thumbnail mới
+            if (typeof loadProducts === 'function') {
+                loadProducts(); 
+            }
         }
     } catch (error) {
         console.error(error);
@@ -525,15 +431,6 @@ function deleteProduct(id) {
         }
     })
 
-    // Preview ảnh chính
-window.previewMainImage = function(event) {
-    const reader = new FileReader();
-    reader.onload = () => document.getElementById('image-preview').src = reader.result;
-    reader.readAsDataURL(event.target.files[0]);
-}
-
-
-
 // 2. Hàm render ảnh mới (Dùng chung cho đẹp)
 function renderNewGalleryItem(url, fileId) {
     const html = `
@@ -550,9 +447,86 @@ function renderNewGalleryItem(url, fileId) {
         </div>`;
     document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
 }
+}
 
-// Render ảnh cũ từ server
+// --- 2. CÁC HÀM ACTION (GÁN VÀO WINDOW ĐỂ HTML GỌI ĐƯỢC) ---
+window.openCreateModal = function() {
+    const form = document.getElementById('productForm');
+    if(form) form.reset();
+    
+    document.getElementById('attribute-list').innerHTML = '';
+    addAttributeRow() // Thêm sẵn 1 dòng trống
+    document.getElementById('product_id').value = '';
+    document.getElementById('modalTitle').innerText = 'Thêm mới sản phẩm';
+    document.getElementById('image-preview').src = '/assets/static/images/no-image.png';
+    
+    // Reset switch về active
+    document.getElementById('is_active').checked = true;
+
+    if(productModal) productModal.show();
+}
+// --- 1. HÀM THÊM DÒNG ATTRIBUTE (Gắn vào window) ---
+window.addAttributeRow = function(key = '', value = '') {
+    const container = document.getElementById('attribute-list');
+    const rowId = 'attr-row-' + Date.now() + Math.random().toString(36).substr(2, 9);
+    
+    const row = `
+        <tr id="${rowId}" class="attribute-item">
+            <td>
+                <input type="text" class="form-control form-control-sm attr-name" 
+                        list="attribute-suggestions" placeholder="VD: Màu sắc" value="${name}">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm attr-value" 
+                        placeholder="VD: Đỏ, Xanh, L, XL" value="${value}">
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-light text-danger" onclick="this.closest('tr').remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+    container.insertAdjacentHTML('beforeend', row);
+}
+// Gắn trực tiếp vào window để HTML luôn tìm thấy
+window.handleGallerySelect = function(event) {
+    console.log("Đã kích hoạt chọn ảnh gallery");
+    const files = Array.from(event.target.files);
+    const container = document.getElementById('gallery-preview-container');
+
+    files.forEach(file => {
+        const fileId = 'new_' + Date.now() + Math.random().toString(36).substr(2, 9);
+        selectedGalleryFiles.push({ id: fileId, file: file });
+
+        const url = URL.createObjectURL(file);
+        
+        const html = `
+            <div class="col-4 gallery-item-new" data-file-id="${fileId}">
+                <div class="position-relative border border-primary rounded overflow-hidden shadow-sm" style="height: 80px;">
+                    <img src="${url}" class="w-100 h-100 object-fit-cover" style="opacity: 0.9">
+                    <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0" 
+                            onclick="window.removeNewSelectedImage(this, '${fileId}')" 
+                            style="width: 20px; height: 20px; line-height: 1; border-radius: 0 0 0 5px;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                    <div class="position-absolute bottom-0 start-0 w-100 bg-primary text-white text-center" style="font-size: 8px;">Mới</div>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+    event.target.value = ''; 
+};
+
+window.removeNewSelectedImage = function(btn, fileId) {
+    selectedGalleryFiles = selectedGalleryFiles.filter(item => item.id !== fileId);
+    const col = btn.closest('.col-4');
+    if (col) col.remove();
+};
 window.renderExistingGalleryItem = function(id, url) {
+    const container = document.getElementById('gallery-preview-container');
+    if (!container) return;
+
     const html = `
         <div class="col-4 gallery-item-old" data-id="${id}">
             <div class="position-relative border rounded overflow-hidden shadow-sm" style="height: 80px;">
@@ -564,14 +538,90 @@ window.renderExistingGalleryItem = function(id, url) {
                 </button>
             </div>
         </div>`;
-    document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
-}
-
-
+    container.insertAdjacentHTML('beforeend', html);
+};
 window.removeExistingImage = function(btn, id) {
     deletedImageIds.push(id);
     btn.closest('.col-4').remove();
 }
+window.previewMainImage = function(event) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Thay đổi src của ảnh preview ngay lập tức
+            document.getElementById('image-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+// 1. Hàm Reset toàn bộ Form và biến trạng thái
+window.resetForm = function() {
+    console.log("--- Đang dọn dẹp Form và bộ nhớ tạm ---");
+    
+    // 1. Reset Form HTML
+    const form = document.getElementById('productForm');
+    if (form) form.reset();
 
+    // 2. Reset ID ẩn
+    document.getElementById('product_id').value = '';
 
-}
+    // 3. Reset các biến Global lưu trữ ảnh (QUAN TRỌNG NHẤT)
+    window.selectedGalleryFiles = []; 
+    window.deletedImageIds = [];      
+
+    // 4. Dọn dẹp giao diện Gallery & Attributes
+    const galleryContainer = document.getElementById('gallery-preview-container');
+    if (galleryContainer) galleryContainer.innerHTML = '';
+
+    const attrContainer = document.getElementById('attribute-list');
+    if (attrContainer) {
+        attrContainer.innerHTML = '';
+        // Thêm 1 dòng trống mặc định
+        if (typeof window.addAttributeRow === 'function') window.addAttributeRow();
+    }
+
+    // 5. Reset ảnh Preview về mặc định
+    const preview = document.getElementById('image-preview');
+    if (preview) preview.src = '/admin_assets/assets/compiled/jpg/1.jpg';
+
+    // 6. Cập nhật Tiêu đề
+    document.getElementById('modalTitle').innerText = 'Thêm mới sản phẩm';
+};
+
+window.addNewProduct = function() {
+    window.resetForm(); // Dọn dẹp rác từ lần Edit trước đó
+    if (productModal) productModal.show();
+};
+window.editProduct = async function(id) {
+    // 1. Dọn dẹp trước khi load để tránh hiện ảnh của sản phẩm cũ trong lúc chờ API
+    window.resetForm(); 
+
+    try {
+        const res = await window.api.get(`${API_URL}/${id}`);
+        const p = res.data.data;
+
+        // 2. Đổ dữ liệu vào (Mapping)
+        document.getElementById('modalTitle').innerText = 'Cập nhật sản phẩm: ' + p.info.name;
+        document.getElementById('product_id').value = p.id;
+        document.getElementById('name').value = p.info.name;
+        document.getElementById('sku').value = p.info.sku;
+        // ... (các trường khác)
+
+        // 3. Hiển thị ảnh
+        document.getElementById('image-preview').src = p.info.thumbnail || '/assets/static/images/no-image.png';
+        
+        if (p.info.images && Array.isArray(p.info.images)) {
+            p.info.images.forEach(img => {
+                window.renderExistingGalleryItem(img.id, img.url);
+            });
+        }
+
+        // 4. Mở modal sau khi đã load xong data
+        if(productModal) productModal.show();
+
+    } catch (error) {
+        let msg = error.response?.data?.message || "Lỗi không xác định";
+        Swal.fire('Lỗi hệ thống', 'Không thể lấy thông tin sản phẩm: ' + msg, 'error');
+    }
+};
