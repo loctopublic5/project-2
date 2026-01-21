@@ -41,8 +41,11 @@
     @include('partials.footer')
 
     {{-- SCRIPTS CHUNG: Trang nào cũng phải có --}}
-    <script src="{{ asset('assets/plugins/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="assets/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="assets/plugins/jquery-migrate.min.js" type="text/javascript"></script>
+    <script src="assets/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>      
+    <script src="assets/corporate/scripts/back-to-top.js" type="text/javascript"></script>
+    <script src="assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
     <script src="{{ asset('assets/corporate/scripts/layout.js') }}"></script>
 
     {{-- Axios & SweetAlert2 (Dùng chung cho cả Search Header và Checkout) --}}

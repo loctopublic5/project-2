@@ -46,7 +46,7 @@
             <ul class="scroller" id="js-cart-items-list" style="height: 250px;">
                 </ul>
             <div class="text-right">
-                        <a href="{{ route('cart.index') }}" class="btn btn-default">View Cart</a>
+                        <a href="#" class="btn btn-default">View Cart</a>
                         <a href="{{ route('checkout') }}" class="btn btn-primary">Checkout</a>
                     </div>
                 </div>
