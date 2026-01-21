@@ -4,25 +4,21 @@ namespace App\Traits;
 
 use Illuminate\Support\Str;
 
-trait HasUniqueCode{
+trait HasUniqueCode {
     /**
-     * Sinh mã duy nhất và kiểm tra trùng lặp
-     * *@param string $column  Tên cột cần check (VD: 'sku')
-     * @param string $prefix  Tiền tố (VD: 'SP')
-     * @param int    $length  Độ dài chuỗi ngẫu nhiên (không tính prefix)
+     * @param string $modelClass Tên Class Model (VD: WalletTransaction::class)
+     * @param string $column     Tên cột cần check
+     * @param string $prefix     Tiền tố
+     * @param int    $length     Độ dài
      */
-    protected function generateUniqueCode($column,$prefix,$length=8){
-        do{
-            // 1. Sinh chuỗi ngẫu nhiên, viết hoa
+    protected function generateUniqueCode($modelClass, $column, $prefix, $length = 8) {
+        do {
             $randomString = Str::upper(Str::random($length));
+            $code = $prefix . '-' . $randomString;
 
-            // 2. Ghép prefix
-            $code = $prefix . '-' .$randomString;
-
-            // 3. Kiểm tra trong DB (Sử dụng Model động)
-            // $modelClass::where(...) tương đương WalletTransaction::where(...)
-        } while (static::where($column, $code)->exists());
+            // Sử dụng $modelClass thay vì static
+        } while ($modelClass::where($column, $code)->exists());
 
         return $code;
-        }
+    }
 }
