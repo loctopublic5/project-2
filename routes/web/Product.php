@@ -5,26 +5,53 @@ use App\Http\Controllers\ProductController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| PRODUCT & SHOP ROUTES
 |--------------------------------------------------------------------------
 */
 
-// 1. Trang chủ - Quan trọng nhất để hiện sản phẩm ra Home
-Route::get('/', [ProductController::class, 'home'])->name('home');
+// ================= HOME =================
+Route::get('/', [ProductController::class, 'home'])
+    ->name('home');
 
-// 2. Danh sách sản phẩm
-Route::get('/products', [ProductController::class, 'index'])->name('products');
 
-// 3. Chi tiết sản phẩm (Dùng slug)
-Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+// ================= PRODUCT =================
 
-// 4. Profile khách hàng
+// Danh sách sản phẩm
+Route::get('/products', [ProductController::class, 'index'])
+    ->name('products.list');
+
+// Chi tiết sản phẩm (slug)
+Route::get('/products/{slug}', [ProductController::class, 'show'])
+    ->name('products.show');
+
+
+// ================= CART =================
+Route::get('/cart', function () {
+    return view('customer.cart.index');
+})->name('cart');
+
+
+// ================= CHECKOUT =================
+Route::get('/checkout', function () {
+    return view('customer.checkout.index');
+})->name('checkout');
+
+
+// ================= PROFILE =================
 Route::get('/profile', function () {
-    return view('customer.profile');
+    return view('customer.profile.index');
 })->name('profile');
 
-// 5. Liên hệ (Lưu ý: Bạn nên tạo ContactController riêng sau này, 
-// hiện tại tôi trỏ tạm theo ý bạn nhưng hãy kiểm tra hàm show() trong ProductController)
+
+// ================= STATIC PAGES =================
 Route::get('/contact', function () {
-    return view('pages.contact'); // Giả định bạn có file contact.blade.php
+    return view('customer.pages.contact');
 })->name('contact');
+
+Route::get('/about', function () {
+    return view('customer.pages.about');
+})->name('about');
+
+Route::get('/wishlist', function () {
+    return view('customer.pages.wishlist');
+})->name('wishlist');

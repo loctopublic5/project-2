@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\AdminUserController;
 
 Route::prefix('admin')->group(function () {
     // 2. Route Dashboard 
