@@ -3,13 +3,13 @@
 namespace App\Http\Resources\Cart;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CartItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        
         // 1. SAFETY CHECK (Phòng thủ)
         // Dù Service đã eager load, nhưng lỡ sản phẩm bị Soft Delete hoặc lỗi data
         // thì $this->product có thể null. Check để tránh crash API 500.
@@ -56,8 +56,6 @@ class CartItemResource extends JsonResource
             'product_info' => [
                 'name'   => $product->name,
                 'slug'   => $product->slug,
-                // Đảm bảo avatar luôn là chuỗi (hoặc null), tránh lỗi nếu DB null
-                'avatar' => $product->avatar ?? '', 
                 'sku'    => $product->sku,
                 'avatar' => $this->getAvatarUrl($product),
             ],
@@ -87,6 +85,6 @@ class CartItemResource extends JsonResource
         // Trả về URL đầy đủ. Theo ERD lưu tại public/storage/upload 
         return asset('storage/' . $image->path);
     }
-    return asset('assets/pages/img/no-image.png');
+    return asset('admin_assets/assets/compiled/jpg/1.jpg');
 }
 }

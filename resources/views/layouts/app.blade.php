@@ -15,6 +15,8 @@
     
     <link rel="stylesheet" href="{{ asset('assets/plugins/font-awesome/css/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap/css/bootstrap.min.css') }}">
+
+    <link rel="stylesheet" href="{{ asset('assets/pages/css/cart.css') }}">
     
     {{-- Plugins dùng chung --}}
     <link rel="stylesheet" href="{{ asset('assets/plugins/fancybox/source/jquery.fancybox.css') }}">
@@ -51,6 +53,7 @@
     {{-- Header Logic (Search, New Products): Luôn cần để Header chạy --}}
     <script src="{{ asset('assets/js/pages/Header/Navigative.js') }}"></script>
     <script src="{{ asset('assets/js/pages/Header/new.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/Header/Cart.js') }}"></script>
 
     <script type="text/javascript">
         jQuery(document).ready(function() {

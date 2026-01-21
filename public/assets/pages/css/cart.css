@@ -1,0 +1,89 @@
+/* Container của từng item trong giỏ hàng */
+#js-cart-items-list li {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f4f4f4;
+    padding: 10px;
+    position: relative;
+}
+
+/* Hiệu ứng cho sản phẩm bị lỗi (hết hàng/ngừng kinh doanh) */
+#js-cart-items-list li.cart-item-error {
+    background-color: #fff5f5; /* Nền hồng nhạt để nhận diện lỗi */
+}
+
+#js-cart-items-list li.cart-item-error img,
+#js-cart-items-list li.cart-item-error span,
+#js-cart-items-list li.cart-item-error em {
+    opacity: 0.6; /* Làm mờ các thành phần phụ */
+    filter: grayscale(0.5); /* Hơi xám ảnh để báo hiệu không khả dụng */
+}
+
+/* Style cho dòng thông báo lỗi */
+.cart-error-text {
+    display: block;
+    color: #e73d4a; /* Màu đỏ của Metronic/Bootstrap */
+    font-size: 11px;
+    font-style: italic;
+    margin-top: 3px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Badge nhỏ nếu muốn nhấn mạnh hơn (tùy chọn) */
+.cart-error-badge {
+    display: inline-block;
+    padding: 2px 5px;
+    background: #e73d4a;
+    color: #fff;
+    font-size: 9px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    margin-bottom: 2px;
+}
+/* Container chung của mỗi dòng */
+#js-cart-items-list li {
+    display: flex !important; /* Sử dụng flexbox để chia không gian */
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 10px 15px !important;
+    min-height: 60px;
+}
+
+/* Phần ảnh bên trái */
+#js-cart-items-list li a img {
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+/* Phần ở giữa: Tên SP và Error */
+#js-cart-items-list li strong {
+    flex-grow: 1; /* Chiếm hết phần còn lại trừ giá tiền */
+    padding-right: 10px; /* Tạo khoảng cách an toàn với giá */
+    display: block;
+    overflow: hidden;
+}
+
+#js-cart-items-list li strong a {
+    display: block;
+    white-space: normal; /* Cho phép xuống dòng nếu tên quá dài */
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+/* Phần bên phải: Giá tiền */
+#js-cart-items-list li em {
+    flex-shrink: 0; /* Không bao giờ bị thu hẹp */
+    text-align: right;
+    min-width: 85px; /* Đảm bảo đủ chỗ cho số tiền VND dài */
+    font-style: normal;
+    color: #e73d4a;
+    font-weight: bold;
+    display: block;
+}
+
+/* Điều chỉnh số lượng 'x 1' */
+.cart-content-count {
+    margin-right: 5px;
+    color: #888;
+    font-weight: normal !important;
+}

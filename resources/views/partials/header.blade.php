@@ -34,26 +34,20 @@
         <a href="javascript:;" class="mobi-toggler"><i class="fa fa-bars"></i></a>
 
         <!-- BEGIN CART -->
-        <div class="top-cart-block">
-            <div class="top-cart-info">
-                <a href="javascript:;" class="top-cart-info-count">3 items</a>
-                <a href="javascript:;" class="top-cart-info-value">$1260</a>
-            </div>
-            <i class="fa fa-shopping-cart"></i>
+<div class="top-cart-block">
+    <div class="top-cart-info">
+        <a href="javascript:;" class="top-cart-info-count" id="js-cart-count-top">0 items</a>
+        <a href="javascript:;" class="top-cart-info-value" id="js-cart-total-top">$0</a>
+    </div>
+    <i class="fa fa-shopping-cart"></i>
 
-            <div class="top-cart-content-wrapper">
-                <div class="top-cart-content">
-                    <ul class="scroller" style="height: 250px;">
-                        <li>
-                            <a href="#"><img src="{{ asset('assets/pages/img/cart-img.jpg') }}" width="37" height="34"></a>
-                            <span class="cart-content-count">x 1</span>
-                            <strong><a href="#">Rolex Classic Watch</a></strong>
-                            <em>$1230</em>
-                        </li>
-                    </ul>
-                    <div class="text-right">
-                        <a href="#" class="btn btn-default">View Cart</a>
-                        <a href="#" class="btn btn-primary">Checkout</a>
+    <div class="top-cart-content-wrapper">
+        <div class="top-cart-content">
+            <ul class="scroller" id="js-cart-items-list" style="height: 250px;">
+                </ul>
+            <div class="text-right">
+                        <a href="{{ route('cart.index') }}" class="btn btn-default">View Cart</a>
+                        <a href="{{ route('checkout') }}" class="btn btn-primary">Checkout</a>
                     </div>
                 </div>
             </div>
