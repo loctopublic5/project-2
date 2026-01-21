@@ -20,8 +20,9 @@ Route::group([], function () {
 
 // Chắc chắn rằng dòng này thay thế cho route '/' cũ
 Route::get('/', function(){
-    return view('customer.pages.product-list');
+    return view('customer.Huy( Product - Cart).pages.products-list');
 })->name('home');
+
 
 
 
