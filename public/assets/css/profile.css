@@ -85,3 +85,148 @@
 .check-icon { color: #e02222; display: none; }
 .method-item input:checked + .method-content + .check-icon { display: block; }
 .method-item has-input:checked { border-color: #e02222; }
+
+.address-card {
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.3s;
+    position: relative;
+}
+.address-card.default {
+    border-color: #337ab7;
+    background: #f9fcff;
+}
+.address-card .name {
+    font-size: 16px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+.address-card .address-body p {
+    margin: 5px 0;
+    color: #666;
+}
+.address-card .badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+/* Container Grid */
+#address-list-grid {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+/* Base Card Style */
+.address-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.address-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #337ab7;
+}
+
+/* Trạng thái mặc định */
+.address-card.default {
+    border: 2px solid #337ab7;
+    background-color: #f0f7ff;
+}
+
+/* Header: Tên & Badge */
+.address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-right: 70px; /* Chừa chỗ cho badge */
+}
+
+.address-header .name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+}
+
+.address-card .badge-default-addr {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #337ab7;
+    color: #fff;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* Body: Thông tin liên lạc */
+.address-body {
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.address-body p {
+    margin: 4px 0;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: baseline;
+}
+
+.address-body i {
+    width: 20px;
+    color: #888;
+    font-size: 13px;
+}
+
+.address-body .text-muted {
+    font-size: 13px;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+/* Footer: Nút bấm */
+.address-footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Tối ưu cho Mobile (Dưới 768px) */
+@media (max-width: 767px) {
+    .address-card {
+        padding: 15px;
+        min-height: auto;
+    }
+
+    .address-footer {
+        flex-direction: row; /* Giữ nút trên 1 hàng nhưng dàn đều */
+        justify-content: space-between;
+    }
+
+    .address-footer .btn {
+        flex: 1; /* Nút to hơn dễ bấm */
+        padding: 8px 5px;
+        font-size: 12px;
+    }
+
+    .address-header .name {
+        font-size: 15px;
+    }
+}

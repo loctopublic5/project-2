@@ -67,6 +67,8 @@ const AppAccount = {
         WalletModule.init(); // Đảm bảo WalletModule đã nạp
     } else if (tabName === 'orders') {
         OrderModule.init();  // Đảm bảo OrderModule đã nạp
+    } else if (tabName === 'addresses'){
+        AddressModule.init();
     }
 },
 

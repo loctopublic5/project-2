@@ -61,6 +61,11 @@
                             <i class="fa fa-google-wallet"></i> Ví điện tử
                         </a>
                     </li>
+                    <li class="list-group-item clearfix" data-tab="addresses">
+                        <a href="javascript:void(0);" onclick="AppAccount.switchTab('addresses')">
+                            <i class="fa fa-map-marker"></i> Sổ địa chỉ
+                        </a>
+                    </li>
                     <li class="list-group-item clearfix" data-tab="orders">
                         <a href="javascript:void(0);" onclick="AppAccount.switchTab('orders')">
                             <i class="fa fa-shopping-cart"></i> Đơn mua của tôi
@@ -190,7 +195,84 @@
                         </table>
                     </div>
                 </div>
+<div id="tab-addresses" class="account-tab-content" style="display: none;">
+    <div class="row margin-bottom-20">
+        <div class="col-md-6">
+            <h3>Sổ địa chỉ</h3>
+        </div>
+        <div class="col-md-6 text-right">
+            <button class="btn btn-primary" onclick="AddressModule.showAddModal()">
+                <i class="fa fa-plus"></i> Thêm địa chỉ mới
+            </button>
+        </div>
+    </div>
 
+    <div id="address-list-grid" class="row">
+        </div>
+</div>
+
+<div class="modal fade" id="addressModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content border-radius-10">
+            <form id="address-form">
+                <input type="hidden" id="address-id"> <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title bold" id="address-modal-title">Thêm địa chỉ nhận hàng</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Họ tên người nhận <span class="text-danger">*</span></label>
+                            <input type="text" name="recipient_name" class="form-control" required placeholder="VD: Nguyễn Văn A">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" name="phone" class="form-control" required placeholder="VD: 0912345xxx">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 form-group">
+                            <label>Tỉnh/Thành phố</label>
+                            <select name="province_id" class="form-control" required>
+                                <option value="1">TP. Hồ Chí Minh</option> <option value="2">Hà Nội</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Quận/Huyện</label>
+                            <select name="district_id" class="form-control" required>
+                                <option value="101">Quận 1</option>
+                                <option value="102">Quận 7</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>Phường/Xã</label>
+                            <select name="ward_id" class="form-control" required>
+                                <option value="1001">Phường Bến Nghé</option>
+                                <option value="1002">Phường Tân Phong</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Địa chỉ cụ thể <span class="text-danger">*</span></label>
+                        <textarea name="address_detail" class="form-control" rows="2" required placeholder="Số nhà, tên đường..."></textarea>
+                    </div>
+
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="is_default"> Đặt làm địa chỉ mặc định
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
             </div> </div>
     </div>
 </div>
@@ -278,6 +360,7 @@
     <script src="{{ asset('assets/js/pages/Account/modules/orders.js') }}"></script>
     <script src="{{ asset('assets/js/pages/Account/modules/wallet.js') }}"></script>
     <script src="{{ asset('assets/js/pages/Account/modules/profile.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/Account/modules/address.js') }}"></script>
     <script src="{{ asset('assets/js/pages/Account/account-core.js') }}"></script>
     
     <script type="text/javascript">
