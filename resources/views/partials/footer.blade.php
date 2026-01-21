@@ -23,7 +23,7 @@
                         <li><i class="fa fa-angle-right"></i> <a href="#">Customer Service</a></li>
                         <li><i class="fa fa-angle-right"></i> <a href="#">Order Tracking</a></li>
                         <li><i class="fa fa-angle-right"></i> <a href="#">Shipping &amp; Returns</a></li>
-                        <li><i class="fa fa-angle-right"></i> <a href="{{ route('contact') }}">Contact Us</a></li>
+                        <li><i class="fa fa-angle-right"></i> <a href="#">Contact Us</a></li>
                         <li><i class="fa fa-angle-right"></i> <a href="#">Careers</a></li>
                         <li><i class="fa fa-angle-right"></i> <a href="#">Payment Methods</a></li>
                     </ul>
@@ -48,12 +48,12 @@
                 <div class="col-md-3 col-sm-6 pre-footer-col">
                     <h2>Our Contacts</h2>
                     <address class="margin-bottom-40">
-                        35, Lorem Lis Street, Park Ave<br>
-                        California, US<br>
+                        VTC Academy Plus, Trung Kinh, Cau Giay<br>
+                        Ha Noi, Viet Nam<br>
                         Phone: 300 323 3456<br>
                         Fax: 300 323 1456<br>
                         Email: <a href="mailto:info@metronic.com">info@metronic.com</a><br>
-                        Skype: <a href="skype:metronic">metronic</a>
+                        Skype: <a href="skype:metronic">B2C Retail</a>
                     </address>
                 </div>
                 <!-- END BOTTOM CONTACTS -->

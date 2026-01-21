@@ -7,11 +7,7 @@
                     <li><i class="fa fa-phone"></i><span>0987123666</span></li>
                     <li class="shop-currencies">
                         
-                        <a href="javascript:;">VND</a>
-                        <a href="javascript:;" class="current">$</a>
-                    </li>
-                    <li class="langs-block">
-                        <a href="javascript:;" class="current">English</a>
+                        <a href="javascript:;" class="current">VND</a>
                     </li>
                 </ul>
             </div>
