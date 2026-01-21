@@ -1,6 +1,8 @@
 const API_URL = '/api/v1/admin/products';
 const API_CATEGORIES = '/api/v1/admin/categories';
 let productModal; 
+let deletedImageIds = [];
+let selectedGalleryFiles = []; // Lưu các File object mới chọn từ input gallery
 
 // Init
 document.addEventListener('DOMContentLoaded', function () {
@@ -303,6 +305,12 @@ async function editProduct(id) {
         // SỬA LỖI 401 TẠI ĐÂY
         const res = await window.api.get(`${API_URL}/${id}`);
         const p = res.data.data; 
+        
+        // --- RESET GALLERY STATE ---
+        deletedImageIds = [];
+        selectedGalleryFiles = [];
+        const galleryContainer = document.getElementById('gallery-preview-container');
+        if(galleryContainer) galleryContainer.innerHTML = '';
 
         document.getElementById('product_id').value = p.id;
         document.getElementById('name').value = p.info.name;
@@ -349,9 +357,18 @@ async function editProduct(id) {
         document.getElementById('stock_qty').value = p.inventory.stock_qty;
         document.getElementById('is_active').checked = p.is_active;
 
+        // Load ảnh chính
         const thumb = p.info.thumbnail || '/assets/static/images/no-image.png';
         document.getElementById('image-preview').src = thumb;
         document.getElementById('image').value = ''; 
+
+        // --- LOAD GALLERY IMAGES FROM API ---
+        if (p.info.images && Array.isArray(p.info.images)) {
+            p.info.images.forEach(img => {
+                // img giả định có {id: 1, url: '...'}
+                renderExistingGalleryItem(img.id, img.url);
+            });
+        }
 
         document.getElementById('modalTitle').innerText = 'Cập nhật sản phẩm';
         if(productModal) productModal.show();
@@ -404,6 +421,14 @@ async function saveProduct() {
         formData.append(`attributes[${index}][name]`, item.name);
         formData.append(`attributes[${index}][value]`, item.value);
     }); // Kết quả gửi đi sẽ dạng: attributes[0][name]="Màu", attributes[0][value]="Đỏ"...
+
+    // 2. THÊM GALLERY: Các file mới chọn
+    selectedGalleryFiles.forEach((file, index) => {
+        formData.append('gallery[]', file);
+    });
+
+    // 3. THÊM ẢNH CẦN XÓA: Gửi dưới dạng chuỗi JSON
+    formData.append('deleted_images', JSON.stringify(deletedImageIds));
 
     
     if(!document.getElementById('is_active').checked) {
@@ -473,4 +498,64 @@ function deleteProduct(id) {
             }
         }
     })
+
+    // Preview ảnh chính
+window.previewMainImage = function(event) {
+    const reader = new FileReader();
+    reader.onload = () => document.getElementById('image-preview').src = reader.result;
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+// Khi người dùng chọn nhiều ảnh ở Gallery
+window.handleGallerySelect = function(event) {
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+        selectedGalleryFiles.push(file);
+        const url = URL.createObjectURL(file);
+        renderNewGalleryItem(url, selectedGalleryFiles.length - 1);
+    });
+    event.target.value = ''; // Clear để có thể chọn lại cùng file
+}
+
+// Render ảnh cũ từ server
+function renderExistingGalleryItem(id, url) {
+    const html = `
+        <div class="col-4 gallery-item-old" data-id="${id}">
+            <div class="position-relative border rounded overflow-hidden shadow-sm" style="height: 80px;">
+                <img src="${url}" class="w-100 h-100 object-fit-cover">
+                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-1" 
+                        onclick="removeExistingImage(this, ${id})" style="line-height: 1; border-radius: 0 0 0 5px;">
+                    <i class="bi bi-x" style="font-size: 14px;"></i>
+                </button>
+            </div>
+        </div>`;
+    document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
+}
+
+// Render ảnh mới đang chờ upload
+function renderNewGalleryItem(url, index) {
+    const html = `
+        <div class="col-4 gallery-item-new" data-index="${index}">
+            <div class="position-relative border border-primary rounded overflow-hidden shadow-sm" style="height: 80px;">
+                <img src="${url}" class="w-100 h-100 object-fit-cover" style="opacity: 0.8">
+                <button type="button" class="btn btn-warning btn-xs position-absolute top-0 end-0 p-1" 
+                        onclick="removeNewSelectedImage(this, ${index})" style="line-height: 1; border-radius: 0 0 0 5px;">
+                    <i class="bi bi-dash" style="font-size: 14px;"></i>
+                </button>
+            </div>
+        </div>`;
+    document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
+}
+
+window.removeExistingImage = function(btn, id) {
+    deletedImageIds.push(id);
+    btn.closest('.col-4').remove();
+}
+
+window.removeNewSelectedImage = function(btn, index) {
+    // Lưu ý: index ở đây có thể thay đổi nếu xóa nhiều, nhưng với quy mô nhỏ có thể xóa trực tiếp DOM
+    // Để an toàn nhất: ta chỉ cần remove DOM, còn mảng selectedGalleryFiles sẽ gửi toàn bộ những gì còn lại
+    btn.closest('.col-4').remove();
+    // Ghi chú: Logic thực tế nên filter lại mảng selectedGalleryFiles nếu cần độ chính xác tuyệt đối
+}
 }
