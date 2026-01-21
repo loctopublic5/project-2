@@ -203,8 +203,10 @@ class CartService{
      */
     public function getCartDetail($userId, $params = []){
         // 1. Load quan hệ 'items' (SỐ NHIỀU)
-        $cart = Cart::with('items.product') 
-                    ->firstOrCreate(['user_id' => $userId]);
+        $cart = Cart::with(['items' => function($query) {
+        // Load product kèm theo các file liên quan thông qua quan hệ đa hình [cite: 11, 24, 66]
+        $query->where('selected', true)->with('product.images');
+        }])->firstOrCreate(['user_id' => $userId]);
 
         // 2. Lấy items (SỐ NHIỀU)
         // [FIX LỖI NULL]: Thêm ?? collect([]) để phòng trường hợp relation trả về null

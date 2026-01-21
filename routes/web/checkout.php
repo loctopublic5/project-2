@@ -5,4 +5,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/checkout', function(){
     return view('customer.Loc(Checkout).pages.checkout');
-})->name('pages.checkout');
+})->name('checkout');

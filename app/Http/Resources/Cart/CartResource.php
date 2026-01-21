@@ -9,11 +9,7 @@ class CartResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        // Input của Resource này là mảng: 
-        // [
-        //    'cart' => $cartModel, 
-        //    'pricing' => $pricingResult array
-        // ]
+        
         
         $cartModel = $this['cart'];
         $pricing   = $this['pricing'];
