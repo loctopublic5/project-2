@@ -87,6 +87,34 @@ class OrderService
 
         return $order;
     }
+
+    /**
+ * Xác nhận đã nhận hàng (Customer confirm)
+ */
+public function confirmReceived($userId, $orderId)
+{
+    return DB::transaction(function () use ($userId, $orderId) {
+        // 1. Tìm đơn hàng (Security check: Đúng chủ nhân)
+        $order = Order::where('user_id', $userId)
+                      ->where('id', $orderId)
+                      ->firstOrFail();
+
+        // 2. Kiểm tra trạng thái: Chỉ được xác nhận khi đang giao hàng (shipping)
+        // Lưu ý: Tùy vào Enum của bạn, thay đổi 'shipping' cho đúng key
+        if ($order->status->value !== 'shipping') {
+            throw new Exception("Đơn hàng không ở trạng thái có thể xác nhận.");
+        }
+
+        // 3. Cập nhật trạng thái
+        $order->update([
+            'status' => 'completed', // Chuyển sang Hoàn thành
+            'completed_at' => now(),
+            'payment_status' => 'paid' // Đảm bảo thanh toán đã hoàn tất
+        ]);
+
+        return $order;
+    });
+}
     /**
      * Lấy danh sách đơn hàng (Dùng chung cho cả Admin và Customer)
      * * @param int|null $userId : Nếu null -> Admin (lấy hết). Nếu có ID -> Customer (lấy của mình).

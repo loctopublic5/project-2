@@ -175,26 +175,31 @@
                     </div>
                 </div>
 
-                <div id="tab-orders" class="account-tab-content" style="display: none;">
-                    <h3>Đơn mua của tôi</h3>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Mã đơn</th>
-                                    <th>Ngày đặt</th>
-                                    <th>Sản phẩm</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thanh toán</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody id="all-orders-table">
-                                </tbody>
-                        </table>
-                    </div>
+<div id="tab-orders" class="account-tab-content" style="display: none;">
+    <ul class="nav nav-tabs order-tabs" role="tablist">
+        <li class="active"><a href="javascript:;" onclick="OrderModule.filter('')">Tất cả</a></li>
+        <li><a href="javascript:;" onclick="OrderModule.filter('pending')">Chờ xác nhận</a></li>
+        <li><a href="javascript:;" onclick="OrderModule.filter('shipping')">Đang giao</a></li>
+        <li><a href="javascript:;" onclick="OrderModule.filter('completed')">Hoàn thành</a></li>
+        <li><a href="javascript:;" onclick="OrderModule.filter('cancelled')">Đã hủy</a></li>
+    </ul>
+
+    <div id="order-history-list" class="margin-top-20">
+        </div>
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Đánh giá sản phẩm</h4>
+            </div>
+            <div class="modal-body" id="review-modal-body">
                 </div>
+        </div>
+    </div>
+</div>
 <div id="tab-addresses" class="account-tab-content" style="display: none;">
     <div class="row margin-bottom-20">
         <div class="col-md-6">
