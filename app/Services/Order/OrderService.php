@@ -104,7 +104,7 @@ class OrderService
         // 2. EAGER LOADING (PERFORMANCE)
         // Load sơ bộ items để hiển thị hình ảnh preview bên ngoài (nếu cần)
         // Load user để Admin biết đơn của ai
-        $query->with(['items', 'user:id,name,email']);
+        $query->with(['items', 'user:id,full_name,email']);
 
         // 3. FILTERING 
 

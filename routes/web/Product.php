@@ -37,11 +37,6 @@ Route::get('/checkout', function () {
 })->name('checkout');
 
 
-// ================= PROFILE =================
-Route::get('/profile', function () {
-    return view('customer.profile.index');
-})->name('profile');
-
 
 // ================= STATIC PAGES =================
 Route::get('/contact', function () {

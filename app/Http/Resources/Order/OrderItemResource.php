@@ -11,19 +11,14 @@ class OrderItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         
-        // 1. Xử lý ảnh sản phẩm (Polymorphic)
-        $thumbnailUrl = asset('admin_assets/assets/compiled/jpg/1.jpg'); // Ảnh mặc định nếu không có
+        // Ưu tiên lấy thumbnail trực tiếp từ product, nếu không có thì dùng ảnh mặc định
+        $thumbnailUrl = asset('admin_assets/assets/compiled/jpg/1.jpg');
 
-        // Kiểm tra xem sản phẩm còn tồn tại không (tránh lỗi null)
-        if ($this->product) {
-            // Nếu Product có quan hệ 'image' (MorphOne)
-            if ($this->product->relationLoaded('images') && $this->product->image) {
-                $thumbnailUrl = Storage::url($this->product->image->path);
-            } 
-            // Fallback: Nếu không Eager Load, thử truy cập trực tiếp (Lazy Load)
-            elseif ($this->product->image) {
-                $thumbnailUrl = Storage::url($this->product->image->path);
-            }
+        if ($this->product && $this->product->thumbnail) {
+            // Kiểm tra xem là URL tuyệt đối hay là đường dẫn trong Storage
+            $thumbnailUrl = filter_var($this->product->thumbnail, FILTER_VALIDATE_URL) 
+                ? $this->product->thumbnail 
+                : Storage::url($this->product->thumbnail);
         }
         return [
             'id'           => $this->id,
