@@ -38,7 +38,19 @@ class SaveProductRequest extends BaseFormRequest
             'attributes'  => ['nullable', 'array'],
             // 'attributes.*' nghĩa là duyệt qua từng phần tử trong mảng attributes
             'attributes.*.name'  => ['required_with:attributes', 'string', 'max:255'],
-            'attributes.*.value' => ['required_with:attributes', 'string', 'max:255']
+            'attributes.*.value' => ['required_with:attributes', 'string', 'max:255'],
+
+            'image' => [
+                $isUpdate ? 'nullable' : 'required', // Tạo mới thì bắt buộc, update thì không
+                'image', 
+                'mimes:jpeg,png,jpg,gif', 
+                'max:2048'
+            ],
+            // Cập nhật Rule cho Gallery (Mảng ảnh)
+            'gallery'   => ['nullable', 'array'],
+            'gallery.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        
+            'deleted_images' => ['nullable', 'string'], // Chuỗi JSON chứa ID các ảnh gallery cần xóa
         ];
     }
 

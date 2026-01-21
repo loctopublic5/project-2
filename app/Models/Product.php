@@ -22,6 +22,7 @@ class Product extends Model
         'category_id',
         'name',
         'sku',
+        'thumbnail',
         'slug',
         'price',
         'sale_price',
@@ -65,6 +66,25 @@ class Product extends Model
     }
 
     /**
+     * Accessor: Tự động tạo URL đầy đủ cho thumbnail
+     * Giúp code ở Resource hoặc Controller sạch hơn
+     */
+    public function getThumbnailUrlAttribute()
+    {
+        if (!$this->thumbnail) {
+            return null; // Hoặc return một link ảnh default "no-image.png"
+        }
+
+        // Nếu path lưu dưới dạng link tuyệt đối (http...) thì trả về luôn
+        if (filter_var($this->thumbnail, FILTER_VALIDATE_URL)) {
+            return $this->thumbnail;
+        }
+
+        // Mặc định dùng Storage disk public
+        return \Illuminate\Support\Facades\Storage::url($this->thumbnail);
+    }
+
+    /**
      * Product belongs to Category
      */
     public function category(): BelongsTo
@@ -74,7 +94,7 @@ class Product extends Model
 
     public function images(): MorphMany
     {
-        return $this->morphMany(File::class, 'target');
+        return $this->morphMany(File::class, 'target')->orderBy('id', 'desc');
     }
 
     public function orderItem(): HasMany{

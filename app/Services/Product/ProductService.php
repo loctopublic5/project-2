@@ -1,11 +1,12 @@
 <?php
-
 namespace App\Services\Product;
 
 use Exception;
+use App\Models\File;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use App\Services\System\FileService;
+use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -14,7 +15,7 @@ class ProductService
 
     public function list(array $filters){
         // 1. Khởi tạo Query với Scope Active
-        $query = Product::active()->with('images'); // Eager Load ảnh để hiển thị ra list
+        $query = Product::active()->with(['category']);
 
         // 2. Filter theo Category
         if(isset($filters['category_id'])){
@@ -58,15 +59,14 @@ class ProductService
     public function listAdmin(array $filters){
     // 1. Khởi tạo Query
     // QUAN TRỌNG: Thêm withoutGlobalScopes() để Admin thấy được sản phẩm ẩn (nếu Model có cài Scope)
-    $query = Product::withoutGlobalScopes() 
-                    ->with(['category', 'images']); 
+    $query = Product::withoutGlobalScopes()->with(['category']); 
 
     // 2. Filter Keyword (Gộp logic tìm kiếm vào 1 chỗ duy nhất)
     if (!empty($filters['keyword'])) {
         $keyword = $filters['keyword'];
         $query->where(function($q) use ($keyword) {
             $q->where('name', 'like', "%{$keyword}%")
-              ->orWhere('sku', 'like', "%{$keyword}%");
+                ->orWhere('sku', 'like', "%{$keyword}%");
         });
     }
 
@@ -108,10 +108,9 @@ class ProductService
 }
 
     public function getProductDetail($id){
-        return Product::active()
-            ->with(['images', 'category', 'reviews'])
-            ->findOrFail($id);
-    }
+        return Product::with(['images', 'category', 'reviews'])
+                        ->findOrFail($id);
+}
 
     // Hàm Helper để chuẩn hóa Attribute
     // Input:  [ ["name" => "Màu", "value" => "Đỏ, Xanh"], ... ]
@@ -132,80 +131,101 @@ class ProductService
         }
         return $formatted;
     }
-    public function createProduct($data){
+    public function createProduct($data) {
+    // 1. Validate Logic Nghiệp vụ
+    if (isset($data['sale_price']) && $data['sale_price'] >= $data['price']) {
+        throw new Exception('Giá khuyến mãi phải nhỏ hơn giá gốc.');
+    }
 
-        // 1. Validate Logic Nghiệp vụ
-        // Nếu có giá sale, thì giá sale phải nhỏ hơn giá gốc
-        if (isset($data['sale_price']) && $data['sale_price'] >= $data['price']) {
-            throw new Exception('Giá khuyến mãi phải nhỏ hơn giá gốc.');
+    DB::beginTransaction();
+    try {
+        // Chuẩn hóa attributes nếu có
+        if (isset($data['attributes']) && is_array($data['attributes'])) {
+            $data['attributes'] = $this->formatAttributes($data['attributes']);
         }
 
-        //2. Khởi tạo DB Transaction:
-        DB::beginTransaction();
-        try{
-            if (isset($data['attributes']) && is_array($data['attributes'])) {
-                $data['attributes'] = $this->formatAttributes($data['attributes']);
+        // 1. Xử lý upload Thumbnail trước để lấy path
+            if (isset($data['image'])) {
+                // Ta sử dụng logic upload nhưng chỉ lấy path lưu vào product
+                // Thay vì dùng fileService->upload (tạo record File), ta có thể viết 1 hàm upload riêng 
+                // hoặc lấy path từ fileService. Ở đây tôi sẽ tối ưu lưu path vào thumbnail.
+                $fileName = $data['image']->hashName();
+                $folderPath = 'uploads/products/thumbnails/' . date('Y/m');
+                $data['thumbnail'] = Storage::disk('public')->putFileAs($folderPath, $data['image'], $fileName);
             }
-            // Bước A: Tạo Product trước 
+
             $product = Product::create($data);
 
-            //Xử lý Upload Ảnh (Nếu trong $data có file):
-            if(isset($data['images']) && is_array($data['images'])){
-                foreach($data['images'] as $file){
-                    //Gọi sang FileService
-                    $this->fileService->upload(
-                        $file,                 // File vật lý
-                        Product::class,  // target_type: "App\Models\Product"
-                        $product->id       
-                    );
+            // 2. Xử lý Gallery (Lưu vào bảng files qua Polymorphic)
+            if (isset($data['gallery']) && is_array($data['gallery'])) {
+                foreach ($data['gallery'] as $file) {
+                    $this->fileService->upload($file, Product::class, $product->id);
                 }
             }
+
             DB::commit();
             return $product;
-
-        }catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
 
-    public function updateProduct($id, $data){
-        // 1. Tìm sản phẩm:
+    /**
+     * UPDATE: Dọn dẹp ảnh cũ & Cập nhật ảnh mới
+     */
+    public function updateProduct($id, $data) 
+    {
         $product = Product::findOrFail($id);
 
-        // 2. Validate Logic:
-        if (isset($data['sale_price']) && $data['sale_price'] >= $data['price']) {
-            throw new Exception('Giá khuyến mãi phải nhỏ hơn giá gốc.');
-        }
-
-        // 3. Transaction Start:
         DB::beginTransaction();
-        try{
-            if (isset($data['attributes']) && is_array($data['attributes'])) {
+        try {
+            if (isset($data['attributes'])) {
                 $data['attributes'] = $this->formatAttributes($data['attributes']);
             }
-            // a. Update thông tin cơ bản:
+
+            // 1. Cập nhật Thumbnail mới & Xóa file vật lý cũ
+            if (isset($data['image'])) {
+                // Xóa ảnh thumbnail cũ nếu tồn tại
+                if ($product->thumbnail && Storage::disk('public')->exists($product->thumbnail)) {
+                    Storage::disk('public')->delete($product->thumbnail);
+                }
+
+                $fileName = $data['image']->hashName();
+                $folderPath = 'uploads/products/thumbnails/' . date('Y/m');
+                $data['thumbnail'] = Storage::disk('public')->putFileAs($folderPath, $data['image'], $fileName);
+            }
+
             $product->update($data);
 
-            // b. Xử lý ảnh (Logic Thay Thế):
-            if (isset($data['images'])){
-                    // Bước 1: Xóa sạch ảnh cũ
-                    $oldFiles = $product->images;
-                    foreach ($oldFiles as $file){
-                    $this->fileService->delete($file); // Xóa vật lý + Xóa DB
-                    }
-                    // Bước 2: Upload ảnh mới (nếu mảng không rỗng)
-                    foreach ($data['images'] as $newFile){
-                        $this->fileService->upload(
-                            $newFile, 
-                            Product::class,
-                            $product->id);
-                    }
-            }
-            DB::commit();
-            return $product->refresh(); // Lấy lại data mới nhất
+// Trong logic xử lý xóa ảnh của updateProduct
+if (!empty($data['deleted_images'])) {
+    $deleteIds = is_array($data['deleted_images']) 
+        ? $data['deleted_images'] 
+        : json_decode($data['deleted_images'], true);
 
-        }catch (Exception $e){
+    if (is_array($deleteIds) && count($deleteIds) > 0) {
+        // Cập nhật tên cột theo ERD: target_id và target_type
+        $filesToDelete = File::whereIn('id', $deleteIds)
+            ->where('target_id', $product->id)
+            ->where('target_type', get_class($product))
+            ->get();
+
+        foreach ($filesToDelete as $fileRecord) {
+            $this->fileService->delete($fileRecord);
+        }
+    }
+}
+            // 3. Thêm ảnh Gallery mới
+            if (isset($data['gallery']) && is_array($data['gallery'])) {
+                foreach ($data['gallery'] as $file) {
+                    $this->fileService->upload($file, Product::class, $product->id);
+                }
+            }
+
+            DB::commit();
+            return $product->refresh();
+        } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }

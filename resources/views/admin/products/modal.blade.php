@@ -1,4 +1,4 @@
-<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="productModal" tabindex="-1" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header border-bottom">
@@ -84,8 +84,8 @@
                                         <label class="d-block mb-2 fw-bold small text-uppercase">Ảnh đại diện chính</label>
                                         <div class="ratio ratio-1x1 border rounded mb-2 position-relative overflow-hidden">
                                             <img id="image-preview" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
-                                                 class="w-100 h-100 object-fit-cover" style="cursor: pointer;" 
-                                                 onclick="document.getElementById('image').click()">
+                                                class="w-100 h-100 object-fit-cover" style="cursor: pointer;" 
+                                                onclick="document.getElementById('image').click()">
                                         </div>
                                         <input type="file" class="d-none" id="image" name="image" accept="image/*" onchange="previewMainImage(event)">
                                         <small class="text-muted d-block">Click ảnh để thay đổi</small>

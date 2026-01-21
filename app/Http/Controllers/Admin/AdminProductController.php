@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Product\ProductService;
 use App\Http\Resources\Product\ProductResource;
@@ -26,15 +25,7 @@ class AdminProductController extends Controller
     
     public function store(SaveProductRequest $request){
         try{
-            $data = $request->validated();
-            // 2. Chuẩn bị Data cho Service
-            $data = $request->except(['image']); // Lấy hết input trừ file image raw
-    
-        
-            // Chuẩn hóa 'image' đơn lẻ từ Request thành mảng 'images' cho Service
-            if ($request->hasFile('image')) {
-                $data['images'] = [$request->file('image')]; 
-            }   
+            $data = $request->validated(); 
 
             $product = $this->productService->createProduct($data);
 
@@ -46,14 +37,8 @@ class AdminProductController extends Controller
 
     public function update(SaveProductRequest $request, $id){
             try{
-                $data = $request->validated();
-                // 2. Chuẩn bị Data cho Service
-                $data = $request->except(['image']); // Lấy hết input trừ file image raw
+                $data = $request->validated(); 
 
-                // Chuẩn hóa 'image' đơn lẻ từ Request thành mảng 'images' cho Service
-                    if ($request->hasFile('image')) {
-                        $data['images'] = [$request->file('image')]; 
-                    }   
                 $product = $this->productService->updateProduct($id, $data);
                 return $this->success(new ProductResource($product), 'Cập nhật thông tin sản phẩm thành công !');
             }catch(Exception $e){
