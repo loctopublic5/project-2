@@ -38,7 +38,12 @@ class SaveProductRequest extends BaseFormRequest
             'attributes'  => ['nullable', 'array'],
             // 'attributes.*' nghĩa là duyệt qua từng phần tử trong mảng attributes
             'attributes.*.name'  => ['required_with:attributes', 'string', 'max:255'],
-            'attributes.*.value' => ['required_with:attributes', 'string', 'max:255']
+            'attributes.*.value' => ['required_with:attributes', 'string', 'max:255'],
+
+            'image'     => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'gallery'   => ['nullable', 'array'],
+            'gallery.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'deleted_images' => ['nullable', 'string'],
         ];
     }
 

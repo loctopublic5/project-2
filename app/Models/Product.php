@@ -74,7 +74,7 @@ class Product extends Model
 
     public function images(): MorphMany
     {
-        return $this->morphMany(File::class, 'target');
+        return $this->morphMany(File::class, 'target')->orderBy('id', 'desc');
     }
 
     public function orderItem(): HasMany{

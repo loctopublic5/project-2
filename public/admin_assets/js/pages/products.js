@@ -4,6 +4,40 @@ let productModal;
 let deletedImageIds = [];
 let selectedGalleryFiles = []; // Lưu các File object mới chọn từ input gallery
 
+// Gắn trực tiếp vào window để HTML luôn tìm thấy
+window.handleGallerySelect = function(event) {
+    console.log("Đã kích hoạt chọn ảnh gallery");
+    const files = Array.from(event.target.files);
+    const container = document.getElementById('gallery-preview-container');
+
+    files.forEach(file => {
+        const fileId = 'new_' + Date.now() + Math.random().toString(36).substr(2, 9);
+        selectedGalleryFiles.push({ id: fileId, file: file });
+
+        const url = URL.createObjectURL(file);
+        
+        const html = `
+            <div class="col-4 gallery-item-new" data-file-id="${fileId}">
+                <div class="position-relative border border-primary rounded overflow-hidden shadow-sm" style="height: 80px;">
+                    <img src="${url}" class="w-100 h-100 object-fit-cover" style="opacity: 0.9">
+                    <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0" 
+                            onclick="window.removeNewSelectedImage(this, '${fileId}')" 
+                            style="width: 20px; height: 20px; line-height: 1; border-radius: 0 0 0 5px;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                    <div class="position-absolute bottom-0 start-0 w-100 bg-primary text-white text-center" style="font-size: 8px;">Mới</div>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+    });
+    event.target.value = ''; 
+};
+
+window.removeNewSelectedImage = function(btn, fileId) {
+    selectedGalleryFiles = selectedGalleryFiles.filter(item => item.id !== fileId);
+    const col = btn.closest('.col-4');
+    if (col) col.remove();
+};
 // Init
 document.addEventListener('DOMContentLoaded', function () {
     // Khởi tạo Modal Bootstrap
@@ -363,7 +397,7 @@ async function editProduct(id) {
         document.getElementById('image').value = ''; 
 
         // --- LOAD GALLERY IMAGES FROM API ---
-        if (p.info.images && Array.isArray(p.info.images)) {
+        if (p.info.images && Array.isArray(p.images)) {
             p.info.images.forEach(img => {
                 // img giả định có {id: 1, url: '...'}
                 renderExistingGalleryItem(img.id, img.url);
@@ -384,81 +418,74 @@ async function editProduct(id) {
 async function saveProduct() {
     console.log("--- BẮT ĐẦU SAVE PRODUCT ---");
 
-    // 1. Kiểm tra xem có tìm thấy dòng nào không?
+    // 1. Thu thập Attributes (Giữ nguyên logic của bạn)
     const attrRows = document.querySelectorAll('.attribute-item');
-    console.log(`Tìm thấy ${attrRows.length} dòng attribute.`);
-
     const attributes = []; 
-
-    attrRows.forEach((row, index) => {
-        // 2. Log xem class bạn đang query có khớp với HTML thực tế không
-        const nameEl = row.querySelector('.attr-name'); // Kiểm tra kỹ class này trong HTML
-        const valueEl = row.querySelector('.attr-value'); // Kiểm tra kỹ class này trong HTML
-
-        console.log(`Dòng ${index}:`, {
-            inputName: nameEl,
-            inputValue: valueEl,
-            valName: nameEl ? nameEl.value : 'NULL',
-            valValue: valueEl ? valueEl.value : 'NULL'
-        });
-
+    attrRows.forEach((row) => {
+        const nameEl = row.querySelector('.attr-name');
+        const valueEl = row.querySelector('.attr-value');
         const key = nameEl ? nameEl.value.trim() : ''; 
         const value = valueEl ? valueEl.value.trim() : '';
-
         if(key && value) {
             attributes.push({ name: key, value: value });
         }
     });
 
-    console.log("Mảng attributes thu được:", attributes);
-
     const id = document.getElementById('product_id').value;
     const form = document.getElementById('productForm');
 
+    // TẠO FORMDATA:
     const formData = new FormData(form);
 
+    // XỬ LÝ QUAN TRỌNG: Kiểm tra ảnh đại diện (Thumbnail)
+    // Nếu người dùng KHÔNG chọn file mới, xóa key 'image' rỗng khỏi FormData 
+    // để tránh đè dữ liệu cũ trên Backend
+    const imageInput = document.getElementById('image');
+    if (!imageInput.files || imageInput.files.length === 0) {
+        formData.delete('image'); 
+    }
+
+    // 2. Thêm Attributes vào FormData
+    // Xóa các attributes cũ (nếu có) để append lại cho sạch
+    formData.delete('attributes'); 
     attributes.forEach((item, index) => {
         formData.append(`attributes[${index}][name]`, item.name);
         formData.append(`attributes[${index}][value]`, item.value);
-    }); // Kết quả gửi đi sẽ dạng: attributes[0][name]="Màu", attributes[0][value]="Đỏ"...
-
-    // 2. THÊM GALLERY: Các file mới chọn
-    selectedGalleryFiles.forEach((file, index) => {
-        formData.append('gallery[]', file);
     });
 
-    // 3. THÊM ẢNH CẦN XÓA: Gửi dưới dạng chuỗi JSON
-    formData.append('deleted_images', JSON.stringify(deletedImageIds));
+    // 3. Thêm Gallery (Ảnh bổ sung mới chọn)
+    // Cần đảm bảo selectedGalleryFiles là mảng chứa các File object thực tế
+    formData.delete('gallery[]'); // Xóa rác nếu có
+    selectedGalleryFiles.forEach((fileObj) => {
+        // Nếu fileObj là object {id, file}, ta lấy .file
+        const fileData = fileObj.file ? fileObj.file : fileObj; 
+        formData.append('gallery[]', fileData);
+    });
 
-    
-    if(!document.getElementById('is_active').checked) {
-        formData.append('is_active', 0); 
-    } else {
-        formData.set('is_active', 1);
-    }
-    // 3. Log FormData TRƯỚC khi gửi (FormData không log trực tiếp được, phải dùng cách này)
-    console.log("--- CHECK FORMDATA ---");
+    // 4. Thêm danh sách ID ảnh cũ cần xóa
+    formData.set('deleted_images', JSON.stringify(deletedImageIds));
+
+    // 5. Chuẩn hóa trạng thái is_active
+    formData.set('is_active', document.getElementById('is_active').checked ? 1 : 0);
+
+    // LOG KIỂM TRA PAYLOAD TRƯỚC KHI GỬI (Quan trọng để debug)
+    console.log("--- CHI TIẾT PAYLOAD GỬI ĐI ---");
     for (var pair of formData.entries()) {
-        if(pair[0].includes('attributes')) {
-            console.log(pair[0] + ', ' + pair[1]); 
+        if (pair[1] instanceof File) {
+            console.log(`${pair[0]}: [File] ${pair[1].name}`);
+        } else {
+            console.log(`${pair[0]}: ${pair[1]}`);
         }
     }
 
     try {
         let response;
-        
-        // Cấu hình header riêng cho upload file (dù axios tự nhận diện nhưng khai báo rõ ràng vẫn tốt hơn với window.api)
-        // Lưu ý: Không cần Authorization ở đây vì window.api đã có interceptor lo rồi
-        const config = {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        };
+        const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
         if (id) {
             formData.append('_method', 'PUT'); 
-            // SỬA LỖI 401 TẠI ĐÂY: dùng window.api.post
             response = await window.api.post(`${API_URL}/${id}`, formData, config);
         } else {
-            // SỬA LỖI 401 TẠI ĐÂY: dùng window.api.post
             response = await window.api.post(API_URL, formData, config);
         }
 
@@ -473,7 +500,6 @@ async function saveProduct() {
         Swal.fire('Lỗi', msg, 'error');
     }
 }
-
 // --- 4. XÓA SẢN PHẨM ---
 
 function deleteProduct(id) {
@@ -506,56 +532,46 @@ window.previewMainImage = function(event) {
     reader.readAsDataURL(event.target.files[0]);
 }
 
-// Khi người dùng chọn nhiều ảnh ở Gallery
-window.handleGallerySelect = function(event) {
-    const files = Array.from(event.target.files);
-    files.forEach(file => {
-        selectedGalleryFiles.push(file);
-        const url = URL.createObjectURL(file);
-        renderNewGalleryItem(url, selectedGalleryFiles.length - 1);
-    });
-    event.target.value = ''; // Clear để có thể chọn lại cùng file
+
+
+// 2. Hàm render ảnh mới (Dùng chung cho đẹp)
+function renderNewGalleryItem(url, fileId) {
+    const html = `
+        <div class="col-4 gallery-item-new" data-file-id="${fileId}">
+            <div class="position-relative border border-primary rounded overflow-hidden shadow-sm" style="height: 80px;">
+                <img src="${url}" class="w-100 h-100 object-fit-cover" style="opacity: 0.9">
+                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0" 
+                        onclick="removeNewSelectedImage(this, '${fileId}')" 
+                        style="width: 20px; height: 20px; line-height: 1; border-radius: 0 0 0 5px;">
+                    <i class="bi bi-x"></i>
+                </button>
+                <div class="position-absolute bottom-0 start-0 w-100 bg-primary text-white text-center" style="font-size: 8px;">Mới</div>
+            </div>
+        </div>`;
+    document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
 }
 
 // Render ảnh cũ từ server
-function renderExistingGalleryItem(id, url) {
+window.renderExistingGalleryItem = function(id, url) {
     const html = `
         <div class="col-4 gallery-item-old" data-id="${id}">
             <div class="position-relative border rounded overflow-hidden shadow-sm" style="height: 80px;">
                 <img src="${url}" class="w-100 h-100 object-fit-cover">
-                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-1" 
-                        onclick="removeExistingImage(this, ${id})" style="line-height: 1; border-radius: 0 0 0 5px;">
-                    <i class="bi bi-x" style="font-size: 14px;"></i>
+                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0" 
+                        onclick="window.removeExistingImage(this, ${id})" 
+                        style="width: 20px; height: 20px; line-height: 1; border-radius: 0 0 0 5px;">
+                    <i class="bi bi-x"></i>
                 </button>
             </div>
         </div>`;
     document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
 }
 
-// Render ảnh mới đang chờ upload
-function renderNewGalleryItem(url, index) {
-    const html = `
-        <div class="col-4 gallery-item-new" data-index="${index}">
-            <div class="position-relative border border-primary rounded overflow-hidden shadow-sm" style="height: 80px;">
-                <img src="${url}" class="w-100 h-100 object-fit-cover" style="opacity: 0.8">
-                <button type="button" class="btn btn-warning btn-xs position-absolute top-0 end-0 p-1" 
-                        onclick="removeNewSelectedImage(this, ${index})" style="line-height: 1; border-radius: 0 0 0 5px;">
-                    <i class="bi bi-dash" style="font-size: 14px;"></i>
-                </button>
-            </div>
-        </div>`;
-    document.getElementById('gallery-preview-container').insertAdjacentHTML('beforeend', html);
-}
 
 window.removeExistingImage = function(btn, id) {
     deletedImageIds.push(id);
     btn.closest('.col-4').remove();
 }
 
-window.removeNewSelectedImage = function(btn, index) {
-    // Lưu ý: index ở đây có thể thay đổi nếu xóa nhiều, nhưng với quy mô nhỏ có thể xóa trực tiếp DOM
-    // Để an toàn nhất: ta chỉ cần remove DOM, còn mảng selectedGalleryFiles sẽ gửi toàn bộ những gì còn lại
-    btn.closest('.col-4').remove();
-    // Ghi chú: Logic thực tế nên filter lại mảng selectedGalleryFiles nếu cần độ chính xác tuyệt đối
-}
+
 }

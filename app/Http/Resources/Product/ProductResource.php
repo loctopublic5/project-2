@@ -26,16 +26,23 @@ class ProductResource extends JsonResource
         if (!$specifications) {
             $specifications = [];
         }
-        // 1. Logic xử lý Thumbnail (Ảnh đại diện)
-        // Lấy ảnh đầu tiên làm thumbnail nếu danh sách ảnh đã được load và không rỗng
+        
+        $imagesList = [];
         $thumbnail = null;
-        if ($this->relationLoaded('images') && $this->images->isNotEmpty()){
-            $thumbnail = Storage::url($this->images->first()->path);
+
+        if ($this->relationLoaded('images')) {
+        $imagesList = $this->images->map(function($file) {
+            return [
+                'id'  => $file->id,
+                'url' => Storage::url($file->path)
+            ];
+        })->toArray();
+
+        // Lấy ảnh đầu tiên làm thumbnail nếu có
+        if (count($imagesList) > 0) {
+            $thumbnail = $imagesList[0]['url'];
         }
-        // Fallback: Nếu load 'images' (số nhiều) -> lấy cái đầu tiên
-        elseif ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
-            $thumbnail = Storage::url($this->images->first()->path);
-        }
+    }
         return [
             'id'   => $this->id,
             
@@ -58,15 +65,7 @@ class ProductResource extends JsonResource
             }),
 
             // Trả về danh sách URL tuyệt đối cho Frontend
-            'images' => $this->whenLoaded('images', function(){
-                return $this->images->map(function($files){
-                    return [
-                        'id'  => $files->id,
-                        'url' => Storage::url($files->path)
-                    ];
-
-                });
-            }),
+            'images' => $imagesList,
 
             // Giá cả (Logic Pricing Service đính kèm)
             'pricing' => $this->calculated_price ?? [

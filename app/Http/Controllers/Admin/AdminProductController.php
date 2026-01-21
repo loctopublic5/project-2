@@ -27,14 +27,9 @@ class AdminProductController extends Controller
     public function store(SaveProductRequest $request){
         try{
             $data = $request->validated();
-            // 2. Chuẩn bị Data cho Service
-            $data = $request->except(['image']); // Lấy hết input trừ file image raw
-    
-        
-            // Chuẩn hóa 'image' đơn lẻ từ Request thành mảng 'images' cho Service
-            if ($request->hasFile('image')) {
-                $data['images'] = [$request->file('image')]; 
-            }   
+            
+            $data['image'] = $request->file('image');
+            $data['gallery'] = $request->file('gallery');  
 
             $product = $this->productService->createProduct($data);
 
@@ -47,13 +42,13 @@ class AdminProductController extends Controller
     public function update(SaveProductRequest $request, $id){
             try{
                 $data = $request->validated();
-                // 2. Chuẩn bị Data cho Service
-                $data = $request->except(['image']); // Lấy hết input trừ file image raw
 
-                // Chuẩn hóa 'image' đơn lẻ từ Request thành mảng 'images' cho Service
-                    if ($request->hasFile('image')) {
-                        $data['images'] = [$request->file('image')]; 
-                    }   
+                // 2. Lấy thêm các file và dữ liệu đặc biệt không nằm trong validation cơ bản hoặc cần lấy trực tiếp
+                // Lưu ý: Request->file() trả về đối tượng file, rất sạch sẽ.
+                $data['image'] = $request->file('image');
+                $data['gallery'] = $request->file('gallery'); 
+                $data['deleted_images'] = $request->input('deleted_images');    
+
                 $product = $this->productService->updateProduct($id, $data);
                 return $this->success(new ProductResource($product), 'Cập nhật thông tin sản phẩm thành công !');
             }catch(Exception $e){
