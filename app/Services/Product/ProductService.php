@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services\Product;
 
 use Exception;
@@ -199,17 +198,24 @@ class ProductService
 
             $product->update($data);
 
-            // 2. Xóa ảnh Gallery cũ dựa trên deleted_images (JS gửi về)
-            if (!empty($data['deleted_images'])) {
-                $deleteIds = json_decode($data['deleted_images'], true);
-                if (is_array($deleteIds)) {
-                    $filesToDelete = File::whereIn('id', $deleteIds)->get();
-                    foreach ($filesToDelete as $fileRecord) {
-                        $this->fileService->delete($fileRecord); // Hàm này của bạn đã có xóa vật lý
-                    }
-                }
-            }
+// Trong logic xử lý xóa ảnh của updateProduct
+if (!empty($data['deleted_images'])) {
+    $deleteIds = is_array($data['deleted_images']) 
+        ? $data['deleted_images'] 
+        : json_decode($data['deleted_images'], true);
 
+    if (is_array($deleteIds) && count($deleteIds) > 0) {
+        // Cập nhật tên cột theo ERD: target_id và target_type
+        $filesToDelete = File::whereIn('id', $deleteIds)
+            ->where('target_id', $product->id)
+            ->where('target_type', get_class($product))
+            ->get();
+
+        foreach ($filesToDelete as $fileRecord) {
+            $this->fileService->delete($fileRecord);
+        }
+    }
+}
             // 3. Thêm ảnh Gallery mới
             if (isset($data['gallery']) && is_array($data['gallery'])) {
                 foreach ($data['gallery'] as $file) {

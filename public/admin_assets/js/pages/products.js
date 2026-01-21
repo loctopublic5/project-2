@@ -261,60 +261,7 @@ function collectAttributes() {
     return attributes;
 }
 
-async function editProduct(id) {
-    // 1. Dọn dẹp sạch sẽ trước khi nạp data mới
-    window.resetForm();
-    
-    // 2. Hiện Modal trước để các Element "sẵn sàng" nhận data
-    if(productModal) productModal.show();
-    document.getElementById('modalTitle').innerText = 'Đang tải dữ liệu...';
 
-    try {
-        const res = await window.api.get(`${API_URL}/${id}`);
-        const p = res.data.data; 
-
-        // 3. Mapping dữ liệu (Sử dụng cấu trúc p.info, p.pricing...)
-        document.getElementById('product_id').value = p.id;
-        document.getElementById('name').value = p.info.name;
-        document.getElementById('sku').value = p.info.sku;
-        document.getElementById('description').value = p.info.description || '';
-
-        // Mapping Attributes
-        const attrContainer = document.getElementById('attribute-list');
-        attrContainer.innerHTML = ''; 
-        let specs = p.specifications;
-        if (specs && Object.keys(specs).length > 0) {
-            Object.entries(specs).forEach(([key, value]) => {
-                let strValue = Array.isArray(value) ? value.join(', ') : value;
-                window.addAttributeRow(key, strValue);
-            });
-        }
-
-        // Mapping Category, Price, Stock
-        if (p.category) document.getElementById('category_id').value = p.category.id;
-        document.getElementById('price').value = p.pricing.original_price;
-        document.getElementById('sale_price').value = p.pricing.sale_price;
-        document.getElementById('stock_qty').value = p.inventory.stock_qty;
-        document.getElementById('is_active').checked = p.is_active;
-
-        // Mapping Images
-        document.getElementById('image-preview').src = p.info.thumbnail || '/admin_assets/assets/compiled/jpg/1.jpg';
-
-        // Load Gallery
-        if (p.info.images && Array.isArray(p.info.images)) {
-            p.info.images.forEach(img => {
-                window.renderExistingGalleryItem(img.id, img.url);
-            });
-        }
-
-        document.getElementById('modalTitle').innerText = 'Cập nhật sản phẩm: ' + p.info.name;
-
-    } catch (error) {
-        console.error("Lỗi Edit:", error);
-        productModal.hide();
-        Swal.fire('Lỗi', 'Không tìm thấy dữ liệu sản phẩm', 'error');
-    }
-}
 
 // --- 3. LƯU DỮ LIỆU ---
 
@@ -364,7 +311,10 @@ async function saveProduct() {
     });
 
     // 4. Thêm danh sách ID ảnh cũ cần xóa
-    formData.set('deleted_images', JSON.stringify(deletedImageIds));
+    if (window.deletedImageIds && window.deletedImageIds.length > 0) {
+    // Chuyển mảng thành chuỗi JSON để đồng bộ với json_decode ở PHP
+    formData.append('deleted_images', JSON.stringify(window.deletedImageIds));
+}
 
     // 5. Chuẩn hóa trạng thái is_active
     formData.set('is_active', document.getElementById('is_active').checked ? 1 : 0);
@@ -450,23 +400,91 @@ function renderNewGalleryItem(url, fileId) {
 }
 
 // --- 2. CÁC HÀM ACTION (GÁN VÀO WINDOW ĐỂ HTML GỌI ĐƯỢC) ---
+window.editProduct = async function(id) {
+    try {
+        const res = await window.api.get(`${API_URL}/${id}`);
+        const p = res.data.data; 
+
+        // 1. Reset Form & Memory State (Dọn dẹp trước khi đổ data)
+        window.openCreateModal(); 
+
+        // 2. Mapping Info
+        document.getElementById('product_id').value = p.id;
+        document.getElementById('name').value = p.info.name;
+        document.getElementById('sku').value = p.info.sku;
+        document.getElementById('description').value = p.info.description || '';
+        document.getElementById('image-preview').src = p.info.thumbnail;
+
+        // 3. Mapping Pricing & Inventory (Dùng đúng cấu trúc Resource)
+        document.getElementById('price').value = p.pricing.original_price;
+        document.getElementById('sale_price').value = p.pricing.sale_price;
+        document.getElementById('stock_qty').value = p.inventory.stock_qty;
+
+        // 4. Mapping Category (Chỉ gán khi relationship images/category đã load)
+        if (p.category) {
+            document.getElementById('category_id').value = p.category.id;
+        }
+
+        // 5. Mapping Attributes (Xử lý specifications từ Resource)
+        const attrContainer = document.getElementById('attribute-list');
+        attrContainer.innerHTML = ''; // Xóa dòng trống mặc định tạo bởi openCreateModal
+
+        if (p.specifications && Object.keys(p.specifications).length > 0) {
+            Object.entries(p.specifications).forEach(([k, v]) => {
+                // Nếu v là array (VD: ["S", "M"]), join thành chuỗi "S, M"
+                const displayValue = Array.isArray(v) ? v.join(', ') : v;
+                window.addAttributeRow(k, displayValue);
+            });
+        } else {
+            window.addAttributeRow(); // Nếu không có, hiện 1 dòng trống
+        }
+
+        // 6. Mapping Gallery (Truy xuất p.info.images)
+        const galleryContainer = document.getElementById('gallery-preview-container');
+        galleryContainer.innerHTML = ''; // Dọn sạch
+        if (p.info.images && Array.isArray(p.info.images)) {
+            p.info.images.forEach(img => {
+                window.renderExistingGalleryItem(img.id, img.url);
+            });
+        }
+
+        // 7. Metadata
+        document.getElementById('is_active').checked = p.is_active;
+        document.getElementById('modalTitle').innerText = 'Cập nhật: ' + p.info.name;
+
+    } catch (error) {
+        console.error("Mapping Error:", error);
+        Swal.fire('Lỗi', 'Không thể tải chi tiết sản phẩm', 'error');
+    }
+}
+
 window.openCreateModal = function() {
     const form = document.getElementById('productForm');
     if(form) form.reset();
     
+    // 1. QUAN TRỌNG: Tẩy não bộ nhớ JavaScript
+    window.selectedGalleryFiles = []; 
+    window.deletedImageIds = [];      
+
+    // 2. Dọn dẹp giao diện
     document.getElementById('attribute-list').innerHTML = '';
-    addAttributeRow() // Thêm sẵn 1 dòng trống
+    if (typeof addAttributeRow === 'function') addAttributeRow(); 
+    
+    const galleryContainer = document.getElementById('gallery-preview-container');
+    if (galleryContainer) galleryContainer.innerHTML = ''; // Xóa sạch ảnh gallery cũ
+
     document.getElementById('product_id').value = '';
     document.getElementById('modalTitle').innerText = 'Thêm mới sản phẩm';
-    document.getElementById('image-preview').src = '/assets/static/images/no-image.png';
     
-    // Reset switch về active
+    // Reset ảnh chính về mặc định (Nhớ kiểm tra lại đường dẫn ảnh no-image của bạn)
+    document.getElementById('image-preview').src = '/admin_assets/assets/compiled/jpg/1.jpg';
+    
     document.getElementById('is_active').checked = true;
 
-    if(productModal) productModal.show();
-}
+    if (productModal) productModal.show();
+};
 // --- 1. HÀM THÊM DÒNG ATTRIBUTE (Gắn vào window) ---
-window.addAttributeRow = function(key = '', value = '') {
+window.addAttributeRow = function(key = '', value = '') { // Đổi key thành name hoặc dùng key ở dưới
     const container = document.getElementById('attribute-list');
     const rowId = 'attr-row-' + Date.now() + Math.random().toString(36).substr(2, 9);
     
@@ -474,7 +492,7 @@ window.addAttributeRow = function(key = '', value = '') {
         <tr id="${rowId}" class="attribute-item">
             <td>
                 <input type="text" class="form-control form-control-sm attr-name" 
-                        list="attribute-suggestions" placeholder="VD: Màu sắc" value="${name}">
+                        list="attribute-suggestions" placeholder="VD: Màu sắc" value="${key}">
             </td>
             <td>
                 <input type="text" class="form-control form-control-sm attr-value" 
@@ -540,10 +558,23 @@ window.renderExistingGalleryItem = function(id, url) {
         </div>`;
     container.insertAdjacentHTML('beforeend', html);
 };
-window.removeExistingImage = function(btn, id) {
-    deletedImageIds.push(id);
-    btn.closest('.col-4').remove();
-}
+window.removeExistingImage = function(button, imageId) {
+    // 1. Xác nhận với người dùng (tùy chọn)
+    // if(!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
+
+    // 2. Đẩy ID ảnh vào mảng "Chờ xóa"
+    if (!window.deletedImageIds.includes(imageId)) {
+        window.deletedImageIds.push(imageId);
+    }
+    
+    // 3. Xóa giao diện (Xóa phần tử cha chứa ảnh)
+    const item = button.closest('.gallery-item-old');
+    if (item) {
+        item.remove();
+    }
+
+    console.log("Danh sách ảnh sẽ bị xóa khỏi Server:", window.deletedImageIds);
+};
 window.previewMainImage = function(event) {
     const input = event.target;
     if (input.files && input.files[0]) {
@@ -557,71 +588,39 @@ window.previewMainImage = function(event) {
 };
 // 1. Hàm Reset toàn bộ Form và biến trạng thái
 window.resetForm = function() {
-    console.log("--- Đang dọn dẹp Form và bộ nhớ tạm ---");
-    
-    // 1. Reset Form HTML
+    console.log("--- RESET FORM & STATE ---");
     const form = document.getElementById('productForm');
     if (form) form.reset();
 
-    // 2. Reset ID ẩn
-    document.getElementById('product_id').value = '';
-
-    // 3. Reset các biến Global lưu trữ ảnh (QUAN TRỌNG NHẤT)
+    // 1. Reset các biến lưu trữ ảnh Global
     window.selectedGalleryFiles = []; 
     window.deletedImageIds = [];      
 
-    // 4. Dọn dẹp giao diện Gallery & Attributes
+    // 2. Dọn dẹp giao diện Gallery & Attributes
     const galleryContainer = document.getElementById('gallery-preview-container');
     if (galleryContainer) galleryContainer.innerHTML = '';
 
     const attrContainer = document.getElementById('attribute-list');
     if (attrContainer) {
         attrContainer.innerHTML = '';
-        // Thêm 1 dòng trống mặc định
-        if (typeof window.addAttributeRow === 'function') window.addAttributeRow();
+        // Tạo sẵn 1 dòng thuộc tính trống cho người dùng nhập ngay
+        if (typeof addAttributeRow === 'function') addAttributeRow();
     }
 
-    // 5. Reset ảnh Preview về mặc định
-    const preview = document.getElementById('image-preview');
-    if (preview) preview.src = '/admin_assets/assets/compiled/jpg/1.jpg';
+    // 3. Reset ID và Ảnh Preview chính
+    document.getElementById('product_id').value = '';
+    const mainPreview = document.getElementById('image-preview');
+    if (mainPreview) mainPreview.src = "{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}";
 
-    // 6. Cập nhật Tiêu đề
-    document.getElementById('modalTitle').innerText = 'Thêm mới sản phẩm';
+    // 4. Reset trạng thái Checkbox
+    document.getElementById('is_active').checked = true;
 };
 
+// Hàm cho nút "Thêm mới" ngoài danh sách
 window.addNewProduct = function() {
-    window.resetForm(); // Dọn dẹp rác từ lần Edit trước đó
-    if (productModal) productModal.show();
+    window.resetForm();
+    document.getElementById('modalTitle').innerText = 'Thêm mới sản phẩm';
+    if(typeof productModal !== 'undefined') productModal.show();
 };
-window.editProduct = async function(id) {
-    // 1. Dọn dẹp trước khi load để tránh hiện ảnh của sản phẩm cũ trong lúc chờ API
-    window.resetForm(); 
 
-    try {
-        const res = await window.api.get(`${API_URL}/${id}`);
-        const p = res.data.data;
 
-        // 2. Đổ dữ liệu vào (Mapping)
-        document.getElementById('modalTitle').innerText = 'Cập nhật sản phẩm: ' + p.info.name;
-        document.getElementById('product_id').value = p.id;
-        document.getElementById('name').value = p.info.name;
-        document.getElementById('sku').value = p.info.sku;
-        // ... (các trường khác)
-
-        // 3. Hiển thị ảnh
-        document.getElementById('image-preview').src = p.info.thumbnail || '/assets/static/images/no-image.png';
-        
-        if (p.info.images && Array.isArray(p.info.images)) {
-            p.info.images.forEach(img => {
-                window.renderExistingGalleryItem(img.id, img.url);
-            });
-        }
-
-        // 4. Mở modal sau khi đã load xong data
-        if(productModal) productModal.show();
-
-    } catch (error) {
-        let msg = error.response?.data?.message || "Lỗi không xác định";
-        Swal.fire('Lỗi hệ thống', 'Không thể lấy thông tin sản phẩm: ' + msg, 'error');
-    }
-};
