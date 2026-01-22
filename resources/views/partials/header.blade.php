@@ -190,7 +190,7 @@
                 <span class="input-group-btn">
                     <button class="btn btn-primary" type="submit">
                         <i class="fa fa-search"></i>
-                    </a>
+                    </button>
                 </span>
             </div>
         </form>
@@ -200,8 +200,6 @@
           </ul>
         </div>
         <!-- END NAVIGATION -->
-      </div>
-    </div>
     <!-- Header END -->
     <style>
 /* Container bọc 3 ô */

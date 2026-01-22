@@ -3,7 +3,7 @@
 class ProductListUI {
     constructor() {
         this.currentPage = 1;
-        this.limit = 24;
+        this.limit = 9;
         this.filters = {
             minPrice: 0,
             maxPrice: 10000000,
@@ -125,6 +125,7 @@ class ProductListUI {
 
             if (response.data.status) {
                 this.renderProducts(response.data.data);
+                this.renderPagination(response.data.meta);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -154,6 +155,72 @@ class ProductListUI {
         });
 
         this.initProductEvents();
+    }
+
+    async loadProducts() {
+        try {
+            const params = {
+                page: this.currentPage,
+                limit: this.limit,
+                sort_by:
+                    this.sort.field === "price"
+                        ? `price_${this.sort.order}`
+                        : "latest",
+                min_price: this.filters.minPrice,
+                max_price: this.filters.maxPrice,
+            };
+
+            const response = await axios.get("/api/v1/products", { params });
+
+            if (response.data.status) {
+                this.renderProducts(response.data.data);
+                this.renderPagination(response.data.meta); // Gọi hàm phân trang
+            }
+        } catch (error) {
+            console.error("Lỗi:", error);
+        }
+    }
+
+    // --- RENDER PHÂN TRANG ---
+    renderPagination(meta) {
+        const $pagination = $("#product-pagination");
+        $pagination.empty();
+
+        if (!meta || meta.last_page <= 1) return;
+
+        // Nút Back
+        $pagination.append(
+            `<li class="${meta.current_page === 1 ? "disabled" : ""}"><a href="javascript:;" data-page="${meta.current_page - 1}">&laquo;</a></li>`,
+        );
+
+        // Các số trang
+        for (let i = 1; i <= meta.last_page; i++) {
+            $pagination.append(
+                `<li class="${meta.current_page === i ? "active" : ""}"><a href="javascript:;" data-page="${i}">${i}</a></li>`,
+            );
+        }
+
+        // Nút Next
+        $pagination.append(
+            `<li class="${meta.current_page === meta.last_page ? "disabled" : ""}"><a href="javascript:;" data-page="${meta.current_page + 1}">&raquo;</a></li>`,
+        );
+
+        const self = this;
+        $pagination.find("a").on("click", function () {
+            const page = $(this).data("page");
+            if (
+                page > 0 &&
+                page <= meta.last_page &&
+                page !== self.currentPage
+            ) {
+                self.currentPage = page;
+                self.loadProducts();
+                $("html, body").animate(
+                    { scrollTop: $(".title-wrapper").offset().top },
+                    500,
+                );
+            }
+        });
     }
     createProductHTML(product) {
         const { pricing, info, inventory } = product;
@@ -194,8 +261,7 @@ class ProductListUI {
                 
                 ${!inventory.in_stock ? '<div class="sticker sticker-out-of-stock" style="background: #999; color: #fff;">HẾT</div>' : ""}
             </div>
-        </div>
-    `;
+        </div>`;
     }
     formatPrice(price) {
         return new Intl.NumberFormat("vi-VN").format(price) + " ₫";
