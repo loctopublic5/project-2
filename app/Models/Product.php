@@ -60,7 +60,7 @@ class Product extends Model
             // Nếu Admin không nhập SKU -> Tự sinh mã ngẫu nhiên (VD: SP-X8L9P)
             if (empty($product->sku)) {
                 // generateUniqueCode(cột, tiền tố, độ dài)
-                $product->sku = $product->generateUniqueCode('sku', 'SP', 6);
+                $product->sku = $product->generateUniqueCode(self::class,'sku', 'SP', 6);
             }
         });
     }
