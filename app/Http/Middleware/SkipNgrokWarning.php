@@ -8,18 +8,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SkipNgrokWarning
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle($request, Closure $next)
-{
-    $response = $next($request);
-    
-    // Thêm header để ngrok không hiển thị trang cảnh báo
-    $response->headers->set('ngrok-skip-browser-warning', 'true');
-    
-    return $response;
-}
+    public function handle(Request $request, Closure $next): Response
+    {
+        $response = $next($request);
+
+        // Thêm header để ngrok không hiện trang cảnh báo
+        $response->headers->set('ngrok-skip-browser-warning', 'true');
+
+        return $response;
+    }
 }

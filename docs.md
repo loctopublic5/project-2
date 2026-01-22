@@ -14,6 +14,8 @@ gemini -m gemini-2.5-flash
 npm install -g localtunnel
 4. ngrok run (đang chạy)
 d:\Download\APPS\ngrok.exe http 8000
+5. cloudflare (run domain)
+d:\Download\APPS\cloudflared-windows-amd64.exe tunnel --url http://localhost:8000
 -------------------------------------------------------------------------------------------------------
 
 ## 🛠 1. Cài đặt dự án (Cho thành viên mới)
