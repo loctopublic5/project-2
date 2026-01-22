@@ -256,3 +256,49 @@
     padding: 15px 0;
 }
 .review-product-item:last-child { border-bottom: none; }
+
+/* Style cho Rank User */
+.rank-badge {
+    padding: 5px 12px;
+    border-radius: 20px !important;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.rank-diamond { background: #e1f5fe; color: #0288d1; border: 1px solid #0288d1; } /* Xanh kim cương */
+.rank-gold { background: #fff8e1; color: #ff8f00; border: 1px solid #ff8f00; }    /* Vàng */
+.rank-silver { background: #f5f5f5; color: #616161; border: 1px solid #bdbdbd; } /* Bạc */
+.rank-member { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; } /* Thành viên */
+
+/* Style cho Trạng thái đơn hàng */
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 4px !important;
+    font-size: 12px;
+    font-weight: 500;
+}
+.status-completed { background-color: #c6f6d5; color: #22543d; } /* Hoàn thành - Xanh lá */
+.status-pending { background-color: #fefcbf; color: #744210; }   /* Chờ - Vàng */
+.status-shipping { background-color: #bee3f8; color: #2a4365; }  /* Đang giao - Xanh dương */
+.status-cancelled { background-color: #fed7d7; color: #822727; } /* Hủy - Đỏ */
+
+/* Nhãn Mặc định cho địa chỉ */
+.badge-default { background: #6c757d; color: #fff; padding: 2px 5px; font-size: 9px; border-radius: 3px !important; }
+
+/* Dashboard Rank Style */
+#db-rank {
+    font-weight: bold;
+}
+.text-rank-diamond { color: #0288d1; }
+.text-rank-gold { color: #ff8f00; }
+.text-rank-silver { color: #757575; }
+.text-rank-member { color: #2e7d32; }
+
+.stat-card {
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px !important;
+    text-align: center;
+    border: 1px solid #eee;
+}

@@ -1,0 +1,130 @@
+const UserProfileModule = {
+    isLoaded: false,
+    formatCurrency: (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0),
+
+    init: function() {
+        console.log("UserProfileModule: Initializing...");
+        if (this.isLoaded) return; 
+        this.loadUserDetail();
+    },
+
+    loadUserDetail: async function() {
+        const pathSegments = window.location.pathname.split('/').filter(s => s);
+        const lastSegment = pathSegments[pathSegments.length - 1];
+        let userId = !isNaN(lastSegment) ? lastSegment : null;
+
+        if (!userId) {
+            const storedUser = localStorage.getItem('admin_user');
+            if (storedUser) {
+                try {
+                    const userObj = JSON.parse(storedUser);
+                    userId = userObj.id;
+                    console.log("UserProfileModule: Lấy ID từ localStorage:", userId);
+                } catch (e) { console.error("Lỗi parse localStorage"); }
+            }
+        }
+
+        if (!userId) {
+            $('#detail-name').text("Vui lòng đăng nhập");
+            return;
+        }
+
+        try {
+            const endpoint = `/api/v1/customer/user/${userId}`;
+            console.log("UserProfileModule: Fetching...", endpoint);
+            const res = await window.api.get(endpoint);
+            const user = res.data.data || res.data;
+
+            this.fillBasicInfo(user);
+            this.fillVipInfo(user.vip_info);
+            this.renderAddressTable(user.addresses || []);
+            this.renderOrderTable(user.recent_orders || []);
+
+            this.isLoaded = true;
+        } catch (error) {
+            console.error("UserProfileModule Error:", error);
+            $('#detail-name').text("Lỗi kết nối API");
+        }
+    },
+
+    fillBasicInfo: function(user) {
+        $('#detail-name').text(user.full_name || '---');
+        $('#detail-email').text(user.email);
+        $('#detail-phone').text(user.phone || 'Chưa cập nhật');
+        $('#detail-joined').text(user.joined_at);
+        
+        const statusHtml = user.is_active 
+            ? '<span class="label label-sm label-success">Đang hoạt động</span>'
+            : '<span class="label label-sm label-danger">Bị khóa</span>';
+        $('#detail-status').html(statusHtml);
+
+        if(user.avatar_url) $('#detail-avatar').attr('src', user.avatar_url);
+    },
+
+    fillVipInfo: function(vip) {
+        if (!vip) return;
+        $('#detail-wallet').text(this.formatCurrency(vip.wallet_balance));
+        const rank = vip.rank || 'Member';
+        $('#detail-rank')
+            .removeClass()
+            .addClass(`rank-badge rank-${rank.toLowerCase()}`)
+            .text(rank);
+    },
+
+    renderAddressTable: function(addresses) {
+        const $tbody = $('#address-list');
+        if (addresses.length === 0) {
+            $tbody.html('<tr><td colspan="4" class="text-center text-muted">Chưa có địa chỉ nào</td></tr>');
+            return;
+        }
+
+        $tbody.html(addresses.map(addr => `
+            <tr>
+                <td class="bold">${addr.recipient_name} ${addr.is_default ? '<span class="badge-default">Mặc định</span>' : ''}</td>
+                <td>${addr.phone}</td>
+                <td>
+                    <small class="d-block">${addr.address_detail}</small>
+                    <small class="text-muted loc-full-${addr.id}">Đang tải vị trí...</small>
+                </td>
+                <td><span class="label label-sm ${addr.is_active ? 'label-info' : 'label-default'}">${addr.is_active ? 'Sử dụng' : 'Khóa'}</span></td>
+            </tr>
+        `).join(''));
+
+        // Cập nhật logic lấy vị trí theo đúng JSON trả về
+        addresses.forEach(async (addr) => {
+            // Check đúng key province_id từ dữ liệu bạn gửi
+            if (addr.province_id && typeof LocationMapper !== 'undefined') {
+                try {
+                    const pName = await LocationMapper.getName('p', addr.province_id);
+                    const dName = await LocationMapper.getName('d', addr.district_id);
+                    const wName = await LocationMapper.getName('w', addr.ward_id);
+                    $(`.loc-full-${addr.id}`).text(`${wName}, ${dName}, ${pName}`);
+                } catch (e) {
+                    $(`.loc-full-${addr.id}`).text('Không rõ vị trí');
+                }
+            } else {
+                $(`.loc-full-${addr.id}`).text('');
+            }
+        });
+    },
+
+    renderOrderTable: function(orders) {
+        const $tbody = $('#order-list');
+        if (orders.length === 0) {
+            $tbody.html('<tr><td colspan="4" class="text-center">Chưa có đơn hàng nào</td></tr>');
+            return;
+        }
+
+        $tbody.html(orders.map(order => {
+            const statusLabels = { 'completed': 'Hoàn thành', 'pending': 'Chờ xử lý', 'shipping': 'Đang giao', 'cancelled': 'Đã hủy' };
+            return `
+                <tr>
+                    <td><a href="/customer/orders/${order.id}" class="bold">#${order.code}</a></td>
+                    <td>${order.created_at.split('T')[0]}</td>
+                    <td class="bold text-danger">${this.formatCurrency(order.total_amount)}</td>
+                    <td><span class="status-pill status-${order.status}">${statusLabels[order.status] || order.status}</span></td>
+                </tr>
+            `;
+        }).join(''));
+    }
+};

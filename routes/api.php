@@ -129,6 +129,9 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
             Route::patch('/read-all', [NotificationController::class, 'markAllRead']);
         });
+
+        // User detail show
+        Route::get('/user/{id}',[AdminUserController::class, 'show']);
     });
 
     /* =================================================================

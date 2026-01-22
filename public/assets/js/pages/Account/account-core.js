@@ -9,29 +9,41 @@ const AppAccount = {
     // 2. Load dữ liệu tổng hợp
     loadDashboardData: async function() {
         try {
-            const [walletRes, ordersRes] = await Promise.all([
-                window.api.get('/api/v1/customer/wallet'),
+            // Lấy ID từ localStorage như đã làm ở Profile
+        const storedUser = JSON.parse(localStorage.getItem('admin_user'));
+        const userId = storedUser ? storedUser.id : null;
+
+        if (!userId) return;
+            const [userRes, ordersRes] = await Promise.all([
+                window.api.get(`/api/v1/customer/user/${userId}`),
                 window.api.get('/api/v1/customer/orders?per_page=10')
             ]);
 
-            if (walletRes.data.status && ordersRes.data.status) {
-                const wallet = walletRes.data.data;
-                const orders = ordersRes.data.data;
+            if (userRes.data && ordersRes.data.status) {
+            const user = userRes.data.data || userRes.data;
+            const orders = ordersRes.data.data;
 
-                // Cập nhật số dư
-                document.getElementById('db-balance').innerText = AppHelpers.formatCurrency(parseFloat(wallet.balance));
-                
-                // Logic Count Đơn hàng đang chờ
-                const pendingStatusKeys = ['pending', 'confirmed', 'shipping'];
-                const pendingCount = orders.filter(order => 
-                    pendingStatusKeys.includes(order.status.key)
-                ).length;
+            // 1. Cập nhật Số dư từ user.vip_info
+            document.getElementById('db-balance').innerText = 
+                AppHelpers.formatCurrency(user.vip_info.wallet_balance);
+            
+            // 2. Cập nhật Hạng thành viên (MỚI)
+            const rank = user.vip_info.rank || 'Member';
+            const $rankEl = $('#db-rank');
+            $rankEl.text(rank);
+            // Thêm class màu sắc nếu muốn
+            $rankEl.removeClass().addClass(`number text-rank-${rank.toLowerCase()}`);
 
-                document.getElementById('db-pending').innerText = pendingCount;
+            // 3. Logic Count Đơn hàng đang chờ
+            const pendingStatusKeys = ['pending', 'confirmed', 'shipping'];
+            const pendingCount = orders.filter(order => 
+                pendingStatusKeys.includes(order.status.key || order.status)
+            ).length;
+            document.getElementById('db-pending').innerText = pendingCount;
 
-                // Render bảng
-                OrderModule.renderRecentOrders(orders);
-            }
+            // 4. Render bảng đơn hàng gần đây
+            OrderModule.renderRecentOrders(orders);
+        }
         } catch (err) {
             console.error("Dashboard Load Error:", err);
             // Áp dụng SweetAlert cho lỗi tải dữ liệu
@@ -69,6 +81,8 @@ const AppAccount = {
         OrderModule.init();  // Đảm bảo OrderModule đã nạp
     } else if (tabName === 'addresses'){
         AddressModule.init();
+    } else if (tabName === 'profile'){
+        UserProfileModule.init();
     }
 },
 

@@ -278,7 +278,97 @@
         </div>
     </div>
 </div>
-            </div> </div>
+<div id="tab-profile" class="account-tab-content" style="display: none;">
+    <div class="row">
+        <div class="col-md-4 col-sm-12">
+            <div class="portlet light profile-sidebar-portlet" style="border: 1px solid #eee; padding: 20px; background: #fff;">
+                <div class="profile-userpic text-center">
+                    <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
+                         class="img-responsive" alt="Avatar" 
+                         style="width: 120px; height: 120px; border-radius: 50% !important; object-fit: cover; margin: 0 auto; border: 3px solid #eee;">
+                </div>
+                <div class="profile-usertitle text-center margin-top-20">
+                    <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
+                    <div class="profile-usertitle-job"> 
+                        <span id="detail-rank" style="margin-top: 5px;"> Đang kiểm tra... </span> 
+                    </div>
+                </div>
+                
+                <hr>
+
+                <div class="profile-userbuttons">
+                    <div class="margin-bottom-10">
+                        <i class="fa fa-envelope"></i> <span id="detail-email">---</span>
+                    </div>
+                    <div class="margin-bottom-10">
+                        <i class="fa fa-phone"></i> <span id="detail-phone">---</span>
+                    </div>
+                    <div class="margin-bottom-10">
+                        <i class="fa fa-calendar"></i> Tham gia: <b id="detail-joined">---</b>
+                    </div>
+                    <div id="detail-status" class="margin-top-10">
+                        </div>
+                </div>
+            </div>
+
+            <div class="well margin-top-20" style="background: #e02222; color: white; border: none;">
+                <div class="row">
+                    <div class="col-xs-3"><i class="fa fa-google-wallet" style="font-size: 40px;"></i></div>
+                    <div class="col-xs-9 text-right">
+                        <h4 style="margin:0; opacity: 0.8; font-size: 13px;">Số dư hiện tại</h4>
+                        <h3 class="bold" id="detail-wallet" style="margin: 5px 0;">0 ₫</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 col-sm-12">
+            <div class="portlet light" style="border: 1px solid #eee; padding: 15px; background: #fff; margin-bottom: 20px;">
+                <div class="portlet-title" style="border-bottom: 1px solid #eee; margin-bottom: 15px;">
+                    <div class="caption"><h4 class="bold uppercase" style="margin:0;">Sổ địa chỉ</h4></div>
+                </div>
+                <div class="table-scrollable">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Người nhận</th>
+                                <th>SĐT</th>
+                                <th>Địa chỉ</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody id="address-list">
+                            <tr><td colspan="4" class="text-center">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="portlet light" style="border: 1px solid #eee; padding: 15px; background: #fff;">
+                <div class="portlet-title" style="border-bottom: 1px solid #eee; margin-bottom: 15px;">
+                    <div class="caption"><h4 class="bold uppercase" style="margin:0;">Đơn hàng gần đây</h4></div>
+                </div>
+                <div class="table-scrollable">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-list">
+                            <tr><td colspan="4" class="text-center">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            </div> 
+        </div>
     </div>
 
 <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog">
