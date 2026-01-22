@@ -124,5 +124,22 @@ const AppAccount = {
             }
         });
     },
+    
+bindEvents: function() {
+        // Sự kiện click menu sidebar (giữ nguyên)
+        $('.sidebar-menu li').on('click', function() {
+            const tab = $(this).data('tab');
+            AppAccount.switchTab(tab);
+        });
 
+        // MỚI: Sự kiện click vào các widget trên Dashboard
+        $(document).on('click', '.clickable-card', function() {
+            const targetTab = $(this).data('target');
+            if (targetTab) {
+                AppAccount.switchTab(targetTab);
+                // Cuộn lên đầu trang cho mượt nếu cần
+                $('html, body').animate({ scrollTop: 0 }, 'fast');
+            }
+        });
+    },
 }

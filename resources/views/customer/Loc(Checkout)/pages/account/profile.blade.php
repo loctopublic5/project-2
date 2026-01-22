@@ -89,29 +89,29 @@
                 <div id="tab-dashboard" class="account-tab-content">
                     <h1>Chào mừng trở lại!</h1>
                     <div class="content-page">
-                        <div class="row">
-                            <div class="col-md-4 col-sm-4">
-                                <div class="stat-card">
-                                    <i class="fa fa-money"></i>
-                                    <span class="title">Số dư ví</span>
-                                    <span class="number" id="db-balance">0đ</span>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-4">
-                                <div class="stat-card">
-                                    <i class="fa fa-truck"></i>
-                                    <span class="title">Đơn đang chờ</span>
-                                    <span class="number" id="db-pending">0</span>
-                                </div>
-                            </div>
-                            <div class="col-md-4 col-sm-4">
-                                <div class="stat-card">
-                                    <i class="fa fa-star"></i>
-                                    <span class="title">Hạng thành viên</span>
-                                    <span class="number" id="db-rank">Bạc</span>
-                                </div>
-                            </div>
-                        </div>
+<div class="row">
+    <div class="col-md-4 col-sm-4">
+        <div class="stat-card clickable-card" data-target="wallet">
+            <i class="fa fa-money"></i>
+            <span class="title">Số dư ví</span>
+            <span class="number" id="db-balance">0đ</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-sm-4">
+        <div class="stat-card clickable-card" data-target="orders">
+            <i class="fa fa-truck"></i>
+            <span class="title">Đơn đang chờ</span>
+            <span class="number" id="db-pending">0</span>
+        </div>
+    </div>
+    <div class="col-md-4 col-sm-4">
+        <div class="stat-card clickable-card" data-target="profile">
+            <i class="fa fa-star"></i>
+            <span class="title">Hạng thành viên</span>
+            <span class="number" id="db-rank">Bạc</span>
+        </div>
+    </div>
+</div>
 
                         <div class="margin-top-20">
                             <h3>Đơn hàng gần đây</h3>

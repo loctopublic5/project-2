@@ -302,3 +302,12 @@
     text-align: center;
     border: 1px solid #eee;
 }
+.clickable-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.clickable-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #E02222; /* Màu chủ đạo của bạn */
+}
