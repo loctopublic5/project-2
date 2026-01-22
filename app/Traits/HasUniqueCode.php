@@ -12,12 +12,14 @@ trait HasUniqueCode {
      * @param int    $length     Độ dài
      */
     protected function generateUniqueCode($modelClass, $column, $prefix, $length = 8) {
+        // Đảm bảo $modelClass luôn có namespace đầy đủ
+        $query = app($modelClass);
         do {
             $randomString = Str::upper(Str::random($length));
             $code = $prefix . '-' . $randomString;
 
             // Sử dụng $modelClass thay vì static
-        } while ($modelClass::where($column, $code)->exists());
+        } while ($query::where($column, $code)->exists());
 
         return $code;
     }
