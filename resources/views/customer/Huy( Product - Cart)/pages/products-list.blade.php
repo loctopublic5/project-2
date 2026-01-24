@@ -354,6 +354,7 @@ Nostrud duis molestie at dolore.</p>
 @endsection
 
 @push('extra_scripts') 
+
     <!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->
     <script src="assets/plugins/fancybox/source/jquery.fancybox.pack.js" type="text/javascript"></script><!-- pop up -->
     <script src="assets/plugins/owl.carousel/owl.carousel.min.js" type="text/javascript"></script><!-- slider for products -->
@@ -364,7 +365,7 @@ Nostrud duis molestie at dolore.</p>
     <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script><!-- for slider-range -->
 
 
-<script src="{{ asset('assets/js/pages/Huy/products-list.js') }}" type="text/javascript"></script>
+<script src="{{ asset('assets/js/pages/Huy/products-list.js') }}"></script>
 
 <script type="text/javascript">
     jQuery(document).ready(function() {
