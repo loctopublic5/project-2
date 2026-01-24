@@ -187,38 +187,95 @@
             <!-- BEGIN PRODUCT LIST -->
 
 <div class="row product-list" id="real-product-container">
-    <!-- JS sẽ render sản phẩm ở đây -->
+    <!-- JS sẽ render sản phẩm ở đây --> 
+</div>
+<div class="row">
+    <div class="col-md-4 col-sm-4 items-info" id="pagination-info" style="padding-top: 15px;">
+        </div>
+    <div class="col-md-8 col-sm-8">
+        <ul class="pagination pull-right" id="product-pagination">
+            </ul>
+    </div>
 </div>
 <style>
-  /* Ép khung ảnh bằng nhau */
-.product-item .pi-img-wrapper {
-    height: 250px !important; /* Độ cao cố định cho khung ảnh */
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    background: #f9f9f9;
-}
+    /* 1. Thiết lập lưới 3 cột chuẩn */
+    #real-product-container {
+        display: block !important;
+        clear: both;
+    }
 
-.product-item .pi-img-wrapper img {
-    max-height: 100% !important;
-    width: auto !important;
-    margin: 0 auto;
-}
+    #real-product-container .col-md-4 {
+        width: 33.333% !important;
+        float: left !important;
+        padding: 10px !important;
+        margin-bottom: 20px;
+    }
 
-/* Ép tiêu đề sản phẩm chỉ hiển thị 2 dòng */
-.product-item h3 {
-    height: 40px !important;
-    line-height: 20px !important;
-    overflow: hidden !important;
-    margin-bottom: 10px !important;
-}
+    /* 2. ÉP CHIỀU CAO TỔNG THỂ CỦA CARD SẢN PHẨM */
+    .product-item {
+        padding: 10px;
+        background: #fff;
+        border: 1px solid #eee;
+        /* Ép tất cả các khung sản phẩm cao bằng nhau (500px) */
+        height: 440px !important; 
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* Ép khung giá tiền bằng nhau */
-.product-item .pi-price {
-    height: 24px !important;
-    margin-bottom: 15px !important;
-}
-          </style>
+    /* 3. KHUNG ẢNH: Đã fix đẹp */
+    .product-item .pi-img-wrapper {
+        height: 320px !important;
+        width: 100%;
+        overflow: hidden;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f9f9;
+    }
+
+    .product-item .pi-img-wrapper img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important; /* Lấp đầy khung không để khoảng trắng */
+    }
+
+    /* 4. TÊN SẢN PHẨM: Ép chiều cao cố định cho 2 dòng */
+    .product-item h3 {
+        font-size: 15px !important;
+        height: 44px !important; /* Đủ cho 2 dòng chữ */
+        margin-bottom: 10px !important;
+        overflow: hidden;
+        line-height: 22px !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    /* 5. PHẦN GIÁ VÀ NÚT BẤM: Đẩy xuống đáy khung */
+    .product-item .pi-price {
+        color: #e84d1c;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 15px !important;
+    }
+
+
+    /* Ép nút Add to Cart nằm ở hàng cuối cùng của khung 500px */
+    .product-item .btn-addcart {
+        margin-top: auto; /* Tự động đẩy xuống dưới cùng */
+        align-self: flex-start;
+        padding: 6px 15px;
+        text-transform: uppercase;
+    }
+
+    /* 6. Fix lỗi float sau mỗi 3 ảnh */
+    #real-product-container .col-md-4:nth-child(3n+1) {
+        clear: both !important;
+    }
+    
+</style>
 
 <!-- END PRODUCT LIST -->
 
@@ -289,6 +346,10 @@ Nostrud duis molestie at dolore.</p>
               </div>
             </div>
     </div>
+    </div>
+   </div>
+   </div> 
+  </div>
     <!-- END fast view of a product -->
 @endsection
 
