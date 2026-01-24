@@ -10,6 +10,12 @@ Tài liệu hướng dẫn quy trình phát triển, cài đặt và cấu trúc
 npm install -g @google/gemini-cli@latest
 2. run version 2.5
 gemini -m gemini-2.5-flash
+3. LocalTunel ( domain)
+npm install -g localtunnel
+4. ngrok run (đang chạy)
+d:\Download\APPS\ngrok.exe http 8000
+5. cloudflare (run domain)
+d:\Download\APPS\cloudflared-windows-amd64.exe tunnel --url http://localhost:8000
 -------------------------------------------------------------------------------------------------------
 
 ## 🛠 1. Cài đặt dự án (Cho thành viên mới)

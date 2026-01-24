@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => App\Http\Middleware\CheckRoleMiddleware::class,
         ]);
+        $middleware->append(\App\Http\Middleware\SkipNgrokWarning::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 1. Chỉ trả về JSON nếu request là API

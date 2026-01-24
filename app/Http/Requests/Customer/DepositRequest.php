@@ -15,7 +15,7 @@ class DepositRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-                'amount'      => 'required|integer|min:10000|max:50000000',
+                'amount'      => 'required|integer|min:10000|max:500000000',
                 'description' => 'nullable|string|max:255',
         ];
     }
@@ -24,7 +24,7 @@ class DepositRequest extends BaseFormRequest
         return [
             'amount.required' => 'Vui lòng cung cấp đủ thông tin',
             'amount.min'      => 'Giá trị tối thiếu 10.000 VNĐ',
-            'amount.max'      => 'Giá trị tối đa 500.000 VNĐ',
+            'amount.max'      => 'Giá trị tối đa 500.000.000 VNĐ',
         ];
     }
 }

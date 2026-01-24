@@ -82,4 +82,20 @@ class OrderHistoryController extends Controller
             return $this->error($e->getMessage());
         }
     }
+
+/**
+ * PATCH /api/v1/customer/orders/{id}/confirm
+ * Khách hàng xác nhận đã nhận hàng thành công
+ */
+public function confirm(Request $request, $id)
+{
+    try {
+        $userId = $request->user()->id;
+        $order = $this->orderService->confirmReceived($userId, $id);
+
+        return $this->success(new OrderResource($order), 'Xác nhận nhận hàng thành công. Bạn có thể đánh giá sản phẩm ngay bây giờ!');
+    } catch (Exception $e) {
+        return $this->error($e->getMessage());
+    }
+}
 }

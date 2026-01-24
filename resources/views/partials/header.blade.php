@@ -14,7 +14,7 @@
 
             <div class="col-md-6 col-sm-6 additional-nav">
                 <ul class="list-unstyled list-inline pull-right">
-                    <li><a href="{{ route('profile') }}">My Account</a></li>
+                    <li><a href="{{ route('profile') }}">Profile</a></li>
                     <li><a href="{{ route('checkout') }}">Checkout</a></li>
                     <li><a href="{{ route('login') }}">Log In</a></li>
                 </ul>

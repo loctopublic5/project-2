@@ -37,9 +37,9 @@ class UserResource extends JsonResource
     }
 
     private function calculateRank($spending) {
-        if ($spending > 50000000) return 'Diamond';
-        if ($spending > 20000000) return 'Gold';
-        if ($spending > 5000000) return 'Silver';
+        if ($spending > 1000000000) return 'Diamond';
+        if ($spending > 400000000) return 'Gold';
+        if ($spending > 10000000) return 'Silver';
         return 'Member';
     }
 }

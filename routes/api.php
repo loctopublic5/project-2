@@ -82,6 +82,7 @@ Route::prefix('v1')->group(function () {
             // Order History
             Route::get('/', [OrderHistoryController::class, 'index']);
             Route::get('/{id}', [OrderHistoryController::class, 'show']);
+            Route::patch('/{id}/confirm',[OrderHistoryController::class, 'confirm']);
             Route::put('/{id}/cancel', [OrderHistoryController::class, 'cancel']);
         });
             
@@ -128,6 +129,9 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
             Route::patch('/read-all', [NotificationController::class, 'markAllRead']);
         });
+
+        // User detail show
+        Route::get('/user/{id}',[AdminUserController::class, 'show']);
     });
 
     /* =================================================================
