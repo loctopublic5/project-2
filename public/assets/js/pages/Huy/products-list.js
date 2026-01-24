@@ -3,7 +3,7 @@
 class ProductListUI {
     constructor() {
         this.currentPage = 1;
-        this.limit = 24;
+        this.limit = 9;
         this.filters = {
             minPrice: 0,
             maxPrice: 10000000,
@@ -22,6 +22,7 @@ class ProductListUI {
         this.initPriceSlider();
         this.initEventListeners();
         this.loadProducts();
+        this.loadBestsellers();
     }
 
     initPriceSlider() {
@@ -125,6 +126,7 @@ class ProductListUI {
 
             if (response.data.status) {
                 this.renderProducts(response.data.data);
+                this.renderPagination(response.data.meta);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -155,6 +157,124 @@ class ProductListUI {
 
         this.initProductEvents();
     }
+
+    async loadProducts(page = 1) {
+        // 1. Nhận tham số page, mặc định là 1
+        try {
+            this.currentPage = page; // 2. Cập nhật lại trang hiện tại của class
+
+            const params = {
+                page: this.currentPage, // 3. Truyền số trang mới vào đây
+                limit: this.limit,
+                sort_by:
+                    this.sort.field === "price"
+                        ? `price_${this.sort.order}`
+                        : "latest",
+                min_price: this.filters.minPrice,
+                max_price: this.filters.maxPrice,
+            };
+
+            const response = await axios.get("/api/v1/products", { params });
+
+            if (response.data.status) {
+                this.renderProducts(response.data.data);
+                this.renderPagination(response.data.meta);
+            }
+        } catch (error) {
+            console.error("Lỗi:", error);
+        }
+    }
+    // Hàm này gọi song song với loadProducts chính
+    async loadBestsellers() {
+        try {
+            // Gọi API list nhưng giới hạn chỉ lấy 3-4 cái mới nhất/đắt nhất tùy ý
+            const params = {
+                limit: 4,
+                sort_by: "latest", // Hoặc 'price_desc' nếu muốn hiện hàng cao cấp
+            };
+
+            const response = await axios.get("/api/v1/products", { params });
+
+            if (response.data.status) {
+                this.renderBestsellers(response.data.data);
+            }
+        } catch (error) {
+            console.error("Lỗi lấy Bestsellers:", error);
+        }
+    }
+
+    renderBestsellers(products) {
+        // Tìm đến đúng cái div chứa danh sách Bestseller ở Sidebar
+        const container = $(".sidebar-products");
+        container.empty();
+
+        products.forEach((product) => {
+            // format giá tiền Việt Nam
+            const price =
+                new Intl.NumberFormat("vi-VN").format(
+                    product.pricing.sale_price,
+                ) + " ₫";
+            const name = product.info.name;
+            const thumb = product.info.thumbnail;
+            const id = product.id;
+
+            const html = `
+            <div class="item">
+                <a href="/product-detail/${id}">
+                    <img src="${thumb}" alt="${name}" class="img-responsive">
+                </a>
+                <h3><a href="/product-detail/${id}">${name}</a></h3>
+                <div class="price">${price}</div>
+            </div>`;
+            container.append(html);
+        });
+    }
+    // --- RENDER PHÂN TRANG ---
+    renderPagination(meta) {
+        if (!meta || typeof meta !== "object") {
+            console.error("Dữ liệu meta không hợp lệ:", meta);
+            return;
+        }
+
+        const currentPage = meta.current_page || 1;
+        const totalPages = meta.total_pages || 1; // Biến có s
+        const totalItems = meta.total_items || 0;
+
+        $("#pagination-info").html(`Total ${totalItems} items`);
+
+        let html = "";
+        // Nút Back
+        html += `<li class="${currentPage === 1 ? "disabled" : ""}">
+                <a href="javascript:;" data-page="${currentPage - 1}">«</a>
+             </li>`;
+
+        // SỬA TẠI ĐÂY: Phải là totalPages
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<li class="${i === currentPage ? "active" : ""}">
+                    <a href="javascript:;" data-page="${i}">${i}</a>
+                 </li>`;
+        }
+
+        // SỬA TẠI ĐÂY: Phải là totalPages
+        html += `<li class="${currentPage === totalPages ? "disabled" : ""}">
+                <a href="javascript:;" data-page="${currentPage + 1}">»</a>
+             </li>`;
+
+        $("#product-pagination").html(html);
+
+        const self = this;
+        $("#product-pagination a")
+            .off("click")
+            .on("click", function (e) {
+                e.preventDefault();
+                const page = $(this).data("page");
+                // SỬA TẠI ĐÂY: Phải là totalPages
+                if (page > 0 && page <= totalPages && page !== currentPage) {
+                    self.loadProducts(page);
+                }
+            });
+    }
+
     createProductHTML(product) {
         const { pricing, info, inventory } = product;
 
@@ -194,8 +314,7 @@ class ProductListUI {
                 
                 ${!inventory.in_stock ? '<div class="sticker sticker-out-of-stock" style="background: #999; color: #fff;">HẾT</div>' : ""}
             </div>
-        </div>
-    `;
+        </div>`;
     }
     formatPrice(price) {
         return new Intl.NumberFormat("vi-VN").format(price) + " ₫";
@@ -266,72 +385,107 @@ class ProductListUI {
 
     async showQuickView(productId) {
         try {
-            // 1. Gọi API lấy dữ liệu chi tiết
             const response = await axios.get(`/api/v1/products/${productId}`);
             const product = response.data.data;
+            // Lấy thêm 'info.images' từ API
             const { info, pricing, inventory } = product;
 
             const $modal = $("#product-pop-up");
             const thumbnail =
                 info.thumbnail || "assets/pages/img/products/model7.jpg";
+
+            // --- PHẦN MỚI: XỬ LÝ GALLERY (ẢNH NHỎ) ---
+            const $galleryContainer = $modal.find(".product-other-images");
+            $galleryContainer.empty(); // Xóa ảnh cũ
+
+            // Thêm ảnh đại diện vào danh sách ảnh nhỏ đầu tiên
+            let galleryHtml = `<a href="javascript:;" class="active change-main-image" data-big="${thumbnail}"><img src="${thumbnail}" alt="Thumbnail"></a>`;
+
+            // Nếu có các ảnh khác trong gallery thì thêm vào
+            if (info.images && info.images.length > 0) {
+                info.images.forEach((img) => {
+                    galleryHtml += `<a href="javascript:;" class="change-main-image" data-big="${img.url}"><img src="${img.url}" alt="Gallery"></a>`;
+                });
+            }
+            $galleryContainer.html(galleryHtml);
+
+            // Sự kiện click ảnh nhỏ đổi ảnh to
+            const self = this;
+            $modal.find(".change-main-image").on("click", function (e) {
+                e.preventDefault();
+                const newSrc = $(this).data("big");
+
+                // Đổi ảnh to
+                $modal.find(".product-main-image img").attr("src", newSrc);
+
+                // Xử lý Active class
+                $modal.find(".change-main-image").removeClass("active");
+                $(this).addClass("active");
+
+                // Reset Zoom nếu có dùng
+                if ($.fn.zoom) {
+                    $modal
+                        .find(".product-main-image")
+                        .trigger("zoom.destroy")
+                        .zoom({ url: newSrc });
+                }
+            });
+            // --- HẾT PHẦN XỬ LÝ GALLERY ---
+
+            // Đổ dữ liệu text như cũ
+            $modal.find(".product-main-image img").attr("src", thumbnail);
+            $modal.find("h1").text(info.name);
+            $modal
+                .find(".description p")
+                .text(info.description || "Chưa có mô tả.");
+
+            // Xử lý giá
             const hasSale =
                 pricing.sale_price > 0 &&
                 pricing.sale_price < pricing.original_price;
             const displayPrice = hasSale
                 ? pricing.sale_price
                 : pricing.original_price;
-
-            // 2. Đổ dữ liệu vào đúng các thẻ bạn vừa gửi
-            $modal.find(".product-main-image img").attr("src", thumbnail);
-            $modal.find("h1").text(info.name);
-            $modal
-                .find(".description p")
-                .text(info.description || "Chưa có mô tả cho sản phẩm này.");
-
-            // Xử lý giá
             $modal.find(".price strong").html(this.formatPrice(displayPrice));
+
             if (hasSale) {
                 $modal
                     .find(".price em")
                     .html(this.formatPrice(pricing.original_price))
                     .show();
-                $modal.find(".sticker-sale").show(); // Hiện chữ SALE đỏ
+                $modal.find(".sticker-sale").show();
             } else {
                 $modal.find(".price em").hide();
                 $modal.find(".sticker-sale").hide();
             }
 
-            // Tình trạng kho
             $modal
                 .find(".availability strong")
                 .text(inventory.in_stock ? "In Stock" : "Out of Stock");
-
-            // Gán link cho nút More details
             $modal
                 .find(".btn-default[href]")
                 .attr("href", `/products/${info.slug}`);
 
-            // 3. Mở Fancybox bằng đối tượng jQuery
             if (typeof $.fancybox !== "undefined") {
                 $.fancybox.open($modal, {
                     type: "inline",
                     autoSize: false,
                     width: 700,
                     afterShow: function () {
-                        // Khởi tạo lại Touchspin cho ô số lượng nếu cần
                         if (typeof Layout !== "undefined") {
                             Layout.initTouchspin();
+                        }
+                        // Kích hoạt zoom cho ảnh đầu tiên khi mở modal
+                        if ($.fn.zoom) {
+                            $modal
+                                .find(".product-main-image")
+                                .zoom({ url: thumbnail });
                         }
                     },
                 });
             }
         } catch (error) {
             console.error("Lỗi Quick View:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Lỗi!",
-                text: "Không thể tải thông tin sản phẩm này.",
-            });
         }
     }
     async updateCartCount() {
