@@ -362,21 +362,26 @@ Nostrud duis molestie at dolore.</p>
     <script src="assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js" type="text/javascript"></script><!-- Quantity -->
     <script src="assets/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
     <script src="assets/plugins/rateit/src/jquery.rateit.js" type="text/javascript"></script>
-    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script><!-- for slider-range -->
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script> <!-- for slider-range -->
 
 
-    <script src="assets/js/pages/Huy/products-list"  type="text/javascript"></script>
+    <script src="{{ asset('assets/js/pages/Huy/products-list.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            // Kiểm tra xem file products-list.js đã nạp chưa bằng cách log một hàm bất kỳ
+            console.log("Hàm editProduct có tồn tại không:", typeof editProduct);
 
 <script type="text/javascript">
     jQuery(document).ready(function() {
         if (typeof Layout !== 'undefined') {
-            Layout.init();    
+            Layout.init(); 
+            Layout.initSliderRange();   
             Layout.initOWL();
             Layout.initTwitter();
             Layout.initImageZoom();
             Layout.initTouchspin();
             Layout.initUniform();
-            Layout.initSliderRange();
+            
         }
     });
 </script>
