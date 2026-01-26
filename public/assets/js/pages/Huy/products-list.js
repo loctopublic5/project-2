@@ -1,6 +1,6 @@
 // public/assets/js/pages/Huy/products-list.js
 
-class ProductListUI {
+class ProductList {
     constructor() {
         this.currentPage = 1;
         this.limit = 9;
@@ -9,20 +9,84 @@ class ProductListUI {
             maxPrice: 10000000,
             inStock: false,
             notAvailable: false,
+            category_id: "",
         };
         this.sort = {
             field: "created_at",
             order: "desc",
         };
-
-        this.init();
     }
 
-    init() {
-        this.initPriceSlider();
-        this.initEventListeners();
-        this.loadProducts();
-        this.loadBestsellers();
+    async init() {
+        try {
+            // 1. Khởi tạo slider giá trước
+            this.initPriceSlider();
+
+            // 2. Phải đợi nạp xong danh mục để có cái mà click
+            await this.loadCategories();
+
+            // 3. Nạp sản phẩm và hàng bán chạy song song cho nhanh
+            await Promise.all([this.loadProducts(), this.loadBestsellers()]);
+
+            // 4. CUỐI CÙNG mới gán sự kiện. Lúc này các thẻ .category-link đã hiện hồn trên web
+            this.initEventListeners();
+
+            console.log("Huy ơi, tất cả đã sẵn sàng!");
+        } catch (error) {
+            console.error("Lỗi nạp dữ liệu từ API:", error);
+        }
+    }
+
+    async loadCategories() {
+        try {
+            const response = await axios.get("/api/v1/categories"); // Dùng GET như đồng nghiệp gợi ý
+            if (response.data && response.data.data) {
+                this.renderCategories(response.data.data);
+            }
+        } catch (error) {
+            console.error("Lỗi nạp danh mục:", error);
+        }
+    }
+
+    renderCategories(categories) {
+        const container = $("#sidebar-categories"); // Dùng ID cho chắc Huy nhé
+        let html = "";
+
+        categories.forEach((cat) => {
+            if (!cat.parent_id) {
+                html += `
+            <li class="list-group-item clearfix dropdown">
+                <a href="javascript:void(0);" class="category-link" data-id="${cat.id}">
+                    <i class="fa fa-angle-right"></i> ${cat.name}
+                </a>
+                ${this.renderSubCategories(categories, cat.id)}
+            </li>`;
+            }
+        });
+
+        container.html(html);
+
+        // QUAN TRỌNG: Gọi lại Layout của Metronic để nó nhận diện các menu mới vừa vẽ
+        if (typeof Layout !== "undefined") {
+            Layout.initTwitter(); // Hoặc Layout.init() tùy phiên bản Metronic bạn dùng
+        }
+    }
+
+    renderSubCategories(allCategories, parentId) {
+        const subs = allCategories.filter((c) => c.parent_id === parentId);
+        if (subs.length === 0) return "";
+
+        let subHtml = '<ul class="dropdown-menu" style="display:block;">';
+        subs.forEach((sub) => {
+            subHtml += `
+            <li class="list-group-item dropdown clearfix">
+                <a href="javascript:void(0);" class="category-link" data-id="${sub.id}">
+                    <i class="fa fa-angle-right"></i> ${sub.name}
+                </a>
+                ${this.renderSubCategories(allCategories, sub.id)} </li>`;
+        });
+        subHtml += "</ul>";
+        return subHtml;
     }
 
     initPriceSlider() {
@@ -95,48 +159,22 @@ class ProductListUI {
                 $("#real-product-container").addClass("list-view-mode");
             }
         });
-    }
 
-    async loadProducts() {
-        try {
-            const params = {
-                page: this.currentPage,
-                limit: this.limit,
-            };
+        $(document).on("click", ".category-link", (e) => {
+            e.preventDefault();
+            const catId = $(e.currentTarget).data("id");
 
-            // Filter giá
-            if (this.filters.minPrice > 0) {
-                params.min_price = this.filters.minPrice;
-            }
-            if (this.filters.maxPrice < 10000000) {
-                params.max_price = this.filters.maxPrice;
-            }
+            console.log("Đã click và nhận ID:", catId); // Dòng này của Huy đã chạy ok
 
-            // Sorting - Chuyển đổi sang format backend
-            if (this.sort.field === "price") {
-                params.sort_by =
-                    this.sort.order === "asc" ? "price_asc" : "price_desc";
-            } else {
-                params.sort_by = "latest";
-            }
+            // BƯỚC QUAN TRỌNG: Cập nhật filter để hàm loadProducts có thể lấy dữ liệu
+            this.filters.category_id = catId;
 
-            console.log("Sending params:", params); // Debug
+            // Reset về trang 1
+            this.currentPage = 1;
 
-            const response = await axios.get("/api/v1/products", { params });
-
-            if (response.data.status) {
-                this.renderProducts(response.data.data);
-                this.renderPagination(response.data.meta);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Lỗi!",
-                text:
-                    error.response?.data?.message || "Không thể tải sản phẩm!",
-            });
-        }
+            // Gọi hàm tải sản phẩm
+            this.loadProducts();
+        });
     }
 
     renderProducts(products) {
@@ -159,29 +197,48 @@ class ProductListUI {
     }
 
     async loadProducts(page = 1) {
-        // 1. Nhận tham số page, mặc định là 1
         try {
-            this.currentPage = page; // 2. Cập nhật lại trang hiện tại của class
+            this.currentPage = page;
 
+            // BƯỚC QUAN TRỌNG: Kiểm tra xem category_id có giá trị không
+            const catIdValue = this.filters.category_id || "";
             const params = {
-                page: this.currentPage, // 3. Truyền số trang mới vào đây
+                page: this.currentPage,
                 limit: this.limit,
+                // Đảm bảo lấy đúng từ this.filters mà bạn đã gán khi click
+                category_id: catIdValue,
+                min_price: this.filters.minPrice,
+                max_price: this.filters.maxPrice,
+                // Chỉnh lại sort_by cho khớp với switch-case trong ProductService.php
                 sort_by:
                     this.sort.field === "price"
                         ? `price_${this.sort.order}`
                         : "latest",
-                min_price: this.filters.minPrice,
-                max_price: this.filters.maxPrice,
             };
 
-            const response = await axios.get("/api/v1/products", { params });
+            console.log("Huy gửi params này lên Server:", params);
 
-            if (response.data.status) {
-                this.renderProducts(response.data.data);
-                this.renderPagination(response.data.meta);
+            // Dùng window.api (Axios có Token)
+            const response = await window.api.get("/api/v1/products", {
+                params,
+            });
+
+            // Tìm đoạn này trong loadProducts và sửa lại:
+            if (response.data.status === true) {
+                // 1. Lấy trực tiếp mảng sản phẩm từ response.data.data
+                const products = response.data.data;
+
+                // 2. Log ra để Huy thấy mảng này đã "về bản" chưa
+                console.log("Danh sách sản phẩm nhận được:", products);
+
+                // 3. Vẽ sản phẩm ra màn hình
+                this.renderProducts(products);
+
+                // 4. Tạm thời ẩn cái này đi nếu Backend của bạn chưa có phân trang meta
+                // this.renderPagination(response.data);
             }
         } catch (error) {
-            console.error("Lỗi:", error);
+            console.error("Lỗi tải sản phẩm:", error);
         }
     }
     // Hàm này gọi song song với loadProducts chính
@@ -510,5 +567,5 @@ class ProductListUI {
 
 // Khởi tạo
 jQuery(document).ready(function () {
-    new ProductListUI();
+    new ProductList();
 });
