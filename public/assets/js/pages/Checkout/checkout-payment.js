@@ -65,7 +65,7 @@ Checkout.Payment = (function () {
             html += `
                 <div class="alert alert-danger margin-top-10">
                     <i class="fa fa-exclamation-triangle"></i> Thiếu <strong>${Checkout.formatPrice(shortage)}</strong>.
-                    <br><a href="/customer/wallet/recharge" class="btn btn-xs btn-danger margin-top-10">Nạp tiền & Tiếp tục</a>
+                    <br><a href="/deposit" class="btn btn-xs btn-danger margin-top-10">Nạp tiền & Tiếp tục</a>
                 </div>`;
             Checkout.data.wallet_valid = false;
         } else {
