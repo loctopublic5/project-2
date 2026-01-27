@@ -164,7 +164,41 @@ saveBasicInfo: async function() {
     }
 },
 
+requestPasswordReset: async function() {
+    const storedUser = JSON.parse(localStorage.getItem('admin_user'));
+    const userId = storedUser ? storedUser.id : null;
 
+    if (!userId) return Swal.fire('Lỗi', 'Không tìm thấy ID người dùng', 'error');
+
+    const result = await Swal.fire({
+        title: 'Xác nhận đổi mật khẩu?',
+        text: "Hệ thống sẽ chuyển bạn đến trang yêu cầu đặt lại mật khẩu với email đã được điền sẵn.",
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#435ebe',
+        cancelButtonColor: '#cdcdcd',
+        confirmButtonText: 'Đồng ý',
+        cancelButtonText: 'Hủy'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            Swal.showLoading();
+            // Gọi API trigger để lấy URL redirect
+            const response = await window.api.post('/api/v1/customer/profile/trigger-reset-password', {
+                user_id: userId
+            });
+
+            if (response.data.status) {
+                // Chuyển hướng người dùng sang trang forgot-password kèm email
+                window.location.href = response.data.data.redirect_url;
+            }
+        } catch (error) {
+            console.error("Reset Password Error:", error);
+            Swal.fire('Lỗi', 'Không thể kết nối với hệ thống khôi phục mật khẩu.', 'error');
+        }
+    }
+},
 
     loadUserDetail: async function() {
         const pathSegments = window.location.pathname.split('/').filter(s => s);

@@ -24,11 +24,15 @@
                     <p class="auth-subtitle mb-5">Nhập email của bạn và chúng tôi sẽ gửi link khôi phục mật khẩu.</p>
 
                     <form id="forgot-form">
-                        <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="email" id="email" class="form-control form-control-xl" placeholder="Email">
-                            <div class="form-control-icon"><i class="bi bi-envelope"></i></div>
-                            <div class="invalid-feedback"></div>
-                        </div>
+<div class="form-group position-relative has-icon-left mb-4">
+    <input type="email" 
+            id="email" 
+            name="email" 
+            class="form-control form-control-xl" 
+            placeholder="Email" 
+            value="{{ request()->query('email') }}"> <div class="form-control-icon"><i class="bi bi-envelope"></i></div>
+    <div class="invalid-feedback"></div>
+</div>
 
                         <button type="submit" id="btn-send" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">
                             Gửi Link Khôi Phục

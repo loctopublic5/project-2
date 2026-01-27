@@ -303,6 +303,7 @@
     <i class="fa fa-edit"></i> Chỉnh sửa thông tin
 </button>
 </div>
+
                 <div class="profile-usertitle text-center margin-top-20">
                     <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
                     <div class="profile-usertitle-job"> 
@@ -339,6 +340,22 @@
         </div>
 
         <div class="col-md-8 col-sm-12">
+<div class="portlet light" style="border: 1px solid #ffeeba; padding: 15px; background: #fff3cd; margin-bottom: 20px; border-radius: 8px;">
+    <div class="d-flex" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center;">
+            <div style="background: #ffc107; padding: 10px 15px; border-radius: 50%; margin-right: 15px;">
+                <i class="fa fa-lock" style="font-size: 20px; color: #856404;"></i>
+            </div>
+            <div>
+                <h4 class="bold" style="margin: 0; color: #856404;">Bảo mật tài khoản</h4>
+                <p style="margin: 0; color: #856404; font-size: 13px;">Bạn muốn thay đổi mật khẩu? Chúng tôi sẽ gửi link xác thực đến email của bạn.</p>
+            </div>
+        </div>
+        <button type="button" class="btn btn-warning bold" onclick="UserProfileModule.requestPasswordReset()" style="white-space: nowrap;">
+            <i class="fa fa-paper-plane"></i> Đổi mật khẩu
+        </button>
+    </div>
+</div>
             <div class="portlet light" style="border: 1px solid #eee; padding: 15px; background: #fff; margin-bottom: 20px;">
                 <div class="portlet-title" style="border-bottom: 1px solid #eee; margin-bottom: 15px;">
                     <div class="caption"><h4 class="bold uppercase" style="margin:0;">Sổ địa chỉ</h4></div>

@@ -138,6 +138,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('profile')->group(function(){
         Route::put('/avatar/{id}', [ProfileController::class, 'updateAvatar']);
         Route::put('/update-info/{id}', [ProfileController::class, 'updateInfo']);
+        Route::post('/trigger-reset-password',[ProfileController::class, 'triggerResetPassword']);
         });
     });
 
