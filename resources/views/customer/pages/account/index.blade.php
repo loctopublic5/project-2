@@ -282,51 +282,49 @@
     <div class="row">
         <div class="col-md-4 col-sm-12">
             <div class="portlet light profile-sidebar-portlet" style="border: 1px solid #eee; padding: 20px; background: #fff;">
-                <div class="profile-userpic text-center">
-    <div id="avatar-wrapper" class="position-relative d-inline-block">
-        <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
-            class="img-responsive global-user-avatar" alt="Avatar">
-        
-        <div class="avatar-overlay">
-            <div class="overlay-content">
-                <button type="button" onclick="UserProfileModule.viewFullAvatar()" class="btn-avatar-action" title="Xem ảnh">
-                    <i class="fa fa-search-plus"></i>
-                </button>
-                <button type="button" onclick="$('#avatar-input').click()" class="btn-avatar-action" title="Đổi ảnh">
-                    <i class="fa fa-camera"></i>
-                </button>
+    <div class="profile-userpic text-center">
+        <div id="avatar-wrapper" class="position-relative d-inline-block" style="margin-bottom: 15px;">
+            <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
+                class="img-responsive global-user-avatar" alt="Avatar" 
+                style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #eee; margin: 0 auto;">
+            
+            <div class="avatar-overlay">
+                <div class="overlay-content">
+                    <button type="button" onclick="UserProfileModule.viewFullAvatar()" class="btn-avatar-action" title="Xem ảnh"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" onclick="$('#avatar-input').click()" class="btn-avatar-action" title="Đổi ảnh"><i class="fa fa-camera"></i></button>
+                </div>
             </div>
+            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
         </div>
-        <input type="file" id="avatar-input" accept="image/*" style="display: none;">
     </div>
-    <button type="button" class="btn btn-sm btn-primary" onclick="UserProfileModule.openEditModal()">
-    <i class="fa fa-edit"></i> Chỉnh sửa thông tin
-</button>
+
+    <div class="profile-usertitle text-center">
+        <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
+        <div class="profile-usertitle-job"> 
+            <span id="detail-rank" style="margin-top: 5px; display: block; color: #777;"> Đang kiểm tra... </span> 
+        </div>
+        <div class="margin-top-10">
+            <button type="button" class="btn btn-xs btn-outline-primary" onclick="UserProfileModule.openEditModal()" style="border-radius: 20px; padding: 2px 12px; font-size: 11px;">
+                <i class="fa fa-pencil"></i> Chỉnh sửa thông tin
+            </button>
+        </div>
+    </div>
+    
+    <hr style="margin: 20px 0;">
+
+    <div class="profile-userbuttons" style="text-align: left; padding-left: 10px;">
+        <div class="margin-bottom-10">
+            <i class="fa fa-envelope" style="width: 20px; color: #435ebe;"></i> <span id="detail-email">---</span>
+        </div>
+        <div class="margin-bottom-10">
+            <i class="fa fa-phone" style="width: 20px; color: #435ebe;"></i> <span id="detail-phone">---</span>
+        </div>
+        <div class="margin-bottom-10">
+            <i class="fa fa-calendar" style="width: 20px; color: #435ebe;"></i> Tham gia: <b id="detail-joined">---</b>
+        </div>
+        <div id="detail-status" class="margin-top-10"></div>
+    </div>
 </div>
-
-                <div class="profile-usertitle text-center margin-top-20">
-                    <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
-                    <div class="profile-usertitle-job"> 
-                        <span id="detail-rank" style="margin-top: 5px;"> Đang kiểm tra... </span> 
-                    </div>
-                </div>
-                
-                <hr>
-
-                <div class="profile-userbuttons">
-                    <div class="margin-bottom-10">
-                        <i class="fa fa-envelope"></i> <span id="detail-email">---</span>
-                    </div>
-                    <div class="margin-bottom-10">
-                        <i class="fa fa-phone"></i> <span id="detail-phone">---</span>
-                    </div>
-                    <div class="margin-bottom-10">
-                        <i class="fa fa-calendar"></i> Tham gia: <b id="detail-joined">---</b>
-                    </div>
-                    <div id="detail-status" class="margin-top-10">
-                        </div>
-                </div>
-            </div>
 
             <div class="well margin-top-20" style="background: #e02222; color: white; border: none;">
                 <div class="row">
