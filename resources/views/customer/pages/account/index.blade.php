@@ -282,34 +282,49 @@
     <div class="row">
         <div class="col-md-4 col-sm-12">
             <div class="portlet light profile-sidebar-portlet" style="border: 1px solid #eee; padding: 20px; background: #fff;">
-                <div class="profile-userpic text-center">
-                    <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
-                         class="img-responsive" alt="Avatar" 
-                         style="width: 120px; height: 120px; border-radius: 50% !important; object-fit: cover; margin: 0 auto; border: 3px solid #eee;">
-                </div>
-                <div class="profile-usertitle text-center margin-top-20">
-                    <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
-                    <div class="profile-usertitle-job"> 
-                        <span id="detail-rank" style="margin-top: 5px;"> Đang kiểm tra... </span> 
-                    </div>
-                </div>
-                
-                <hr>
-
-                <div class="profile-userbuttons">
-                    <div class="margin-bottom-10">
-                        <i class="fa fa-envelope"></i> <span id="detail-email">---</span>
-                    </div>
-                    <div class="margin-bottom-10">
-                        <i class="fa fa-phone"></i> <span id="detail-phone">---</span>
-                    </div>
-                    <div class="margin-bottom-10">
-                        <i class="fa fa-calendar"></i> Tham gia: <b id="detail-joined">---</b>
-                    </div>
-                    <div id="detail-status" class="margin-top-10">
-                        </div>
+    <div class="profile-userpic text-center">
+        <div id="avatar-wrapper" class="position-relative d-inline-block" style="margin-bottom: 15px;">
+            <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
+                class="img-responsive global-user-avatar" alt="Avatar" 
+                style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #eee; margin: 0 auto;">
+            
+            <div class="avatar-overlay">
+                <div class="overlay-content">
+                    <button type="button" onclick="UserProfileModule.viewFullAvatar()" class="btn-avatar-action" title="Xem ảnh"><i class="fa fa-search-plus"></i></button>
+                    <button type="button" onclick="$('#avatar-input').click()" class="btn-avatar-action" title="Đổi ảnh"><i class="fa fa-camera"></i></button>
                 </div>
             </div>
+            <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+        </div>
+    </div>
+
+    <div class="profile-usertitle text-center">
+        <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
+        <div class="profile-usertitle-job"> 
+            <span id="detail-rank" style="margin-top: 5px; display: block; color: #777;"> Đang kiểm tra... </span> 
+        </div>
+        <div class="margin-top-10">
+            <button type="button" class="btn btn-xs btn-outline-primary" onclick="UserProfileModule.openEditModal()" style="border-radius: 20px; padding: 2px 12px; font-size: 11px;">
+                <i class="fa fa-pencil"></i> Chỉnh sửa thông tin
+            </button>
+        </div>
+    </div>
+    
+    <hr style="margin: 20px 0;">
+
+    <div class="profile-userbuttons" style="text-align: left; padding-left: 10px;">
+        <div class="margin-bottom-10">
+            <i class="fa fa-envelope" style="width: 20px; color: #435ebe;"></i> <span id="detail-email">---</span>
+        </div>
+        <div class="margin-bottom-10">
+            <i class="fa fa-phone" style="width: 20px; color: #435ebe;"></i> <span id="detail-phone">---</span>
+        </div>
+        <div class="margin-bottom-10">
+            <i class="fa fa-calendar" style="width: 20px; color: #435ebe;"></i> Tham gia: <b id="detail-joined">---</b>
+        </div>
+        <div id="detail-status" class="margin-top-10"></div>
+    </div>
+</div>
 
             <div class="well margin-top-20" style="background: #e02222; color: white; border: none;">
                 <div class="row">
@@ -323,6 +338,22 @@
         </div>
 
         <div class="col-md-8 col-sm-12">
+<div class="portlet light" style="border: 1px solid #ffeeba; padding: 15px; background: #fff3cd; margin-bottom: 20px; border-radius: 8px;">
+    <div class="d-flex" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center;">
+            <div style="background: #ffc107; padding: 10px 15px; border-radius: 50%; margin-right: 15px;">
+                <i class="fa fa-lock" style="font-size: 20px; color: #856404;"></i>
+            </div>
+            <div>
+                <h4 class="bold" style="margin: 0; color: #856404;">Bảo mật tài khoản</h4>
+                <p style="margin: 0; color: #856404; font-size: 13px;">Bạn muốn thay đổi mật khẩu? Chúng tôi sẽ gửi link xác thực đến email của bạn.</p>
+            </div>
+        </div>
+        <button type="button" class="btn btn-warning bold" onclick="UserProfileModule.requestPasswordReset()" style="white-space: nowrap;">
+            <i class="fa fa-paper-plane"></i> Đổi mật khẩu
+        </button>
+    </div>
+</div>
             <div class="portlet light" style="border: 1px solid #eee; padding: 15px; background: #fff; margin-bottom: 20px;">
                 <div class="portlet-title" style="border-bottom: 1px solid #eee; margin-bottom: 15px;">
                     <div class="caption"><h4 class="bold uppercase" style="margin:0;">Sổ địa chỉ</h4></div>
@@ -456,6 +487,35 @@
                 <button type="button" class="btn btn-primary btn-lg mt-10" style="min-width: 150px;" onclick="WalletModule.handleDeposit()">
                     XÁC NHẬN NẠP <i class="fa fa-arrow-right"></i>
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-edit-profile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cập nhật thông tin cá nhân</h4>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-profile">
+                    <div class="form-group">
+                        <label>Họ và tên</label>
+                        <input type="text" class="form-control" id="edit-full-name" name="full_name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="edit-email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" class="form-control" id="edit-phone" name="phone">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="UserProfileModule.saveBasicInfo()">Lưu thay đổi</button>
             </div>
         </div>
     </div>
