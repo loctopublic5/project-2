@@ -313,21 +313,15 @@ Nostrud duis molestie at dolore.</p>
 
 
     <script src="{{ asset('assets/js/pages/Huy/products-list.js') }}" type="text/javascript"></script>
-<script type="text/javascript">
+
+    <script type="text/javascript">
     jQuery(document).ready(function() {
-        // 1. Khởi tạo layout chung
-        if (typeof Layout !== 'undefined') {
-            Layout.init();
-            Layout.initUniform();
+        // Kiểm tra dứt điểm để không bao giờ khởi tạo 2 lần
+        if (typeof window.App === 'undefined') {
+            console.log("Khởi tạo App lần đầu và duy nhất");
+            window.App = new ProductList();
+            window.App.init();
         }
-
-
-        if (typeof ProductList !== 'undefined') { 
-
-            window.productApp = new ProductList(); 
-            window.productApp.init().catch(err => console.error("Lỗi init:", err));
-        } 
     });
 </script>
-    <!-- END PAGE LEVEL JAVASCRIPTS -->
 @endpush

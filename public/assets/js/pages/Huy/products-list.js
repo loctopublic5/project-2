@@ -4,6 +4,7 @@ class ProductList {
     constructor() {
         this.currentPage = 1;
         this.limit = 9;
+        this.isLoading = false;
         this.filters = {
             minPrice: 0,
             maxPrice: 10000000,
@@ -17,34 +18,23 @@ class ProductList {
         };
     }
 
-    async init() {
-        try {
-            // 1. Khởi tạo slider ngay (không tốn thời gian gọi API)
-            this.initPriceSlider();
+    init() {
+        // 1. Chỉ nạp Categories và Bestsellers trước
+        this.loadCategories();
+        this.loadBestsellers();
 
-            console.time("Tốc độ load của Huy"); // Để Huy tự kiểm tra tốc độ dưới Console
+        // 2. Gán sự kiện (Chỉ gán 1 lần duy nhất)
+        this.initEventListeners();
 
-            // 2. CHẠY SONG SONG: Tải Categories, Products và Bestsellers cùng lúc
-            // Không dùng await lẻ tẻ nữa!
-            await Promise.all([
-                this.loadCategories(),
-                this.loadProducts(this.currentPage),
-                this.loadBestsellers(),
-            ]);
-
-            console.timeEnd("Tốc độ load của Huy");
-
-            // 3. Gán sự kiện sau khi mọi thứ đã được render xong
-            this.initEventListeners();
-        } catch (error) {
-            console.error("Huy ơi, có lỗi nạp dữ liệu rồi:", error);
-        }
+        // 3. Nạp sản phẩm lần đầu
+        this.loadProducts(1);
     }
 
     async loadCategories() {
         try {
-            const response = await axios.get("/api/v1/categories"); // Dùng GET như đồng nghiệp gợi ý
-            if (response.data && response.data.data) {
+            const response = await window.api.get("/api/v1/categories");
+            if (response.data?.status) {
+                // Check status cho chắc
                 this.renderCategories(response.data.data);
             }
         } catch (error) {
@@ -122,84 +112,78 @@ class ProductList {
     initEventListeners() {
         const self = this;
 
-        // Sắp xếp
-        $(".list-view-sorting select")
-            .eq(1)
-            .on("change", function () {
+        // 1. Sắp xếp (Sử dụng Event Delegation để không bị lặp)
+        $(document)
+            .off("change", ".list-view-sorting select:eq(1)")
+            .on("change", ".list-view-sorting select:eq(1)", function () {
                 const val = $(this).val();
-                if (
-                    val.includes("pd.name&order=ASC") ||
-                    val.includes("pd.name&order=DESC")
-                ) {
-                    self.sort = { field: "latest", order: "desc" };
-                } else if (val.includes("p.price&order=ASC")) {
+                // Logic lọc của Huy giữ nguyên nhưng thêm .off() để chặn lặp
+                if (val.includes("p.price&order=ASC")) {
                     self.sort = { field: "price", order: "asc" };
                 } else if (val.includes("p.price&order=DESC")) {
                     self.sort = { field: "price", order: "desc" };
-                } else if (val.includes("rating")) {
-                    self.sort = { field: "latest", order: "desc" };
                 } else {
                     self.sort = { field: "latest", order: "desc" };
                 }
-                self.loadProducts();
+                self.loadProducts(1); // Luôn về trang 1 khi đổi sort
             });
 
-        // Giới hạn hiển thị
-        $(".list-view-sorting select")
-            .eq(0)
-            .on("change", function () {
-                self.limit = parseInt($(this).val().split("=")[1]);
-                self.loadProducts();
+        // 2. Giới hạn hiển thị
+        $(document)
+            .off("change", ".list-view-sorting select:eq(0)")
+            .on("change", ".list-view-sorting select:eq(0)", function () {
+                const val = $(this).val();
+                if (val.includes("limit=")) {
+                    self.limit = parseInt(val.split("=")[1]);
+                    self.loadProducts(1); // Luôn về trang 1 khi đổi limit
+                }
             });
 
-        // Chuyển đổi view
-        $(".list-view a").on("click", function (e) {
-            e.preventDefault();
-            $(".list-view a").removeClass("active");
-            $(this).addClass("active");
+        // 3. Phân trang (Bổ sung để dứt điểm lỗi nhảy trang)
+        $(document)
+            .off("click", "#product-pagination a")
+            .on("click", "#product-pagination a", function (e) {
+                e.preventDefault();
+                const page = $(this).data("page");
+                if (page) self.loadProducts(page);
+            });
 
-            if ($(this).find(".fa-th-large").length > 0) {
-                $("#real-product-container").removeClass("list-view-mode");
-            } else {
-                $("#real-product-container").addClass("list-view-mode");
-            }
-        });
+        // 4. Chuyển đổi view (Grid/List)
+        $(document)
+            .off("click", ".list-view a")
+            .on("click", ".list-view a", function (e) {
+                e.preventDefault();
+                $(".list-view a").removeClass("active");
+                $(this).addClass("active");
+                const isGrid = $(this).find(".fa-th-large").length > 0;
+                $("#real-product-container").toggleClass(
+                    "list-view-mode",
+                    !isGrid,
+                );
+            });
 
-        $(document).on("click", ".category-link", (e) => {
-            e.preventDefault();
-            const catId = $(e.currentTarget).data("id");
+        // 5. Danh mục (Đã sửa .off() chuẩn)
+        $(document)
+            .off("click", ".category-link")
+            .on("click", ".category-link", (e) => {
+                e.preventDefault();
+                const catId = $(e.currentTarget).data("id");
+                this.filters.category_id = catId;
+                this.loadProducts(1);
+            });
 
-            console.log("Đã click và nhận ID:", catId); // Dòng này của Huy đã chạy ok
-
-            // BƯỚC QUAN TRỌNG: Cập nhật filter để hàm loadProducts có thể lấy dữ liệu
-            this.filters.category_id = catId;
-
-            // Reset về trang 1
-            this.currentPage = 1;
-
-            // Gọi hàm tải sản phẩm
-            this.loadProducts();
-        });
-        // Thêm đoạn này vào cuối file products-list.js hoặc trong initEventListeners
+        // 6. Icon đóng mở (Đã sửa .off() chuẩn)
         $(document)
             .off("click", ".toggle-icon")
             .on("click", ".toggle-icon", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-
                 const $icon = $(this);
                 const $parentLi = $icon.closest("li");
-                const $subMenu = $parentLi.children("ul.sub-menu");
-
-                // Hiệu ứng đóng mở mượt mà
-                $subMenu.slideToggle(300);
-
-                // Xoay mũi tên: Nếu đang nghiêng thì trả về thẳng, nếu thẳng thì xoay xuống
-                if ($icon.hasClass("open")) {
-                    $icon.removeClass("open").css("transform", "rotate(0deg)");
-                } else {
-                    $icon.addClass("open").css("transform", "rotate(90deg)");
-                }
+                $parentLi.children("ul.sub-menu").slideToggle(300);
+                $icon.toggleClass("open");
+                const rotate = $icon.hasClass("open") ? "90deg" : "0deg";
+                $icon.css("transform", `rotate(${rotate})`);
             });
     }
 
@@ -223,19 +207,20 @@ class ProductList {
     }
 
     async loadProducts(page = 1) {
+        console.log(`--- Huy đang gọi request trang: ${page} ---`);
+        if (this.loading) return;
+        this.loading = true;
+
         try {
             this.currentPage = page;
-
-            // BƯỚC QUAN TRỌNG: Kiểm tra xem category_id có giá trị không
             const catIdValue = this.filters.category_id || "";
+
             const params = {
                 page: this.currentPage,
                 limit: this.limit,
-                // Đảm bảo lấy đúng từ this.filters mà bạn đã gán khi click
                 category_id: catIdValue,
                 min_price: this.filters.minPrice,
                 max_price: this.filters.maxPrice,
-                // Chỉnh lại sort_by cho khớp với switch-case trong ProductService.php
                 sort_by:
                     this.sort.field === "price"
                         ? `price_${this.sort.order}`
@@ -244,46 +229,50 @@ class ProductList {
 
             console.log("Huy gửi params này lên Server:", params);
 
-            // Dùng window.api (Axios có Token)
             const response = await window.api.get("/api/v1/products", {
                 params,
             });
 
-            // Tìm đoạn này trong loadProducts và sửa lại:
             if (response.data.status === true) {
-                // 1. Lấy trực tiếp mảng sản phẩm từ response.data.data
                 const products = response.data.data;
-
-                // 2. Log ra để Huy thấy mảng này đã "về bản" chưa
                 console.log("Danh sách sản phẩm nhận được:", products);
 
-                // 3. Vẽ sản phẩm ra màn hình
                 this.renderProducts(products);
-
                 this.renderPagination(response.data.meta);
             } else {
-                // Nếu backend trả về pagination nằm ở gốc response.data
+                // Trường hợp backend trả về cấu trúc khác
                 this.renderPagination({
                     current_page: response.data.current_page || 1,
                     total_pages: response.data.total_pages || 1,
-                    total_items: response.data.total_items || products.length,
+                    total_items: response.data.total_items || 0,
                 });
             }
         } catch (error) {
             console.error("Lỗi tải sản phẩm:", error);
+        } finally {
+            // QUAN TRỌNG NHẤT: Phải có dòng này thì lần sau mới click được tiếp
+            this.loading = false;
+            console.log("Đã mở khóa loading cho Huy!");
         }
     }
-    // Hàm này gọi song song với loadProducts chính
+    async loadCategories() {
+        try {
+            const response = await window.api.get("/api/v1/categories");
+            if (response.data?.status) {
+                // Check status cho chắc
+                this.renderCategories(response.data.data);
+            }
+        } catch (error) {
+            console.error("Lỗi nạp danh mục:", error);
+        }
+    }
+
     async loadBestsellers() {
         try {
-            // Gọi API list nhưng giới hạn chỉ lấy 3-4 cái mới nhất/đắt nhất tùy ý
-            const params = {
-                limit: 4,
-                sort_by: "latest", // Hoặc 'price_desc' nếu muốn hiện hàng cao cấp
-            };
-
-            const response = await axios.get("/api/v1/products", { params });
-
+            const params = { limit: 4, sort_by: "latest" };
+            const response = await window.api.get("/api/v1/products", {
+                params,
+            });
             if (response.data.status) {
                 this.renderBestsellers(response.data.data);
             }
@@ -432,46 +421,6 @@ class ProductList {
         }
     }
 
-    async addToCart(productId) {
-        try {
-            await axios.post("/api/v1/customer/cart", {
-                product_id: productId,
-                quantity: 1,
-            });
-
-            Swal.fire({
-                icon: "success",
-                title: "Thành công!",
-                text: "Đã thêm vào giỏ hàng",
-                timer: 1500,
-                showConfirmButton: false,
-            });
-
-            this.updateCartCount();
-        } catch (error) {
-            if (error.response?.status === 401) {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Chưa đăng nhập!",
-                    text: "Vui lòng đăng nhập để thêm vào giỏ hàng",
-                    confirmButtonText: "Đăng nhập",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "/login";
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Lỗi!",
-                    text:
-                        error.response?.data?.message ||
-                        "Không thể thêm vào giỏ hàng",
-                });
-            }
-        }
-    }
-
     async showQuickView(productId) {
         try {
             const response = await axios.get(`/api/v1/products/${productId}`);
@@ -598,7 +547,10 @@ class ProductList {
 }
 
 // Khởi tạo
-jQuery(document).ready(function () {
-    const app = new ProductList();
-    app.init();
-});
+// Cuối file products-list.js
+if (typeof window.huyProductApp === "undefined") {
+    window.huyProductApp = null;
+}
+
+// Không gọi app.init() trực tiếp ở đây nữa để tránh xung đột với file Blade
+console.log("File products-list.js đã sẵn sàng!");
