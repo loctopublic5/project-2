@@ -72,14 +72,14 @@
               <div class="goods-data clearfix">
                 <div class="table-wrapper-responsive">
                 <table summary="Shopping cart">
-                  <tr>
+                  
                     <th class="goods-page-image">Image</th>
                     <th class="goods-page-description">Description</th>
                     <th class="goods-page-ref-no">Ref No</th>
                     <th class="goods-page-quantity">Quantity</th>
                     <th class="goods-page-price">Unit price</th>
                     <th class="goods-page-total" colspan="2">Total</th>
-                  </tr>
+                  
                   <tr>
                     <td class="goods-page-image">
                       <a href="javascript:;"><img src="assets/pages/img/products/model3.jpg" alt="Berry Lace Dress"></a>
@@ -336,7 +336,6 @@ Nostrud duis molestie at dolore.</p>
     <!-- JS Core) -->
     <script src="assets\js\pages\Huy\cart.js" type="text/javascript"></script>
 
-    <script src="assets/corporate/scripts/layout.js" type="text/javascript"></script>
     <script type="text/javascript">
         jQuery(document).ready(function() {
             Layout.init();    

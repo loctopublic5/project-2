@@ -1,94 +1,144 @@
 class CartManager {
     constructor() {
-        // Selector cho trang giỏ hàng chính và mini-cart trên header
-        this.cartTableBody = $("#cart-items-list"); // Huy nhớ thêm ID này vào tbody ở file Blade nhé
-        this.totalPriceElem = $(".shopping-total-price .price");
-        this.miniCartContainer = $(".top-cart-content-wrapper");
+        this.apiBase = "/api/v1/customer/cart";
+        // Selector cho trang Shopping Cart
+        this.cartTableBody = $("#cart-items-list"); // Huy thêm id này vào tbody trong file cart.blade.php
+        this.subTotalElem = $("#sub-total");
+        this.finalTotalElem = $("#final-total");
 
-        this.apiEndpoint = "/api/cart"; // Đường dẫn API giỏ hàng của Huy
+        // Selector cho Mini Cart (Header)
+        this.miniCartCount = $(".top-cart-info-count"); // Chỗ hiển thị "3 items"
+        this.miniCartTotal = $(".top-cart-info-value"); // Chỗ hiển thị "$100.00"
     }
 
     async init() {
-        console.log("Huy ơi, Cart Manager đang khởi động...");
-        await this.loadCartData();
+        console.log("Huy ơi, Cart Manager đã sẵn sàng!");
         this.initEventListeners();
-    }
-
-    // 1. Lấy dữ liệu giỏ hàng từ Server (Async/Await theo ý Lộc)
-    async loadCartData() {
-        try {
-            // Hiện cái spinner Shopee Huy vừa làm ở đây
-            $("#shopee-loader").css("display", "flex");
-
-            const response = await axios.get(this.apiEndpoint);
-
-            if (response.data.success) {
-                this.renderFullCart(response.data.cart);
-                this.renderMiniCart(response.data.cart);
-            }
-        } catch (error) {
-            console.error("Lỗi khi nạp giỏ hàng:", error);
-        } finally {
-            $("#shopee-loader").hide();
+        // Chỉ nạp dữ liệu nếu đang ở trang giỏ hàng
+        if (this.cartTableBody.length > 0) {
+            await this.loadCartDetail();
         }
     }
 
-    // 2. Đổ dữ liệu vào trang Giỏ hàng chính (Trang Huy vừa tách Blade)
-    renderFullCart(cart) {
-        if (!this.cartTableBody.length) return; // Nếu không phải trang giỏ hàng thì bỏ qua
+    // 1. LẤY CHI TIẾT GIỎ HÀNG (Dùng Route: GET /api/v1/customer/cart)
+    async loadCartDetail() {
+        try {
+            const response = await axios.get(this.apiBase);
+            if (response.data.status === "success") {
+                this.renderFullCart(response.data.data);
+            }
+        } catch (error) {
+            console.error("Lỗi load giỏ hàng:", error);
+        }
+    }
 
+    // 2. THÊM VÀO GIỎ HÀNG (Dùng Route: POST /api/v1/customer/cart)
+    async addToCart(productId, quantity = 1, options = {}) {
+        try {
+            const response = await axios.post(this.apiBase, {
+                product_id: productId,
+                quantity: quantity,
+                options: options,
+            });
+
+            if (response.data.status === "success") {
+                alert("Thêm vào giỏ hàng thành công!");
+                // Sau khi thêm xong, cần cập nhật lại số lượng ở Header
+                await this.updateHeaderCart();
+            }
+        } catch (error) {
+            const msg =
+                error.response?.data?.message || "Không thêm được hàng Huy ơi!";
+            alert(msg);
+        }
+    }
+
+    // 3. XÓA 1 ITEM (Dùng Route: DELETE /api/v1/customer/cart/{id})
+    async removeItem(itemId) {
+        if (!confirm("Huy có chắc muốn bỏ món này không?")) return;
+
+        try {
+            const response = await axios.delete(`${this.apiBase}/${itemId}`);
+            if (response.data.status === "success") {
+                // Xóa xong thì nạp lại toàn bộ trang giỏ hàng cho đồng bộ
+                await this.loadCartDetail();
+                await this.updateHeaderCart();
+            }
+        } catch (error) {
+            alert("Lỗi khi xóa món hàng!");
+        }
+    }
+
+    // 4. RENDER GIAO DIỆN TRANG GIỎ HÀNG
+    renderFullCart(cartData) {
         let html = "";
-        if (cart.items.length === 0) {
+        const items = cartData.items || [];
+
+        if (items.length === 0) {
             html =
-                '<tr><td colspan="6" class="text-center">Giỏ hàng trống!</td></tr>';
+                '<tr><td colspan="7" class="text-center">Giỏ hàng của Huy đang trống!</td></tr>';
         } else {
-            cart.items.forEach((item) => {
+            items.forEach((item) => {
+                // Lưu ý: item.id ở đây là ID của dòng trong cart_items, không phải product_id
                 html += `
                 <tr>
                     <td class="goods-page-image">
-                        <a href="/product/${item.slug}"><img src="${item.image}" alt="${item.name}"></a>
+                        <a href="javascript:;"><img src="${item.product_image}" alt="${item.product_name}"></a>
                     </td>
                     <td class="goods-page-description">
-                        <h3><a href="/product/${item.slug}">${item.name}</a></h3>
-                        <p><strong>Màu:</strong> ${item.color} - <strong>Size:</strong> ${item.size}</p>
+                        <h3><a href="javascript:;">${item.product_name}</a></h3>
+                        <p><strong>SKU:</strong> ${item.sku || "N/A"}</p>
                     </td>
-                    <td class="goods-page-ref-no">${item.sku}</td>
+                    <td class="goods-page-ref-no">${item.sku || ""}</td>
                     <td class="goods-page-quantity">
                         <div class="product-quantity">
                             <input type="text" value="${item.quantity}" readonly class="form-control input-sm">
                         </div>
                     </td>
                     <td class="goods-page-price"><strong><span>$</span>${item.price}</strong></td>
-                    <td class="goods-page-total"><strong><span>$</span>${(item.price * item.quantity).toFixed(2)}</strong></td>
+                    <td class="goods-page-total"><strong><span>$</span>${item.subtotal}</strong></td>
                     <td class="del-goods-col">
                         <a class="del-goods" href="javascript:;" onclick="Cart.removeItem(${item.id})">&nbsp;</a>
                     </td>
                 </tr>`;
             });
         }
+
         this.cartTableBody.html(html);
-        // Cập nhật tổng tiền
-        $("#sub-total").text(`$${cart.subtotal}`);
-        $("#final-total").text(`$${cart.total}`);
+        this.subTotalElem.text(`$${cartData.sub_total || 0}`);
+        this.finalTotalElem.text(
+            `$${cartData.total_amount || cartData.sub_total || 0}`,
+        );
     }
 
-    // 3. Hàm xóa sản phẩm (Xử lý bất đồng bộ)
-    async removeItem(itemId) {
-        if (confirm("Huy có chắc muốn bỏ sản phẩm này không?")) {
-            try {
-                const response = await axios.delete(
-                    `${this.apiEndpoint}/remove/${itemId}`,
-                );
-                if (response.data.success) {
-                    await this.loadCartData(); // Nạp lại dữ liệu sau khi xóa
-                }
-            } catch (error) {
-                alert("Không xóa được sản phẩm rồi Huy ơi!");
+    // 5. CẬP NHẬT HEADER (Mini Cart)
+    async updateHeaderCart() {
+        try {
+            const response = await axios.get(this.apiBase);
+            if (response.data.status === "success") {
+                const cart = response.data.data;
+                const count = cart.items ? cart.items.length : 0;
+                this.miniCartCount.text(`${count} items`);
+                this.miniCartTotal.text(`$${cart.sub_total || 0}`);
             }
+        } catch (e) {
+            console.log("Lỗi update header");
         }
+    }
+
+    initEventListeners() {
+        // Bắt sự kiện cho nút "Add to Cart" ở trang chủ/danh sách
+        $(document).on("click", ".add2cart, .btn-addcart", (e) => {
+            e.preventDefault();
+            const btn = $(e.currentTarget);
+            const productId = btn.data("id");
+            if (productId) {
+                this.addToCart(productId, 1);
+            }
+        });
     }
 }
 
-// Khởi tạo đối tượng toàn cục
+// Khởi tạo toàn cục để dùng được onclick="Cart.removeItem()"
 window.Cart = new CartManager();
 $(document).ready(() => window.Cart.init());
