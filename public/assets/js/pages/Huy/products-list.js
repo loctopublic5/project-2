@@ -19,21 +19,25 @@ class ProductList {
 
     async init() {
         try {
-            // 1. Khởi tạo slider giá trước
+            // 1. Khởi tạo slider ngay (không tốn thời gian gọi API)
             this.initPriceSlider();
 
-            // 2. Phải đợi nạp xong danh mục để có cái mà click
-            await this.loadCategories();
+            console.time("Tốc độ load của Huy"); // Để Huy tự kiểm tra tốc độ dưới Console
 
-            // 3. Nạp sản phẩm và hàng bán chạy song song cho nhanh
-            await Promise.all([this.loadProducts(), this.loadBestsellers()]);
+            // 2. CHẠY SONG SONG: Tải Categories, Products và Bestsellers cùng lúc
+            // Không dùng await lẻ tẻ nữa!
+            await Promise.all([
+                this.loadCategories(),
+                this.loadProducts(this.currentPage),
+                this.loadBestsellers(),
+            ]);
 
-            // 4. CUỐI CÙNG mới gán sự kiện. Lúc này các thẻ .category-link đã hiện hồn trên web
+            console.timeEnd("Tốc độ load của Huy");
+
+            // 3. Gán sự kiện sau khi mọi thứ đã được render xong
             this.initEventListeners();
-
-            console.log("Huy ơi, tất cả đã sẵn sàng!");
         } catch (error) {
-            console.error("Lỗi nạp dữ liệu từ API:", error);
+            console.error("Huy ơi, có lỗi nạp dữ liệu rồi:", error);
         }
     }
 
@@ -49,41 +53,42 @@ class ProductList {
     }
 
     renderCategories(categories) {
-        const container = $("#sidebar-categories"); // Dùng ID cho chắc Huy nhé
+        const container = $("#sidebar-categories");
         let html = "";
 
+        // categories ở đây chính là mảng 2 phần tử cha mà Huy thấy trong console
         categories.forEach((cat) => {
-            if (!cat.parent_id) {
-                html += `
-            <li class="list-group-item clearfix dropdown">
-                <a href="javascript:void(0);" class="category-link" data-id="${cat.id}">
-                    <i class="fa fa-angle-right"></i> ${cat.name}
-                </a>
-                ${this.renderSubCategories(categories, cat.id)}
-            </li>`;
-            }
+            const hasChild = cat.children && cat.children.length > 0;
+
+            html += `
+        <li class="list-group-item clearfix dropdown">
+            <a href="javascript:void(0);" class="category-link" data-id="${cat.id}">
+                ${hasChild ? '<i class="fa fa-angle-right toggle-icon"></i>' : '<i class="fa fa-angle-right"></i>'} 
+                ${cat.name}
+            </a>
+            ${hasChild ? this.renderSubFromTree(cat.children) : ""}
+        </li>`;
         });
 
         container.html(html);
-
-        // QUAN TRỌNG: Gọi lại Layout của Metronic để nó nhận diện các menu mới vừa vẽ
-        if (typeof Layout !== "undefined") {
-            Layout.initTwitter(); // Hoặc Layout.init() tùy phiên bản Metronic bạn dùng
-        }
     }
 
-    renderSubCategories(allCategories, parentId) {
-        const subs = allCategories.filter((c) => c.parent_id === parentId);
-        if (subs.length === 0) return "";
+    renderSubFromTree(subCategories) {
+        // Mặc định ẩn sub-menu để giống trạng thái ban đầu của template
+        let subHtml =
+            '<ul class="sub-menu" style="display:none; list-style:none; padding-left: 20px;">';
 
-        let subHtml = '<ul class="dropdown-menu" style="display:block;">';
-        subs.forEach((sub) => {
+        subCategories.forEach((sub) => {
+            const hasChild = sub.children && sub.children.length > 0;
             subHtml += `
-            <li class="list-group-item dropdown clearfix">
-                <a href="javascript:void(0);" class="category-link" data-id="${sub.id}">
-                    <i class="fa fa-angle-right"></i> ${sub.name}
-                </a>
-                ${this.renderSubCategories(allCategories, sub.id)} </li>`;
+        <li style="line-height: 30px;">
+            <a href="javascript:void(0);" class="category-link" data-id="${sub.id}" style="text-decoration:none; color:#666; display: block;">
+                <i class="fa fa-angle-right toggle-icon" 
+                   style="${hasChild ? "cursor:pointer; width: 15px;" : "visibility:hidden; width: 15px;"}"></i>
+                ${sub.name}
+            </a>
+            ${hasChild ? this.renderSubFromTree(sub.children) : ""}
+        </li>`;
         });
         subHtml += "</ul>";
         return subHtml;
@@ -175,6 +180,27 @@ class ProductList {
             // Gọi hàm tải sản phẩm
             this.loadProducts();
         });
+        // Thêm đoạn này vào cuối file products-list.js hoặc trong initEventListeners
+        $(document)
+            .off("click", ".toggle-icon")
+            .on("click", ".toggle-icon", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $icon = $(this);
+                const $parentLi = $icon.closest("li");
+                const $subMenu = $parentLi.children("ul.sub-menu");
+
+                // Hiệu ứng đóng mở mượt mà
+                $subMenu.slideToggle(300);
+
+                // Xoay mũi tên: Nếu đang nghiêng thì trả về thẳng, nếu thẳng thì xoay xuống
+                if ($icon.hasClass("open")) {
+                    $icon.removeClass("open").css("transform", "rotate(0deg)");
+                } else {
+                    $icon.addClass("open").css("transform", "rotate(90deg)");
+                }
+            });
     }
 
     renderProducts(products) {
@@ -234,8 +260,14 @@ class ProductList {
                 // 3. Vẽ sản phẩm ra màn hình
                 this.renderProducts(products);
 
-                // 4. Tạm thời ẩn cái này đi nếu Backend của bạn chưa có phân trang meta
-                // this.renderPagination(response.data);
+                this.renderPagination(response.data.meta);
+            } else {
+                // Nếu backend trả về pagination nằm ở gốc response.data
+                this.renderPagination({
+                    current_page: response.data.current_page || 1,
+                    total_pages: response.data.total_pages || 1,
+                    total_items: response.data.total_items || products.length,
+                });
             }
         } catch (error) {
             console.error("Lỗi tải sản phẩm:", error);
@@ -567,5 +599,6 @@ class ProductList {
 
 // Khởi tạo
 jQuery(document).ready(function () {
-    new ProductList();
+    const app = new ProductList();
+    app.init();
 });
