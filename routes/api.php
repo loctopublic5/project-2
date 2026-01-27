@@ -11,6 +11,7 @@ use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -132,6 +133,9 @@ Route::prefix('v1')->group(function () {
 
         // User detail show
         Route::get('/user/{id}',[AdminUserController::class, 'show']);
+
+        //Profile
+        Route::put('profile/avatar/{id}', [ProfileController::class, 'updateAvatar']);
     });
 
     /* =================================================================

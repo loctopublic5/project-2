@@ -4,9 +4,107 @@ const UserProfileModule = {
 
     init: function() {
         console.log("UserProfileModule: Initializing...");
-        if (this.isLoaded) return; 
+        if (this.isLoaded) {
+            console.log("UserProfileModule: Already loaded, skipping init.");
+            return; 
+        } 
         this.loadUserDetail();
+        this.initAvatarEvents();
+
+        this.isLoaded = true;
     },
+    // 1. Khởi tạo sự kiện (Gọi hàm này trong UserProfileModule.init)
+    initAvatarEvents: function() {
+        const self = this;
+        $('#avatar-input').on('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Client-side Preview (Cập nhật tức thì để trải nghiệm mượt)
+                const reader = new FileReader();
+                reader.onload = (e) => $('#detail-avatar').attr('src', e.target.result);
+                reader.readAsDataURL(file);
+
+                // Tiến hành upload ngay
+                self.uploadAvatar(file);
+            }
+        });
+    },
+
+    // 2. Logic Xem ảnh to bằng SweetAlert2
+    viewFullAvatar: function() {
+        const currentSrc = $('#detail-avatar').attr('src');
+        Swal.fire({
+            imageUrl: currentSrc,
+            imageAlt: 'Avatar',
+            showConfirmButton: false,
+            background: 'transparent',
+            backdrop: `rgba(0,0,0,0.8)`,
+            closeButtonHtml: '&times;',
+            showCloseButton: true
+        });
+    },
+
+    // 3. Logic Upload (Dựa trên Product Module)
+    uploadAvatar: async function(file) {
+    // 1. Lấy ID từ localStorage (đã có sẵn trong logic của bạn)
+    const storedUser = JSON.parse(localStorage.getItem('admin_user'));
+    const userId = storedUser ? storedUser.id : null;
+
+    if (!userId) {
+        Swal.fire('Lỗi', 'Không tìm thấy ID người dùng', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('_method', 'PUT'); 
+
+    if (this.isUploading) return;
+        this.isUploading = true;
+
+    try {
+        // Hiển thị loading
+        $('.avatar-overlay').css('opacity', '1').html('<i class="fa fa-spinner fa-spin" style="color:white; font-size:30px;"></i>');
+
+        const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+        
+        // 2. Nối userId vào URL để khớp với Route {id}
+        const response = await window.api.post(`/api/v1/customer/profile/avatar/${userId}`, formData, config);
+
+        if (response.data.status) {
+            const newUrl = response.data.data.avatar_url;
+            $('.global-user-avatar').attr('src', newUrl);
+            
+            // Cập nhật lại cache local
+            storedUser.avatar_url = newUrl;
+            localStorage.setItem('admin_user', JSON.stringify(storedUser));
+
+            Swal.fire({ icon: 'success', title: 'Thành công', text: 'Đã cập nhật ảnh đại diện', timer: 1500, showConfirmButton: false });
+        }
+    } catch (error) {
+        console.error("Avatar Upload Error:", error);
+        Swal.fire('Lỗi', 'Không thể tải ảnh lên', 'error');
+    } finally {
+        this.isUploading = false;
+        this.resetAvatarOverlay();
+    }
+},
+
+    resetAvatarOverlay: function() {
+        const overlayHtml = `
+            <div class="overlay-content">
+                <button type="button" onclick="UserProfileModule.viewFullAvatar()" class="btn-avatar-action" title="Xem ảnh">
+                    <i class="fa fa-search-plus"></i>
+                </button>
+                <button type="button" onclick="$('#avatar-input').click()" class="btn-avatar-action" title="Đổi ảnh">
+                    <i class="fa fa-camera"></i>
+                </button>
+            </div>`;
+        $('.avatar-overlay').html(overlayHtml).css('opacity', '');
+        $('#avatar-input').val(''); // Giải phóng bộ nhớ input file
+    },
+
+
 
     loadUserDetail: async function() {
         const pathSegments = window.location.pathname.split('/').filter(s => s);

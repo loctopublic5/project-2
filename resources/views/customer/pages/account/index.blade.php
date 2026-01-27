@@ -283,10 +283,23 @@
         <div class="col-md-4 col-sm-12">
             <div class="portlet light profile-sidebar-portlet" style="border: 1px solid #eee; padding: 20px; background: #fff;">
                 <div class="profile-userpic text-center">
-                    <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
-                         class="img-responsive" alt="Avatar" 
-                         style="width: 120px; height: 120px; border-radius: 50% !important; object-fit: cover; margin: 0 auto; border: 3px solid #eee;">
-                </div>
+    <div id="avatar-wrapper" class="position-relative d-inline-block">
+        <img id="detail-avatar" src="{{ asset('admin_assets/assets/compiled/jpg/1.jpg') }}" 
+            class="img-responsive global-user-avatar" alt="Avatar">
+        
+        <div class="avatar-overlay">
+            <div class="overlay-content">
+                <button type="button" onclick="UserProfileModule.viewFullAvatar()" class="btn-avatar-action" title="Xem ảnh">
+                    <i class="fa fa-search-plus"></i>
+                </button>
+                <button type="button" onclick="$('#avatar-input').click()" class="btn-avatar-action" title="Đổi ảnh">
+                    <i class="fa fa-camera"></i>
+                </button>
+            </div>
+        </div>
+        <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+    </div>
+</div>
                 <div class="profile-usertitle text-center margin-top-20">
                     <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
                     <div class="profile-usertitle-job"> 
