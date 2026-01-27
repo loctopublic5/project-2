@@ -103,6 +103,66 @@ const UserProfileModule = {
         $('.avatar-overlay').html(overlayHtml).css('opacity', '');
         $('#avatar-input').val(''); // Giải phóng bộ nhớ input file
     },
+    openEditModal: function() {
+    // Lấy dữ liệu hiện tại từ UI đổ vào form modal
+    $('#edit-full-name').val($('#detail-name').text());
+    $('#edit-email').val($('#detail-email').text());
+    $('#edit-phone').val($('#detail-phone').text() === 'Chưa cập nhật' ? '' : $('#detail-phone').text());
+    
+    $('#modal-edit-profile').modal('show');
+},
+
+saveBasicInfo: async function() {
+    const storedUser = JSON.parse(localStorage.getItem('admin_user'));
+    const userId = storedUser ? storedUser.id : null;
+
+    if (!userId) return Swal.fire('Lỗi', 'Không tìm thấy ID người dùng', 'error');
+
+    // Thu thập dữ liệu từ form
+    const updateData = {
+        full_name: $('#edit-full-name').val(),
+        email: $('#edit-email').val(),
+        phone: $('#edit-phone').val(),
+    };
+
+    try {
+        // Hiển thị loading trên nút bấm hoặc dùng Swal
+        Swal.showLoading();
+
+        // Gửi request PUT đến API update-info/{id}
+        const response = await window.api.put(`/api/v1/customer/profile/update-info/${userId}`, updateData);
+
+        if (response.data.status) {
+            const updatedUser = response.data.data;
+
+            // 1. Cập nhật lại UI hiển thị
+            this.fillBasicInfo(updatedUser);
+
+            // 2. Cập nhật lại localStorage để đồng bộ toàn trang
+            storedUser.full_name = updatedUser.full_name;
+            storedUser.email = updatedUser.email;
+            localStorage.setItem('admin_user', JSON.stringify(storedUser));
+
+            // 3. Đóng modal và thông báo
+            $('#modal-edit-profile').modal('hide');
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: 'Thông tin đã được cập nhật!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    } catch (error) {
+        console.error("Update Profile Error:", error);
+        let msg = 'Không thể cập nhật thông tin';
+        if (error.response && error.response.data.errors) {
+            // Lấy lỗi đầu tiên từ validation của Laravel
+            msg = Object.values(error.response.data.errors)[0][0];
+        }
+        Swal.fire('Thất bại', msg, 'error');
+    }
+},
 
 
 

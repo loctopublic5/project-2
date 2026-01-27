@@ -6,8 +6,9 @@ use Exception;
 use App\Traits\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Services\Customer\ProfileService;
-use App\Http\Resources\Customer\UserResource;
+use App\Http\Resources\Admin\UserResource;
 use App\Http\Requests\Customer\UpdateAvatarRequest;
+use App\Http\Requests\Customer\UpdateProfileRequest;
 
 class ProfileController extends Controller
 {
@@ -38,6 +39,20 @@ class ProfileController extends Controller
         );
     } catch (Exception $e) {
         return $this->error($e->getMessage(), 500);
+    }
+}
+    public function updateInfo(UpdateProfileRequest $request, $id)
+{
+    try {
+        $data = $request->validated();
+        $updatedUser = $this->profileService->updateInfo($id, $data);
+
+        return $this->success(
+            new UserResource($updatedUser),
+            'Cập nhật thông tin tài khoản thành công!'
+        );
+    } catch (Exception $e) {
+        return $this->error('Có lỗi xảy ra: ' . $e->getMessage(), 500);
     }
 }
 }

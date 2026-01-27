@@ -135,7 +135,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/user/{id}',[AdminUserController::class, 'show']);
 
         //Profile
-        Route::put('profile/avatar/{id}', [ProfileController::class, 'updateAvatar']);
+        Route::prefix('profile')->group(function(){
+        Route::put('/avatar/{id}', [ProfileController::class, 'updateAvatar']);
+        Route::put('/update-info/{id}', [ProfileController::class, 'updateInfo']);
+        });
     });
 
     /* =================================================================

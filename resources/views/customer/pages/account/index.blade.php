@@ -299,6 +299,9 @@
         </div>
         <input type="file" id="avatar-input" accept="image/*" style="display: none;">
     </div>
+    <button type="button" class="btn btn-sm btn-primary" onclick="UserProfileModule.openEditModal()">
+    <i class="fa fa-edit"></i> Chỉnh sửa thông tin
+</button>
 </div>
                 <div class="profile-usertitle text-center margin-top-20">
                     <div class="profile-usertitle-name" id="detail-name" style="font-size: 20px; font-weight: 600;"> Đang tải... </div>
@@ -469,6 +472,35 @@
                 <button type="button" class="btn btn-primary btn-lg mt-10" style="min-width: 150px;" onclick="WalletModule.handleDeposit()">
                     XÁC NHẬN NẠP <i class="fa fa-arrow-right"></i>
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-edit-profile" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cập nhật thông tin cá nhân</h4>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-profile">
+                    <div class="form-group">
+                        <label>Họ và tên</label>
+                        <input type="text" class="form-control" id="edit-full-name" name="full_name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="edit-email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" class="form-control" id="edit-phone" name="phone">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="UserProfileModule.saveBasicInfo()">Lưu thay đổi</button>
             </div>
         </div>
     </div>

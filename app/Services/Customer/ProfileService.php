@@ -41,4 +41,25 @@ class ProfileService
             throw $e;
         }
     }
+
+    public function updateInfo($id, array $data)
+{
+    $user = User::findOrFail($id);
+
+    DB::beginTransaction();
+    try {
+        // Chỉ cập nhật các trường được phép
+        $user->update([
+            'full_name' => $data['full_name'],
+            'email'     => $data['email'],
+            'phone'     => $data['phone'] ?? $user->phone,
+        ]);
+
+        DB::commit();
+        return $user->refresh();
+    } catch (Exception $e) {
+        DB::rollBack();
+        throw $e;
+    }
+}
 }
