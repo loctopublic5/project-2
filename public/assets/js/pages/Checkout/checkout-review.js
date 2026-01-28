@@ -100,3 +100,154 @@ Checkout.OrderReview = (function () {
         }
     };
 })();
+// 1. Cập nhật hàm placeOrder trong module hiện tại của bạn
+Checkout.OrderReview.placeOrder = async function () {
+    const $btn = $('#button-confirm');
+    
+    if (!Checkout.data.selectedAddressId || !$('input[name="payment_method"]:checked').val()) {
+        return Swal.fire('Lỗi', 'Vui lòng hoàn thành đầy đủ thông tin thanh toán.', 'error');
+    }
+
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...');
+
+    try {
+        const payload = {
+            address_id: Checkout.data.selectedAddressId,
+            payment_method: $('input[name="payment_method"]:checked').val(),
+            note: $('#delivery-payment-method').val(),
+        };
+
+        const response = await window.api.post('/api/v1/customer/orders', payload);
+
+        if (response.data.status) {
+            const orderId = response.data.data.id;
+
+            // Hiển thị SweetAlert2 đẹp mắt
+            Swal.fire({
+                title: '🎉 Đặt hàng thành công!',
+                text: "Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.",
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#444',
+                confirmButtonText: '<i class="fa fa-eye"></i> Xem đơn hàng',
+                cancelButtonText: '<i class="fa fa-home"></i> Về trang chủ',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    OrderModule.showOrderDetail(orderId);
+                } else {
+                    window.location.href = '/';
+                }
+            });
+
+            // RESET GIỎ HÀNG & UI
+            if (window.AppCart) window.AppCart.refresh(); // Giả định bạn có module cart chung
+        }
+    } catch (err) {
+        $btn.prop('disabled', false).text('XÁC NHẬN ĐẶT HÀNG');
+        Checkout.handleAjaxError(err);
+    }
+};
+
+// 2. Tạo Module Order độc lập (Dùng chung cho cả Lịch sử đơn hàng)
+var OrderModule = (function () {
+    return {
+        showOrderDetail: async function (orderId) {
+            try {
+                // Hiển thị loading nhẹ
+                $('#order-modal-body').html('<div class="text-center"><i class="fa fa-refresh fa-spin fa-3x"></i><p>Đang tải chi tiết...</p></div>');
+                $('#orderDetailModal').modal('show');
+
+                const res = await window.api.get(`/api/v1/customer/orders/${orderId}`);
+                if (res.data.status) {
+                    this.renderOrderDetail(res.data.data);
+                }
+            } catch (e) {
+                $('#orderDetailModal').modal('hide');
+                Swal.fire('Lỗi', 'Không thể lấy thông tin đơn hàng.', 'error');
+            }
+        },
+
+        renderOrderDetail: function (data) {
+    const addr = data.shipping_address;
+    $('#md-order-code').text(`[${data.code}]`);
+
+    let itemsHtml = data.items.map(item => {
+        // Xử lý hiển thị Options (Màu sắc, Size...)
+        let optionsHtml = '';
+        if (item.options && Object.keys(item.options).length > 0) {
+            const labels = Object.entries(item.options).map(([key, val]) => `${val}`);
+            optionsHtml = `<div class="text-muted" style="font-size: 11px;">
+                            <i class="fa fa-tags"></i> ${labels.join(', ')}
+                          </div>`;
+        }
+
+        return `
+            <tr>
+                <td class="text-center">
+                    <img src="${item.thumbnail}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
+                </td>
+                <td>
+                    <div class="bold" style="color: #333;">${item.product_name}</div>
+                    ${optionsHtml}
+                </td>
+                <td class="text-center">${item.quantity}</td>
+                <td class="text-right">${Checkout.formatPrice(item.price)}</td>
+                <td class="text-right bold">${Checkout.formatPrice(item.total_line)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    let html = `
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-md-6">
+                <div class="well" style="background: #fff; border: 1px dashed #ccc; min-height: 130px;">
+                    <h4 class="bold uppercase" style="color: #e84d1c; margin-top:0; font-size: 14px;">Địa chỉ nhận hàng</h4>
+                    <p style="margin-bottom: 5px;"><strong>${addr.recipient_name}</strong></p>
+                    <p style="margin-bottom: 5px;"><i class="fa fa-phone"></i> ${addr.phone}</p>
+                    <p style="margin-bottom: 0; font-size: 12px; color: #666;"><i class="fa fa-map-marker"></i> ${addr.address_detail}</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="well" style="background: #fff; border: 1px dashed #ccc; min-height: 130px;">
+                    <h4 class="bold uppercase" style="color: #2e6da4; margin-top:0; font-size: 14px;">Trạng thái đơn hàng</h4>
+                    <p>Trạng thái: <span class="label label-${data.status.color}">${data.status.label}</span></p>
+                    <p>Thanh toán: <span class="badge badge-primary" style="background: #578ebe;">${data.payment_method}</span></p>
+                    <p style="margin-bottom: 0;">Ngày đặt: <small>${data.created_at}</small></p>
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr style="background: #f5f5f5;">
+                    <th class="text-center" width="10%">Ảnh</th>
+                    <th>Sản phẩm</th>
+                    <th class="text-center" width="10%">SL</th>
+                    <th class="text-right" width="20%">Đơn giá</th>
+                    <th class="text-right" width="20%">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>${itemsHtml}</tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-md-7">
+                ${data.note ? `<div class="alert alert-warning" style="padding: 10px;"><b>Ghi chú:</b> ${data.note}</div>` : ''}
+            </div>
+            <div class="col-md-5 text-right">
+                <div style="font-size: 13px; line-height: 2;">
+                    <div>Tạm tính: <span class="bold">${Checkout.formatPrice(data.subtotal)}</span></div>
+                    <div>Phí vận chuyển: <span class="bold">${Checkout.formatPrice(data.shipping_fee)}</span></div>
+                    ${data.discount > 0 ? `<div>Giảm giá: <span class="bold text-danger">-${Checkout.formatPrice(data.discount)}</span></div>` : ''}
+                    <hr style="margin: 10px 0;">
+                    <div style="font-size: 18px; color: #e84d1c;">Tổng thanh toán: <span class="bold">${Checkout.formatPrice(data.total_amount)}</span></div>
+                </div>
+            </div>
+        </div>
+    `;
+    $('#order-modal-body').html(html);
+}
+    };
+})();

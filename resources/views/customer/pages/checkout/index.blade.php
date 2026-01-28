@@ -454,7 +454,24 @@
 </div>
 <div class="steps-block steps-block-red">
     </div>
-
+<div id="orderDetailModal" class="modal fade" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-hoki">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title uppercase bold" style="color:#fff">
+                    <i class="fa fa-shopping-cart"></i> Chi tiết đơn hàng <span id="md-order-code"></span>
+                </h4>
+            </div>
+            <div class="modal-body" id="order-modal-body" style="background: #fdfdfd;">
+                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default uppercase bold" onclick="window.location.href='/'">Tiếp tục mua sắm</button>
+                <button type="button" class="btn btn-primary uppercase bold" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- END REVIEW & CONFIRM -->
 <!---------------------------------------------------------------------------------------------------------------------------------------->
 @endsection
