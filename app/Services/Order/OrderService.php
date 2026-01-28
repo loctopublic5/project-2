@@ -199,7 +199,7 @@ public function confirmReceived($userId, $orderId)
             // 1. Lấy đơn hàng (Có check quyền sở hữu của User)
             // Dùng lockForUpdate để tránh Admin confirm cùng lúc User bấm hủy
             $order = Order::where('id', $orderId)
-                        ->where('user_id', $orderId)
+                        ->where('user_id', $user->id)
                         ->lockForUpdate()
                         ->first();
         

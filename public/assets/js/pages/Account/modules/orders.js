@@ -178,29 +178,56 @@ const OrderModule = {
 
     // --- HÀNH ĐỘNG: HỦY ĐƠN ---
     cancelOrder: function(id) {
-        Swal.fire({
-            title: 'Hủy đơn hàng này?',
-            text: "Vui lòng cho biết lý do hủy đơn:",
-            input: 'text',
-            inputPlaceholder: 'Lý do (không bắt buộc)',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Xác nhận hủy'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    await window.api.put(`/api/v1/customer/orders/${id}/cancel`, { reason: result.value });
-                    Swal.fire('Đã hủy', 'Đơn hàng của bạn đã được hủy thành công.', 'success');
-                    this.loadOrders();
-                    // Nếu Dashboard đang mở thì cập nhật lại luôn
-                    if(typeof DashboardModule !== 'undefined') DashboardModule.init(); 
-                } catch (err) {
-                    Swal.fire('Thất bại', err.response?.data?.message || 'Không thể hủy đơn', 'error');
-                }
+    if (!id) {
+        Swal.fire('Lỗi', 'Không tìm thấy ID đơn hàng', 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: 'Hủy đơn hàng này?',
+        text: "Lưu ý: Hành động này không thể hoàn tác!",
+        input: 'select', // Thay vì text, dùng select để user chọn lý do nhanh hơn
+        inputOptions: {
+            'Thay đổi ý định': 'Thay đổi ý định',
+            'Tìm thấy giá rẻ hơn': 'Tìm thấy giá rẻ hơn',
+            'Thời gian giao hàng quá lâu': 'Thời gian giao hàng quá lâu',
+            'Đặt trùng đơn': 'Đặt trùng đơn',
+            'other': 'Lý do khác...'
+        },
+        inputPlaceholder: '-- Chọn lý do hủy --',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Xác nhận hủy',
+        cancelButtonText: 'Đóng',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Bạn cần chọn một lý do!';
             }
-        });
-    },
+        }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                // Hiển thị loading trên nút confirm của Swal
+                Swal.showLoading();
+
+                // Gửi request PUT với ID trong URL và reason trong body
+                const response = await window.api.put(`/api/v1/customer/orders/${id}/cancel`, { 
+                    reason: result.value 
+                });
+
+                if (response.data.status) {
+                    Swal.fire('Đã hủy', 'Đơn hàng đã được hủy thành công.', 'success');
+                    this.loadOrders(); // Reload lại danh sách
+                    if(typeof DashboardModule !== 'undefined') DashboardModule.init(); 
+                }
+            } catch (err) {
+                console.error("Cancel Error:", err);
+                Swal.fire('Thất bại', err.response?.data?.message || 'Không thể hủy đơn hàng này.', 'error');
+            }
+        }
+    });
+},
 
     confirmReceived: function(id) {
     console.log("Đang kích hoạt xác nhận cho đơn hàng ID:", id); // Dòng này để kiểm tra xem nút có ăn click không
