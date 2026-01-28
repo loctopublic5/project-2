@@ -58,6 +58,9 @@
     <script src="{{ asset('assets/js/pages/Header/new.js') }}"></script>
     <script src="{{ asset('assets/js/pages/Header/Cart.js') }}"></script>
 
+    
+
+
     <script type="text/javascript">
         jQuery(document).ready(function() {
             Layout.init(); // Khởi tạo chung
