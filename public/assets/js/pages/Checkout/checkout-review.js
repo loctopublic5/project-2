@@ -120,30 +120,32 @@ Checkout.OrderReview.placeOrder = async function () {
         const response = await window.api.post('/api/v1/customer/orders', payload);
 
         if (response.data.status) {
-            const orderId = response.data.data.id;
+    const orderId = response.data.data.id;
 
-            // Hiển thị SweetAlert2 đẹp mắt
-            Swal.fire({
-                title: '🎉 Đặt hàng thành công!',
-                text: "Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.",
-                icon: 'success',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#444',
-                confirmButtonText: '<i class="fa fa-eye"></i> Xem đơn hàng',
-                cancelButtonText: '<i class="fa fa-home"></i> Về trang chủ',
-                allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    OrderModule.showOrderDetail(orderId);
-                } else {
-                    window.location.href = '/';
-                }
-            });
-
-            // RESET GIỎ HÀNG & UI
-            if (window.AppCart) window.AppCart.refresh(); // Giả định bạn có module cart chung
+    Swal.fire({
+        title: '🎉 Đặt hàng thành công!',
+        text: "Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.",
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa fa-eye"></i> Xem đơn hàng',
+        cancelButtonText: '<i class="fa fa-home"></i> Tiếp tục mua sắm',
+        allowOutsideClick: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // KHẮC PHỤC TREO: Đợi một nhịp nhỏ (200-300ms) để SWAL dọn dẹp backdrop
+            setTimeout(() => {
+                OrderModule.showOrderDetail(orderId);
+            }, 300);
+        } else {
+            window.location.href = '/';
         }
+    });
+
+    // QUAN TRỌNG: Reset nút bấm và dọn dẹp giỏ hàng ngay lập tức
+    $btn.prop('disabled', false).text('XÁC NHẬN ĐẶT HÀNG');
+    
+    if (window.AppCart) window.AppCart.refresh();
+}
     } catch (err) {
         $btn.prop('disabled', false).text('XÁC NHẬN ĐẶT HÀNG');
         Checkout.handleAjaxError(err);
