@@ -24,6 +24,12 @@
 
     {{-- LỖ 2: Dành cho các Plugin đặc thù của từng trang (Ví dụ: Uniform) --}}
     @yield('extra_plugins')
+    
+    <link rel="shortcut icon" href="favicon.ico">
+
+  <!-- Fonts START -->
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|PT+Sans+Narrow|Source+Sans+Pro:200,300,400,600,700,900&amp;subset=all" rel="stylesheet" type="text/css"> 
+  <!-- Fonts END -->
 
     <link rel="stylesheet" href="{{ asset('assets/pages/css/components.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/pages/css/style-shop.css') }}">
