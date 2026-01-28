@@ -352,6 +352,42 @@ class ProductList {
                 }
             });
     }
+    addToCart(productId) {
+        // 1. Kiểm tra đăng nhập đơn giản
+        const token = localStorage.getItem("admin_token");
+        if (!token) {
+            alert("Huy ơi, bạn cần đăng nhập để mua hàng!");
+            window.location.href = "/login";
+            return;
+        }
+
+        // UX: Đổi nút thành Processing
+        const $btn = $(`.js-add-to-cart[data-id="${productId}"]`);
+        const originalText = $btn.html();
+        $btn.html('<i class="fa fa-spinner fa-spin"></i>').prop(
+            "disabled",
+            true,
+        );
+
+        // 2. Gửi Request (Rút gọn tối đa để dùng cấu hình tự động)
+        window.api
+            .post("/api/v1/customer/cart", {
+                product_id: productId,
+                quantity: 1,
+            })
+            .then((res) => {
+                alert("Đã thêm vào giỏ hàng!");
+                // Bắn tín hiệu để CartManager load lại
+                window.dispatchEvent(new Event("cart:updated"));
+            })
+            .catch((err) => {
+                console.error("Lỗi:", err);
+                alert("Lỗi rồi Huy ơi! Check lại Console nhé.");
+            })
+            .finally(() => {
+                $btn.html(originalText).prop("disabled", false);
+            });
+    }
 
     createProductHTML(product) {
         const { pricing, info, inventory } = product;
@@ -384,9 +420,12 @@ class ProductList {
                     ${hasSale ? `<span style="text-decoration: line-through; color: #bbb; margin-left: 8px; font-weight: normal;">${this.formatPrice(pricing.original_price)}</span>` : ""}
                 </div>
                 
-                <a href="javascript:void(0);" class="btn btn-default add2cart" data-id="${product.id}" ${!inventory.in_stock ? "disabled" : ""}>
-                    <i class="fa fa-shopping-cart"></i> Add to cart
-                </a>
+                <a href="javascript:void(0);" 
+   class="btn btn-default add2cart js-add-to-cart" 
+   data-id="${product.id}" 
+   ${!inventory.in_stock ? "disabled" : ""}>
+    <i class="fa fa-shopping-cart"></i> Add to cart
+</a>
 
                 ${hasSale ? `<div class="sticker sticker-sale"></div>` : ""}
                 
@@ -401,18 +440,21 @@ class ProductList {
     initProductEvents() {
         const self = this;
 
-        $(".add2cart")
-            .off("click")
-            .on("click", function () {
-                const productId = $(this).data("id");
-                self.addToCart(productId);
-            });
-
         $(".quick-view")
             .off("click")
             .on("click", function () {
                 const productId = $(this).data("id");
                 self.showQuickView(productId);
+            });
+
+        $(".js-add-to-cart")
+            .off("click")
+            .on("click", function (e) {
+                e.preventDefault();
+                const productId = $(this).data("id");
+
+                // Gọi hàm thêm hàng
+                self.addToCart(productId);
             });
 
         // Fancybox
@@ -526,31 +568,14 @@ class ProductList {
             console.error("Lỗi Quick View:", error);
         }
     }
-    async updateCartCount() {
-        try {
-            const response = await axios.get("/api/v1/customer/cart");
-            if (response.data.status) {
-                const items = response.data.data;
-                const count = items.length;
-                const total = items.reduce(
-                    (sum, item) => sum + item.price * item.quantity,
-                    0,
-                );
-
-                $(".top-cart-info-count").text(`${count} items`);
-                $(".top-cart-info-value").text(this.formatPrice(total));
-            }
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    }
 }
 
 // Khởi tạo
 // Cuối file products-list.js
-if (typeof window.huyProductApp === "undefined") {
-    window.huyProductApp = null;
-}
-
-// Không gọi app.init() trực tiếp ở đây nữa để tránh xung đột với file Blade
-console.log("File products-list.js đã sẵn sàng!");
+$(document).ready(() => {
+    // Đảm bảo chỉ khởi tạo 1 lần
+    if (!window.huyProductApp) {
+        window.huyProductApp = new ProductList();
+        window.huyProductApp.init();
+    }
+});
