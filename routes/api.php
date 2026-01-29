@@ -123,6 +123,7 @@ Route::prefix('v1')->group(function () {
 
         // PRODUCT REVIEW ROUTES (Role: Customer)
         Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store']);
+        Route::get('products/{id}/reviews', [ProductReviewController::class, 'index']);
 
         // Notification Routes
         Route::prefix('notifications')->group(function(){

@@ -144,188 +144,189 @@
                 </div>
             </div>
 <style>
-    /* 1. Thiết lập lưới 3 cột chuẩn */
-    #real-product-container {
-        display: block !important;
-        clear: both;
-    }
-
-    #real-product-container .col-md-4 {
-        width: 33.333% !important;
-        float: left !important;
-        padding: 10px !important;
-        margin-bottom: 20px;
-    }
-
-    /* 2. ÉP CHIỀU CAO TỔNG THỂ CỦA CARD SẢN PHẨM */
+    /* 1. GRID SẢN PHẨM NGOÀI DANH SÁCH */
+    #real-product-container { display: flex; flex-wrap: wrap; margin: 0 -10px; }
+    .product-grid-item { padding: 10px; width: 33.333%; }
     .product-item {
-        padding: 10px;
-        background: #fff;
-        border: 1px solid #eee;
-        /* Ép tất cả các khung sản phẩm cao bằng nhau (500px) */
-        height: 440px !important; 
-        position: relative;
+        padding: 15px; background: #fff; border: 1px solid #eee;
+        height: 100%; display: flex; flex-direction: column;
+        transition: all 0.3s; position: relative;
+    }
+    .product-item:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-color: #e84d1c; }
+    .pi-img-wrapper { height: 250px; overflow: hidden; position: relative; }
+    .pi-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+    .product-item h3 { font-size: 16px; height: 40px; overflow: hidden; margin: 15px 0 10px; }
+    .pi-price { color: #e84d1c; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+
+    .sticker-out-of-stock {
+        position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.7);
+        color: #fff; padding: 4px 10px; font-size: 11px; font-weight: bold;
+        text-transform: uppercase; z-index: 2; border-radius: 2px;
+    }
+
+    /* 2. PHÓNG TO MODAL & XỬ LÝ TRÀN DATA */
+    #product-pop-up {
+        padding: 25px; background: #fff; border-radius: 4px;
+        max-width: 900px; /* Tăng chiều rộng để data thở */
+    }
+    
+    .product-pop-up .row {
+        display: flex; /* Dùng flex để hai cột bằng chiều cao nhau */
+        flex-wrap: wrap;
+    }
+
+    .product-pop-up .product-main-image {
+        border: 1px solid #f4f4f4; margin-bottom: 15px;
+        height: 450px; /* Tăng chiều cao ảnh */
+        display: flex; align-items: center; justify-content: center;
+    }
+    .product-pop-up .product-main-image img {
+        max-height: 100%; width: auto; object-fit: contain;
+    }
+
+    /* Cột chi tiết bên phải */
+    .product-details-container {
         display: flex;
         flex-direction: column;
+        height: 100%;
+        padding-left: 10px;
     }
 
-    /* 3. KHUNG ẢNH: Đã fix đẹp */
-    .product-item .pi-img-wrapper {
-        height: 320px !important;
-        width: 100%;
-        overflow: hidden;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f9f9f9;
+    #modal-product-name {
+        font-size: 26px; font-weight: 700; margin: 0 0 10px 0;
+        color: #333; line-height: 1.2;
     }
 
-    .product-item .pi-img-wrapper img {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important; /* Lấp đầy khung không để khoảng trắng */
+    .price-availability-block {
+        margin: 10px 0; padding: 10px 0;
+        border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;
+    }
+    #modal-product-price { font-size: 28px; color: #e84d1c; font-weight: bold; }
+    #modal-product-old-price { text-decoration: line-through; color: #999; margin-left: 10px; font-size: 16px; }
+
+    /* Xử lý phần mô tả không bị dính thanh cuộn */
+    #modal-product-desc {
+        margin: 10px 0; line-height: 1.5; color: #666; font-size: 14px;
+        /* Không set max-height cố định để nó tự giãn theo chữ */
     }
 
-    /* 4. TÊN SẢN PHẨM: Ép chiều cao cố định cho 2 dòng */
-    .product-item h3 {
-        font-size: 15px !important;
-        height: 44px !important; /* Đủ cho 2 dòng chữ */
-        margin-bottom: 10px !important;
-        overflow: hidden;
-        line-height: 22px !important;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
+    .product-page-options-wrapper { margin-top: 10px; }
+    .option-row { margin-bottom: 15px; }
+    .option-row label {
+        display: block; font-weight: bold; font-size: 12px;
+        color: #333; margin-bottom: 5px; text-transform: uppercase;
     }
+    .option-row select { width: 100%; height: 38px; border: 1px solid #ccc; }
 
-    /* 5. PHẦN GIÁ VÀ NÚT BẤM: Đẩy xuống đáy khung */
-    .product-item .pi-price {
-        color: #e84d1c;
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 15px !important;
+    /* Khu vực nút bấm nằm dưới cùng */
+    .product-page-cart {
+        margin-top: auto; /* Đẩy xuống đáy cột */
+        padding-top: 20px; border-top: 1px solid #f4f4f4;
+        display: flex; align-items: flex-end; gap: 15px;
     }
+    .qty-wrapper { width: 120px; }
+    .qty-wrapper label { font-size: 11px; font-weight: bold; margin-bottom: 5px; display: block; }
 
-
-    /* Ép nút Add to Cart nằm ở hàng cuối cùng của khung 500px */
-    .product-item .btn-addcart {
-        margin-top: auto; /* Tự động đẩy xuống dưới cùng */
-        align-self: flex-start;
-        padding: 6px 15px;
-        text-transform: uppercase;
+    .btn-add-cart-lg {
+        flex: 1; height: 42px; background: #e84d1c !important;
+        color: #fff; border: none; font-weight: bold; text-transform: uppercase;
     }
+    .btn-add-cart-lg:hover { background: #c13b13 !important; }
 
-    /* 6. Fix lỗi float sau mỗi 3 ảnh */
-    #real-product-container .col-md-4:nth-child(3n+1) {
-        clear: both !important;
+    /* Gallery Thumbs */
+    #modal-product-gallery { display: flex; gap: 8px; flex-wrap: wrap; }
+    .thumb-item {
+        width: 60px; height: 60px; border: 1px solid #ddd;
+        cursor: pointer; padding: 2px;
     }
-    /* CSS cho Toast Thông báo */
-.cart-toast {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 30px 50px;
-    border-radius: 8px;
-    text-align: center;
-    z-index: 9999;
-    display: none; /* Ẩn mặc định */
+    .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb-item.active { border-color: #e84d1c; }
+
+    /* Fancybox Fix */
+    .fancybox-skin { padding: 0 !important; }
+
+    /* Tùy chỉnh thanh cuộn cho danh sách review */
+#modal-reviews-list::-webkit-scrollbar {
+    width: 5px;
+}
+#modal-reviews-list::-webkit-scrollbar-thumb {
+    background: #eee;
+    border-radius: 10px;
+}
+#modal-reviews-list::-webkit-scrollbar-thumb:hover {
+    background: #ddd;
 }
 
-.cart-toast .icon-check {
-    background: #26bc94;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 25px;
-    margin: 0 auto 15px;
+.review-item:last-child {
+    border-bottom: none !important;
 }
-    
+
+/* Sticker và giao diện chung của Siêu Modal */
+.product-reviews-section {
+    background: #fcfcfc;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 25px;
+}
 </style>
 
 <!-- END PRODUCT LIST -->
 
 
     <!-- BEGIN fast view of a product -->
-<div id="product-pop-up" style="display: none; width: 700px;">
-    <div class="product-page product-pop-up" style="min-height: auto; padding: 15px;">
+<div id="product-pop-up" style="display: none;">
+    <div class="product-page product-pop-up">
         <div class="row">
-            <div class="col-md-6 col-sm-6 col-xs-3">
+            <div class="col-md-6 col-sm-6">
                 <div class="product-main-image">
-                    <img src="assets/pages/img/products/model7.jpg" id="modal-main-img"
-                         style="width: 100%; height: 420px; object-fit: cover; object-position: top; ">
+                    <img id="modal-product-image" src="" class="img-responsive">
                 </div>
-                <div class="product-other-images">
-                    <a href="javascript:;" class="active change-main-image" data-image="assets/pages/img/products/model3.jpg">
-                        <img alt="Thumb" src="assets/pages/img/products/model3.jpg">
-                    </a>
-                    <a href="javascript:;" class="change-main-image" data-image="assets/pages/img/products/model4.jpg">
-                        <img alt="Thumb" src="assets/pages/img/products/model4.jpg">
-                    </a>
-                    <a href="javascript:;" class="change-main-image" data-image="assets/pages/img/products/model5.jpg">
-                        <img alt="Thumb" src="assets/pages/img/products/model5.jpg">
-                    </a>
+                <div id="modal-product-gallery"></div>
+            </div>
+            
+            <div class="col-md-6 col-sm-6">
+                <div class="product-details-container">
+                    <h1 id="modal-product-name"></h1>
+                    
+                    <div class="price-availability-block clearfix">
+                        <div class="price">
+                            <strong id="modal-product-price"></strong>
+                            <em id="modal-product-old-price" style="display:none;"></em>
+                        </div>
+                        <div class="availability">
+                            Trạng thái: <strong id="modal-product-status"></strong>
+                        </div>
+                    </div>
+
+                    <div id="modal-product-desc"></div>
+
+                    <div class="product-page-options-wrapper">
+                        <div id="modal-product-attributes"></div>
+                    </div>
+
+                    <div class="product-page-cart">
+                        <div class="qty-wrapper">
+                            <label>Số lượng</label>
+                            <div class="product-quantity">
+                                <input id="modal-product-quantity" type="text" value="1" readonly class="form-control">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-add-cart-lg" id="btn-modal-add-to-cart">
+                            <i class="fa fa-shopping-cart"></i> Add To Cart
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-9">
-                <h1 id="modal-product-name">Cool green dress with red bell</h1>
-                <div class="price-availability-block clearfix">
-                    <div class="price">
-                        <strong id="modal-product-price"><span>$</span>47.00</strong>
-                        <em id="modal-product-old-price">$<span>62.00</span></em>
-                    </div>
-                    <div class="availability">
-                        Availability: <strong>In Stock</strong>
-                    </div>
-                </div>
-                <div class="description">
-                    <p id="modal-product-desc">Lorem ipsum dolor ut sit ame dolore adipiscing elit...</p>
-                </div>
-                
-                <div class="product-page-options">
-                    <div class="pull-left">
-                        <label class="control-label">Size:</label>
-                        <select id="product-size" class="form-control input-sm">
-                            <option value="L">L</option>
-                            <option value="M">M</option>
-                            <option value="XL">XL</option>
-                        </select>
-                    </div>
-                    <div class="pull-left">
-                        <label class="control-label">Color:</label>
-                        <select id="product-color" class="form-control input-sm">
-                            <option value="Red">Red</option>
-                            <option value="Blue">Blue</option>
-                            <option value="Black">Black</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="product-page-cart">
-                    <div class="product-quantity">
-                        <input id="product-quantity" type="text" value="1" readonly name="product-quantity" class="form-control input-sm">
-                    </div>
-                    <button class="btn btn-primary js-add-to-cart-modal" type="button">Add to cart</button>
-                </div>
-            </div>
-
-            <div class="sticker sticker-sale"></div>
         </div>
     </div>
+
+    <div class="product-reviews-section" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+    <h4 class="bold" style="text-transform: uppercase; font-size: 14px; margin-bottom: 20px;">
+        Đánh giá từ khách hàng (<span id="modal-review-count">0</span>)
+    </h4>
+    <div id="modal-reviews-list" style="max-height: 300px; overflow-y: auto;">
+        </div>
 </div>
-    </div>
-   </div>
-   </div> 
-   </div>
-<div id="cart-success-toast" class="cart-toast">
-    <div class="icon-check">✓</div>
-    <p style="margin: 0; font-size: 16px;">Sản phẩm đã được thêm vào Giỏ hàng</p>
 </div>
     <!-- END fast view of a product -->
 @endsection

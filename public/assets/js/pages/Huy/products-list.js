@@ -232,6 +232,8 @@ class ProductList {
 
             if (response.data.status === true) {
                 const products = response.data.data;
+
+                this.products = products;
                 console.log("Danh sách sản phẩm nhận được:", products);
 
                 this.renderProducts(products);
@@ -351,277 +353,343 @@ class ProductList {
     }
     // Cập nhật lại hàm trong class ProductList
     addToCart(productId, options = {}) {
-        const token = localStorage.getItem("admin_token");
-        console.log("Check data:", options);
-        if (!token) {
-            alert("Bạn cần đăng nhập để mua hàng!");
-            window.location.href = "/login";
-            return;
-        }
-
-        // 1. CHUẨN HÓA DỮ LIỆU
-        const inputQty = $(".js-product-quantity").val();
-        const finalQuantity = options.quantity || parseInt(inputQty) || 1;
-
-        // CHUẨN HÓA: Chỉ lấy đúng size và color nếu có
-        // Nếu không có (trang ngoài), cleanOptions sẽ là {}
-        let cleanOptions = {};
-        if (options.size) cleanOptions.size = options.size;
-        if (options.color) cleanOptions.color = options.color;
-
-        const bodyData = {
-            product_id: parseInt(productId),
-            quantity: parseInt(finalQuantity),
-            // KHÔNG GỬI MẢNG RỖNG [], hãy gửi Object {} đồng nhất
-            options: cleanOptions,
-        };
-
-        // Hiệu ứng Loading cho nút (nếu có btn truyền vào)
-        const $btn = options.event
-            ? $(options.event.currentTarget)
-            : $(`.js-add-to-cart[data-id="${productId}"]`);
-        const originalText = $btn.html();
-        $btn.html('<i class="fa fa-spinner fa-spin"></i>').prop(
-            "disabled",
-            true,
-        );
-
-        // Gửi request kèm đầy đủ data
-
-        window.api
-            .post("/api/v1/customer/cart", bodyData) // Dùng bodyData Huy đã tạo ở trên
-            .then((res) => {
-                // 1. Đóng Modal nhanh
-                if ($.fancybox) $.fancybox.close();
-
-                // 2. Hiện thông báo "xịn" thay vì alert
-                const $toast = $("#cart-success-toast");
-                $toast.fadeIn(300); // Hiện lên mượt mà
-
-                // 3. Tự động ẩn sau 2 giây
-                setTimeout(() => {
-                    $toast.fadeOut(300);
-                }, 2000);
-
-                // 4. Kích hoạt cập nhật lại số lượng giỏ hàng trên Header
-                window.dispatchEvent(new Event("cart:updated"));
-            })
-            .catch((err) => {
-                // CẦN THIẾT: Bắt lỗi 400 để thông báo cho người dùng
-                console.error("Lỗi 400:", err.response?.data);
-                alert(
-                    err.response?.data?.message ||
-                        "Lỗi dữ liệu, kiểm tra lại sản phẩm nhé!",
-                );
-            })
-            .finally(() => {
-                // CẦN THIẾT: Mở lại nút bấm dù thành công hay thất bại
-                $btn.html(originalText).prop("disabled", false);
-            });
+    const token = localStorage.getItem("admin_token");
+    if (!token) {
+        Swal.fire('Thông báo', 'Bạn cần đăng nhập để thực hiện chức năng này', 'info')
+            .then(() => window.location.href = "/login");
+        return;
     }
+
+    const bodyData = {
+        product_id: parseInt(productId),
+        quantity: parseInt(options.quantity || 1),
+        options: options.options || {} 
+    };
+
+    const $btn = options.event ? $(options.event.currentTarget) : $(`.js-add-to-cart[data-id="${productId}"]`);
+    const originalText = $btn.html();
+    $btn.html('<i class="fa fa-spinner fa-spin"></i>').prop("disabled", true);
+
+    window.api.post("/api/v1/customer/cart", bodyData)
+        .then((res) => {
+            if ($.fancybox) $.fancybox.close();
+            
+            // Hiển thị Toast thành công (Dựa trên ID #cart-success-toast bạn đã tạo)
+            const $toast = $("#cart-success-toast");
+            $toast.addClass('show').fadeIn(300);
+            
+            setTimeout(() => {
+                $toast.fadeOut(300, function() { $(this).removeClass('show'); });
+            }, 2500);
+
+            // Cập nhật giỏ hàng trên Header (Event listener)
+            window.dispatchEvent(new Event("cart:updated"));
+        })
+        .catch((err) => {
+    // 1. Lấy message từ server
+    let serverMsg = err.response?.data?.message || "";
+    let friendlyMsg = "Lỗi khi thêm vào giỏ hàng!";
+
+    // 2. Kiểm tra nếu là lỗi Duplicate (trùng sản phẩm)
+    if (serverMsg.includes("Duplicate entry") || serverMsg.includes("23000")) {
+        friendlyMsg = "Sản phẩm này đã có trong giỏ hàng. Bạn có thể vào Giỏ hàng để điều chỉnh số lượng!";
+        
+        // Hiển thị thông báo dạng Warning (Vàng) cho tinh tế
+        Swal.fire({
+            title: 'Sản phẩm đã tồn tại',
+            text: friendlyMsg,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e84d1c',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xem Giỏ Hàng',
+            cancelButtonText: 'Ở lại đây'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/cart"; // Link tới trang giỏ hàng của bạn
+            }
+        });
+    } else {
+        // Các lỗi khác (hết hạn token, server die...)
+        Swal.fire('Thất bại', serverMsg || friendlyMsg, 'error');
+    }
+})
+        .finally(() => {
+            $btn.html(originalText).prop("disabled", false);
+        });
+}
 
     createProductHTML(product) {
-        const { pricing, info, inventory } = product;
+    const { pricing, info, inventory } = product;
+    const hasSale = pricing.sale_price > 0 && pricing.sale_price < pricing.original_price;
+    const displayPrice = hasSale ? pricing.sale_price : pricing.original_price;
+    const thumbnail = info.thumbnail || "assets/pages/img/products/model1.jpg";
 
-        // 1. Kiểm tra điều kiện giảm giá
-        const hasSale =
-            pricing.sale_price > 0 &&
-            pricing.sale_price < pricing.original_price;
-        const displayPrice = hasSale
-            ? pricing.sale_price
-            : pricing.original_price;
+    
 
-        // 2. Ảnh thumbnail
-        const thumbnail =
-            info.thumbnail || "assets/pages/img/products/model1.jpg";
-
-        return `
-        <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-                <div class="pi-img-wrapper">
-                    <img src="${thumbnail}" class="img-responsive" alt="${info.name}">
-                    <div>
-                        <a href="${thumbnail}" class="btn btn-default fancybox-button">Zoom</a>
-                        <a href="javascript:void(0);" class="btn btn-default quick-view" data-id="${product.id}">View</a>
-                    </div>
+    // Chỉ trả về card, không bọc col-md ở đây vì Blade đã có container
+    return `
+    <div class="product-grid-item">
+        <div class="product-item">
+            <div class="pi-img-wrapper">
+                <img src="${thumbnail}" class="img-responsive" alt="${info.name}">
+                <div class="pi-img-btns">
+                    <a href="${thumbnail}" class="btn btn-default fancybox-button">Zoom</a>
+                    <a href="javascript:void(0);" class="btn btn-default quick-view" data-id="${product.id}">View</a>
                 </div>
-                <h3><a href="/products/${info.slug}">${info.name}</a></h3>
-                <div class="pi-price">
-                    ${this.formatPrice(displayPrice)}
-                    ${hasSale ? `<span style="text-decoration: line-through; color: #bbb; margin-left: 8px; font-weight: normal;">${this.formatPrice(pricing.original_price)}</span>` : ""}
-                </div>
-                
-                <a href="javascript:void(0);" 
-                class="btn btn-default add2cart js-add-to-cart" 
-                data-id="${product.id}" 
-                ${!inventory.in_stock ? "disabled" : ""}>
-                    <i class="fa fa-shopping-cart"></i> Add to cart
-                </a>
-
-                ${hasSale ? `<div class="sticker sticker-sale"></div>` : ""}
-                
-                ${!inventory.in_stock ? '<div class="sticker sticker-out-of-stock" style="background: #999; color: #fff;">HẾT</div>' : ""}
             </div>
-        </div>`;
-    }
+            <h3><a href="/products/${info.slug}">${info.name}</a></h3>
+            <div class="pi-price">
+                ${this.formatPrice(displayPrice)}
+                ${hasSale ? `<span class="old-price" style="text-decoration: line-through; color: #bbb; margin-left: 8px; font-weight: normal; font-size: 14px;">${this.formatPrice(pricing.original_price)}</span>` : ""}
+            </div>
+            
+            <a href="javascript:void(0);" 
+               class="btn btn-default add2cart quick-view" 
+               data-id="${product.id}">
+                <i class="fa fa-shopping-cart"></i> Add to cart
+            </a>
+
+            ${hasSale ? `<div class="sticker sticker-sale"></div>` : ""}
+            ${!inventory.in_stock ? '<div class="sticker sticker-out-of-stock" style="background: #999; color: #fff; text-align:center; line-height:40px;">HẾT</div>' : ""}
+        </div>
+    </div>`;
+}
     formatPrice(price) {
         return new Intl.NumberFormat("vi-VN").format(price) + " ₫";
     }
 
     initProductEvents() {
-        const self = this;
+    const self = this;
 
-        $(".quick-view")
-            .off("click")
-            .on("click", function () {
-                const productId = $(this).data("id");
-                self.showQuickView(productId);
-            });
+    $(document).off("click", ".quick-view").on("click", ".quick-view", function (e) {
+        e.preventDefault();
+        const productId = $(this).data("id");
+        self.showQuickView(productId);
+    });
 
-        $(".js-add-to-cart")
-            .off("click")
-            .on("click", function (e) {
-                e.preventDefault();
-                const productId = $(this).data("id");
-
-                // Gọi hàm thêm hàng
-                self.addToCart(productId);
-            });
-
-        // Fancybox
-        if (typeof $.fancybox !== "undefined") {
-            $(".fancybox-button").fancybox();
-        }
+    // Fancybox cho ảnh
+    if (typeof $.fancybox !== "undefined") {
+        $(".fancybox-button").fancybox();
     }
+}
+
+async fetchReviews(productId) {
+    try {
+        const res = await window.api.get(`/api/v1/products/${productId}/reviews`);
+        const reviews = res.data.data; // Mảng reviews
+        const meta = res.data.meta;   // Thông tin phân trang
+        
+        const $list = $("#modal-reviews-list");
+        $("#modal-review-count").text(meta.total || 0);
+
+        if (!reviews || reviews.length === 0) {
+            $list.html(`
+                <div style="text-align: center; padding: 20px; color: #999;">
+                    <i class="fa fa-comments-o" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
+                    Sản phẩm chưa có đánh giá nào.
+                </div>`);
+            return;
+        }
+
+        let html = '';
+        reviews.forEach(rev => {
+            // Xử lý comment nếu bị null
+            const commentText = rev.comment ? rev.comment : '<span style="color:#bbb; font-style:italic;">Người dùng không để lại bình luận.</span>';
+            
+            // Xử lý Star Rating
+            const stars = Array(5).fill(0).map((_, i) => 
+                `<i class="fa fa-star${i < rev.rating ? '' : '-o'}" style="color: #ffb400;"></i>`
+            ).join('');
+
+            // Xử lý ảnh review (Nếu backend bổ sung trường 'images')
+            let imagesHtml = '';
+            if (rev.images && rev.images.length > 0) {
+                imagesHtml = `<div class="review-images" style="display: flex; gap: 5px; margin-top: 8px;">
+                    ${rev.images.map(img => `<img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; cursor: pointer;" class="fancybox-button">`).join('')}
+                </div>`;
+            }
+
+            html += `
+                <div class="review-item" style="border-bottom: 1px solid #f4f4f4; padding: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="display: flex; gap: 12px;">
+                            <img src="${rev.user.avatar_url}" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid #eee;">
+                            <div>
+                                <strong style="display: block; font-size: 14px; color: #333;">${rev.user.full_name}</strong>
+                                <div style="font-size: 11px; margin-bottom: 4px;">${stars}</div>
+                            </div>
+                        </div>
+                        <small style="color: #999; font-size: 11px;">${rev.human_time}</small>
+                    </div>
+                    <div style="padding-left: 47px;">
+                        <div style="font-size: 13px; color: #555; line-height: 1.5;">${commentText}</div>
+                        ${imagesHtml}
+                    </div>
+                </div>`;
+        });
+        
+        $list.html(html);
+    } catch (err) {
+        console.error("Lỗi nạp review:", err);
+        $("#modal-reviews-list").html('<p class="text-danger">Không thể tải đánh giá lúc này.</p>');
+    }
+}
 
     async showQuickView(productId) {
-        try {
-            const response = await axios.get(`/api/v1/products/${productId}`);
-            const product = response.data.data;
-            // Lấy thêm 'info.images' từ API
-            const { info, pricing, inventory } = product;
+    try {
+        const response = await axios.get(`/api/v1/products/${productId}`);
+        const product = response.data.data;
+        
+        // Destructure đúng các key từ JSON của bạn
+        const { id, info, pricing, inventory, specifications } = product;
 
-            const $modal = $("#product-pop-up");
-            const thumbnail =
-                info.thumbnail || "assets/pages/img/products/model7.jpg";
+        const $modal = $("#product-pop-up");
+        const thumbnail = info.thumbnail || "assets/pages/img/products/model7.jpg";
 
-            // --- PHẦN MỚI: XỬ LÝ GALLERY (ẢNH NHỎ) ---
-            const $galleryContainer = $modal.find(".product-other-images");
-            $galleryContainer.empty(); // Xóa ảnh cũ
+        // 1. Render Gallery & Ảnh chính
+        const $galleryContainer = $("#modal-product-gallery");
+        $galleryContainer.empty();
+        
+        let galleryHtml = `<div class="thumb-item active" data-big="${thumbnail}"><img src="${thumbnail}"></div>`;
+        if (info.images && info.images.length > 0) {
+            info.images.forEach(img => {
+                galleryHtml += `<div class="thumb-item" data-big="${img.url}"><img src="${img.url}"></div>`;
+            });
+        }
+        $galleryContainer.html(galleryHtml);
+        $("#modal-product-image").attr("src", thumbnail);
 
-            // Thêm ảnh đại diện vào danh sách ảnh nhỏ đầu tiên
-            let galleryHtml = `<a href="javascript:;" class="active change-main-image" data-big="${thumbnail}"><img src="${thumbnail}" alt="Thumbnail"></a>`;
+        // Đổi ảnh khi click thumb (Sửa lại selector cho khớp với class thumb-item)
+        $galleryContainer.find(".thumb-item").on("click", function () {
+            const newSrc = $(this).data("big");
+            $("#modal-product-image").attr("src", newSrc);
+            $galleryContainer.find(".thumb-item").removeClass("active");
+            $(this).addClass("active");
+        });
 
-            // Nếu có các ảnh khác trong gallery thì thêm vào
-            if (info.images && info.images.length > 0) {
-                info.images.forEach((img) => {
-                    galleryHtml += `<a href="javascript:;" class="change-main-image" data-big="${img.url}"><img src="${img.url}" alt="Gallery"></a>`;
-                });
-            }
-            $galleryContainer.html(galleryHtml);
+        // 2. Mapping Thông tin cơ bản
+        $("#modal-product-name").text(info.name);
+        $("#modal-product-desc").text(info.description || "Chưa có mô tả.");
+        
+        // Hiển thị số lượng tồn kho thực tế từ inventory.stock_qty
+        const statusHtml = `${inventory.status_text} <span class="stock-count" style="font-weight: normal; font-size: 12px;">(Kho: ${inventory.stock_qty})</span>`;
+        $("#modal-product-status").html(statusHtml)
+                                  .css('color', inventory.in_stock ? '#3e9c35' : '#d9534f');
 
-            // Sự kiện click ảnh nhỏ đổi ảnh to
-            const self = this;
-            $modal.find(".change-main-image").on("click", function (e) {
-                e.preventDefault();
-                const newSrc = $(this).data("big");
+        // 3. Xử lý Giá (Mapping từ key 'pricing')
+        const displayPrice = pricing.is_sale_active && pricing.sale_price > 0 
+                            ? pricing.sale_price 
+                            : pricing.original_price;
+        
+        $("#modal-product-price").html(this.formatPrice(displayPrice));
+        if (pricing.is_sale_active && pricing.sale_price < pricing.original_price) {
+            $("#modal-product-old-price").html(this.formatPrice(pricing.original_price)).show();
+        } else {
+            $("#modal-product-old-price").hide();
+        }
 
-                // Đổi ảnh to
-                $modal.find(".product-main-image img").attr("src", newSrc);
+        // 4. MAPPING OPTIONS (TỪ specifications)
+        const $attrContainer = $("#modal-product-attributes");
+        $attrContainer.empty();
 
-                // Xử lý Active class
-                $modal.find(".change-main-image").removeClass("active");
-                $(this).addClass("active");
+        if (specifications && Object.keys(specifications).length > 0) {
+    let specHtml = '';
+    Object.entries(specifications).forEach(([label, values]) => {
+        specHtml += `
+            <div class="option-row">
+                <label>${label}</label>
+                <select class="form-control js-modal-variant" data-attr="${label}">
+                    ${values.map(v => `<option value="${v}">${v}</option>`).join('')}
+                </select>
+            </div>`;
+    });
+    $attrContainer.html(specHtml);
+}
 
-                // Reset Zoom nếu có dùng
-                if ($.fn.zoom) {
-                    $modal
-                        .find(".product-main-image")
-                        .trigger("zoom.destroy")
-                        .zoom({ url: newSrc });
+        // 5. THIẾT LẬP SỐ LƯỢNG VÀ NÚT BẤM
+        const $qtyInput = $("#modal-product-quantity");
+        const $btnAddCart = $("#btn-modal-add-to-cart");
+        
+        // Reset về 1 hoặc 0 tùy tình trạng kho
+        $qtyInput.val(inventory.stock_qty > 0 ? 1 : 0);
+        $btnAddCart.attr("data-item-id", id);
+
+        // Disable nút nếu hết hàng
+        if (!inventory.in_stock || inventory.stock_qty <= 0) {
+            $btnAddCart.prop('disabled', true).addClass('disabled').text('HẾT HÀNG');
+        } else {
+            $btnAddCart.prop('disabled', false).removeClass('disabled').text('Add To Cart');
+        }
+
+        this.fetchReviews(productId);
+
+        // 6. HIỂN THỊ MODAL (FANCYBOX)
+        const self = this;
+        if (typeof $.fancybox !== "undefined") {
+            $.fancybox.open($modal, {
+                type: "inline",
+                autoSize: false,
+                width: 700,
+                afterShow: function () {
+                    // Khởi tạo Touchspin với giới hạn thực tế từ API
+                    if (typeof Layout !== "undefined") {
+                        $qtyInput.trigger("touchspin.destroy"); 
+                        $qtyInput.TouchSpin({
+                            buttondown_class: "btn btn-default",
+                            buttonup_class: "btn btn-default",
+                            min: inventory.stock_qty > 0 ? 1 : 0,
+                            max: inventory.stock_qty, // Mapping số lượng 180 vào đây
+                            step: 1
+                        });
+                    }
+
+                    // Xử lý sự kiện nút Add To Cart
+                    $btnAddCart.off("click").on("click", function(e) {
+                        e.preventDefault();
+                        const $btn = $(this);
+                        
+                        const qty = parseInt($qtyInput.val()) || 1;
+
+                        // Kiểm tra lại số lượng trước khi gửi
+                        if (qty > inventory.stock_qty) {
+                            Swal.fire('Lỗi', `Chỉ còn ${inventory.stock_qty} sản phẩm trong kho`, 'error');
+                            return;
+                        }
+
+                        // Thu thập các option đã chọn
+                        let options = {};
+                        $(".js-modal-variant").each(function() {
+                            options[$(this).data('attr')] = $(this).val();
+                        });
+
+                        $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Adding...');
+
+                        // Gọi hàm addToCart (Unique productId logic nằm trong hàm này của bạn)
+                        self.addToCart(id, {
+                            quantity: qty,
+                            options: options,
+                            onDone: () => {
+                                $btn.prop('disabled', false).html('Add To Cart');
+                                $.fancybox.close();
+                                // Hiển thị toast thành công nếu bạn có hàm này
+                                if (typeof self.showCartToast === 'function') {
+                                    self.showCartToast();
+                                }
+                            }
+                        });
+                    });
                 }
             });
+        }
 
-            // --- HẾT PHẦN XỬ LÝ GALLERY ---
-
-            // Đổ dữ liệu text như cũ
-            $modal.find(".product-main-image img").attr("src", thumbnail);
-            $modal.find("h1").text(info.name);
-            $modal
-                .find(".description p")
-                .text(info.description || "Chưa có mô tả.");
-
-            // Xử lý giá
-            const hasSale =
-                pricing.sale_price > 0 &&
-                pricing.sale_price < pricing.original_price;
-            const displayPrice = hasSale
-                ? pricing.sale_price
-                : pricing.original_price;
-            $modal.find(".price strong").html(this.formatPrice(displayPrice));
-
-            if (hasSale) {
-                $modal
-                    .find(".price em")
-                    .html(this.formatPrice(pricing.original_price))
-                    .show();
-                $modal.find(".sticker-sale").show();
-            } else {
-                $modal.find(".price em").hide();
-                $modal.find(".sticker-sale").hide();
-            }
-
-            $modal
-                .find(".availability strong")
-                .text(inventory.in_stock ? "In Stock" : "Out of Stock");
-            $modal
-                .find(".btn-default[href]")
-                .attr("href", `/products/${info.slug}`);
-
-            if (typeof $.fancybox !== "undefined") {
-                $.fancybox.open($modal, {
-                    type: "inline",
-                    autoSize: false,
-                    width: 700,
-                    afterShow: function () {
-                        if (typeof Layout !== "undefined") {
-                            Layout.initTouchspin();
-                        }
-                        // Kích hoạt zoom cho ảnh đầu tiên khi mở modal
-                        if ($.fn.zoom) {
-                            $modal
-                                .find(".product-main-image")
-                                .zoom({ url: thumbnail });
-                        }
-
-                        $modal
-                            .find(".js-add-to-cart-modal")
-                            .off("click")
-                            .on("click", function (e) {
-                                e.preventDefault();
-
-                                // Lấy dữ liệu thực tế từ các ô chọn trong Modal
-                                const selectedSize = $("#product-size").val();
-                                const selectedColor = $("#product-color").val();
-                                const selectedQty =
-                                    parseInt($("#product-quantity").val()) || 1;
-
-                                // Gọi hàm addToCart (Hàm này Huy đã có hoặc viết theo logic ở bước trước)
-                                // Truyền thêm object options để gửi lên API
-                                self.addToCart(productId, {
-                                    quantity: selectedQty,
-                                    size: selectedSize,
-                                    color: selectedColor,
-                                    event: e, // Để xử lý hiệu ứng loading trên nút
-                                });
-                            });
-                    },
-                });
-            }
-        } catch (error) {
-            console.error("Lỗi Quick View:", error);
+    } catch (error) {
+        console.error("Lỗi fetch sản phẩm:", error);
+        if (typeof Swal !== "undefined") {
+            Swal.fire('Lỗi', 'Không thể tải thông tin sản phẩm', 'error');
         }
     }
+}
 }
 
 // Khởi tạo

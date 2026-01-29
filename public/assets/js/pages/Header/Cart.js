@@ -47,16 +47,16 @@ const Cart = {
 
                 html += `
                     <li class="${itemClass}">
-                        <a href="/product/${info.slug || '#'}">
+                        <a href="javascript:void(0);">
                             <img src="${thumb}" alt="${info.name}" width="37" height="34">
                         </a>
-                        <span class="cart-content-count">x ${quantity}</span>
-                        <strong>
-                            <a href="/product/${info.slug || '#'}">${info.name || 'Sản phẩm không xác định'}</a>
+                    <span class="cart-content-count">x ${quantity}</span>
+                    <strong>
+                        <a href="javascript:void(0);">${info.name || 'Sản phẩm không xác định'}</a>
                             ${errorHint}
-                        </strong>
-                        <em>${this.formatCurrency(price)}</em>
-                    </li>`;
+                    </strong>
+                    <em>${this.formatCurrency(price)}</em>
+                </li>`;
             });
         } else {
             html = '<li class="text-center" style="padding: 20px;">Giỏ hàng của bạn đang trống</li>';
