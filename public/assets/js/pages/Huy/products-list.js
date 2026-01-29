@@ -352,40 +352,44 @@ class ProductList {
                 }
             });
     }
-    addToCart(productId) {
-        // 1. Kiểm tra đăng nhập đơn giản
+    // Cập nhật lại hàm trong class ProductList
+    addToCart(productId, options = {}) {
         const token = localStorage.getItem("admin_token");
+        console.log("Check data:", options);
         if (!token) {
             alert("Huy ơi, bạn cần đăng nhập để mua hàng!");
             window.location.href = "/login";
             return;
         }
 
-        // UX: Đổi nút thành Processing
-        const $btn = $(`.js-add-to-cart[data-id="${productId}"]`);
+        // Lấy dữ liệu từ options hoặc mặc định
+        const bodyData = {
+            product_id: productId,
+            quantity: options.quantity || 1,
+            options: {
+                size: options.size || null,
+                color: options.color || null,
+            },
+        };
+
+        // Hiệu ứng Loading cho nút (nếu có btn truyền vào)
+        const $btn = options.event
+            ? $(options.event.currentTarget)
+            : $(`.js-add-to-cart[data-id="${productId}"]`);
         const originalText = $btn.html();
         $btn.html('<i class="fa fa-spinner fa-spin"></i>').prop(
             "disabled",
             true,
         );
 
-        // 2. Gửi Request (Rút gọn tối đa để dùng cấu hình tự động)
+        // Gửi request kèm đầy đủ data
+
         window.api
-            .post("/api/v1/customer/cart", {
-                product_id: productId,
-                quantity: 1,
-            })
+            .post("/api/v1/customer/cart", bodyData) // Dùng bodyData Huy đã tạo ở trên
             .then((res) => {
-                alert("Đã thêm vào giỏ hàng!");
-                // Bắn tín hiệu để CartManager load lại
+                alert("Đã thêm vào giỏ hàng thành công!");
                 window.dispatchEvent(new Event("cart:updated"));
-            })
-            .catch((err) => {
-                console.error("Lỗi:", err);
-                alert("Lỗi rồi Huy ơi! Check lại Console nhé.");
-            })
-            .finally(() => {
-                $btn.html(originalText).prop("disabled", false);
+                if ($.fancybox) $.fancybox.close();
             });
     }
 
@@ -510,6 +514,7 @@ class ProductList {
                         .zoom({ url: newSrc });
                 }
             });
+
             // --- HẾT PHẦN XỬ LÝ GALLERY ---
 
             // Đổ dữ liệu text như cũ
@@ -561,6 +566,28 @@ class ProductList {
                                 .find(".product-main-image")
                                 .zoom({ url: thumbnail });
                         }
+
+                        $modal
+                            .find(".js-add-to-cart-modal")
+                            .off("click")
+                            .on("click", function (e) {
+                                e.preventDefault();
+
+                                // Lấy dữ liệu thực tế từ các ô chọn trong Modal
+                                const selectedSize = $("#product-size").val();
+                                const selectedColor = $("#product-color").val();
+                                const selectedQty =
+                                    parseInt($("#product-quantity").val()) || 1;
+
+                                // Gọi hàm addToCart (Hàm này Huy đã có hoặc viết theo logic ở bước trước)
+                                // Truyền thêm object options để gửi lên API
+                                self.addToCart(productId, {
+                                    quantity: selectedQty,
+                                    size: selectedSize,
+                                    color: selectedColor,
+                                    event: e, // Để xử lý hiệu ứng loading trên nút
+                                });
+                            });
                     },
                 });
             }
