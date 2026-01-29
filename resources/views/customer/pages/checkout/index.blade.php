@@ -443,7 +443,7 @@
 </div>
 <div class="steps-block steps-block-red">
     </div>
-<div id="orderDetailModal" class="modal fade" role="dialog" aria-hidden="true" data-backdrop="static">
+<div id="orderDetailModal" class="modal fade" role="dialog"  data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-blue-hoki">
@@ -455,8 +455,9 @@
             <div class="modal-body" id="order-modal-body" style="background: #fdfdfd;">
                 </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default uppercase bold" onclick="window.location.href='/'">Tiếp tục mua sắm</button>
-                <button type="button" class="btn btn-primary uppercase bold" data-dismiss="modal">Đóng</button>
+                <a href="/" class="btn btn-primary btn-lg uppercase bold" style="width: 100%;">
+                    <i class="fa fa-home"></i> Hoàn tất & Tiếp tục mua sắm
+                </a>
             </div>
         </div>
     </div>

@@ -1,8 +1,29 @@
 Checkout.OrderReview = (function () {
     return {
+        renderSuccessActions: function(orderId = null) {
+            const $actionContainer = $('.confirm-order-actions');
+            let html = `
+                <a href="/" class="btn btn-default">
+                    <i class="fa fa-shopping-cart"></i> TIẾP TỤC MUA SẮM
+                </a>
+            `;
+            
+            // Nếu có orderId thì hiện thêm nút xem chi tiết
+            if (orderId) {
+                html += `
+                    <button type="button" class="btn btn-primary" onclick="OrderModule.showOrderDetail(${orderId})" style="margin-left: 10px;">
+                        <i class="fa fa-eye"></i> XEM CHI TIẾT ĐƠN HÀNG
+                    </button>
+                `;
+            }
+            
+            $actionContainer.hide().html(html).fadeIn();
+        },
+
         initReview: async function () {
             const $tableBody = $('#table-confirm-order tbody');
             const $summaryUl = $('#checkout-final-summary');
+            const $actionContainer = $('.confirm-order-actions'); // Cụm nút Xác nhận/Hủy
 
             try {
                 // 1. GỬI KÈM address_id ĐỂ SERVER TÍNH PHÍ SHIP
@@ -13,6 +34,13 @@ Checkout.OrderReview = (function () {
                 });
                 
                 const cartData = res.data.data;
+
+                // TRƯỜNG HỢP GIỎ TRỐNG KHI LOAD TRANG
+                if (!cartData.items || cartData.items.length === 0) {
+                    $tableBody.html('<tr><td colspan="6" class="text-center">Giỏ hàng của bạn đang trống.</td></tr>');
+                    this.renderSuccessActions(); // Gọi hàm đổi nút
+                    return;
+                }
 
                 // 2. Render danh sách sản phẩm
                 let itemsHtml = '';
@@ -64,60 +92,53 @@ Checkout.OrderReview = (function () {
         },
 
         placeOrder: async function () {
-    const $btn = $('#button-confirm');
-    const $actionContainer = $('.confirm-order-actions'); // Container chứa 2 nút
-    
-    // Validate dữ liệu
-    if (!Checkout.data.selectedAddressId || !$('input[name="payment_method"]:checked').val()) {
-        return Swal.fire('Lỗi', 'Vui lòng hoàn thành đầy đủ thông tin thanh toán.', 'error');
-    }
+            const $btn = $('#button-confirm');
+            
+            if (!Checkout.data.selectedAddressId || !$('input[name="payment_method"]:checked').val()) {
+                return Swal.fire('Lỗi', 'Vui lòng hoàn thành đầy đủ thông tin thanh toán.', 'error');
+            }
 
-    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...');
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...');
 
-    try {
-        const payload = {
-            address_id: Checkout.data.selectedAddressId,
-            payment_method: $('input[name="payment_method"]:checked').val(),
-            note: $('#delivery-payment-method').val(),
-        };
+            try {
+                const payload = {
+                    address_id: Checkout.data.selectedAddressId,
+                    payment_method: $('input[name="payment_method"]:checked').val(),
+                    note: $('#delivery-payment-method').val(),
+                };
 
-        const response = await window.api.post('/api/v1/customer/orders', payload);
+                const response = await window.api.post('/api/v1/customer/orders', payload);
 
-        if (response.data.status) {
-            const orderId = response.data.data.id;
+                if (response.data.status) {
+                    const orderId = response.data.data.id;
 
-            // --- THAY ĐỔI GIAO DIỆN NÚT BẤM ĐỂ TỐI ƯU UX ---
-            $actionContainer.html(`
-                <button type="button" class="btn btn-default" onclick="window.location.href='/'">
-                    <i class="fa fa-shopping-cart"></i> TIẾP TỤC MUA SẮM
-                </button>
-                <button type="button" class="btn btn-primary" onclick="OrderModule.showOrderDetail(${orderId})">
-                    <i class="fa fa-eye"></i> XEM CHI TIẾT ĐƠN HÀNG
-                </button>
+                    // BƯỚC QUAN TRỌNG 1: Refresh Minicart trên Header
+                    if (window.AppCart) window.AppCart.refresh();
+
+                    // Hiển thị nút "Tiếp tục mua sắm" ngay tại trang Checkout (phòng trường hợp họ đóng Swal)
+            $('.confirm-order-actions').html(`
+                <a href="/" class="btn btn-primary btn-lg"><i class="fa fa-shopping-cart"></i> TIẾP TỤC MUA SẮM</a>
             `);
 
-            // Thông báo thành công
-            Swal.fire({
-                title: '🎉 Đặt hàng thành công!',
-                text: "Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.",
-                icon: 'success',
-                showCancelButton: true,
-                confirmButtonText: '<i class="fa fa-eye"></i> Xem đơn hàng',
-                cancelButtonText: '<i class="fa fa-home"></i> Tiếp tục mua sắm',
-                allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    setTimeout(() => {
-                        OrderModule.showOrderDetail(orderId);
-                    }, 300);
-                } else {
-                    window.location.href = '/';
+                    // BƯỚC 3: Hiển thị thông báo
+                    Swal.fire({
+                        title: '🎉 Đặt hàng thành công!',
+                        text: "Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.",
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fa fa-eye"></i> Xem đơn hàng',
+                        cancelButtonText: '<i class="fa fa-home"></i> Tiếp tục mua sắm',
+                        allowOutsideClick: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            setTimeout(() => {
+                                OrderModule.showOrderDetail(orderId);
+                            }, 300);
+                        } else {
+                            window.location.href = '/';
+                        }
+                    });
                 }
-            });
-
-            // Làm mới giỏ hàng mini trên header
-            if (window.AppCart) window.AppCart.refresh();
-        }
     } catch (err) {
         $btn.prop('disabled', false).text('XÁC NHẬN ĐẶT HÀNG');
         const errMsg = err.response?.data?.message || 'Giao dịch thất bại, vui lòng thử lại.';
