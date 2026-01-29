@@ -20,7 +20,7 @@
   <link href="assets/plugins/fancybox/source/jquery.fancybox.css" rel="stylesheet">
   <link href="assets/plugins/owl.carousel/assets/owl.carousel.css" rel="stylesheet">
   <link href="assets/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css">
-  <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"><!-- for slider-range -->
+  <link href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"><!-- for slider-range -->
   <link href="assets/plugins/rateit/src/rateit.css" rel="stylesheet" type="text/css">
   <!-- Page level plugin styles END -->
 @endsection
@@ -28,151 +28,124 @@
 
 <!-- Body BEGIN -->
 @section('content')
-    <!-- BEGIN STYLE CUSTOMIZER -->
-    <div class="color-panel hidden-sm">
-      <div class="color-mode-icons icon-color"></div>
-      <div class="color-mode-icons icon-color-close"></div>
-      <div class="color-mode">
-        <p>THEME COLOR</p>
-        <ul class="inline">
-          <li class="color-red current color-default" data-style="red"></li>
-          <li class="color-blue" data-style="blue"></li>
-          <li class="color-green" data-style="green"></li>
-          <li class="color-orange" data-style="orange"></li>
-          <li class="color-gray" data-style="gray"></li>
-          <li class="color-turquoise" data-style="turquoise"></li>
-        </ul>
-      </div>
-    </div>
-    <!-- END BEGIN STYLE CUSTOMIZER --> 
-
-    <div class="main">
-      <div class="container">
-        <!-- BEGIN SIDEBAR & CONTENT -->
+<div class="main">
+    <div class="container">
         <div class="row margin-bottom-40">
-          <!-- BEGIN CONTENT -->
-          <div class="col-md-12 col-sm-12">
-            <h1>Shopping cart</h1>
-            <div class="goods-page">
-              <div class="goods-data clearfix">
-                <div class="table-wrapper-responsive">
-                <table summary="Shopping cart">
-                  <tr>
-                    <th class="goods-page-image">Image</th>
-                    <th class="goods-page-description">Description</th>
-                    <th class="goods-page-ref-no">Ref No</th>
-                    <th class="goods-page-quantity">Quantity</th>
-                    <th class="goods-page-price">Unit price</th>
-                    <th class="goods-page-total" colspan="2">Total</th>
-                  </tr>
-                  <tr>
-                    <td class="goods-page-image">
-                      <a href="javascript:;"><img src="assets/pages/img/products/model3.jpg" alt="Berry Lace Dress"></a>
-                    </td>
-                    <td class="goods-page-description">
-                      <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                      <p><strong>Item 1</strong> - Color: Green; Size: S</p>
-                      <em>More info is here</em>
-                    </td>
-                    <td class="goods-page-ref-no">
-                      javc2133
-                    </td>
-                    <td class="goods-page-quantity">
-                      <div class="product-quantity">
-                          <input id="product-quantity" type="text" value="1" readonly class="form-control input-sm">
-                      </div>
-                    </td>
-                    <td class="goods-page-price">
-                      <strong><span>$</span>47.00</strong>
-                    </td>
-                    <td class="goods-page-total">
-                      <strong><span>$</span>47.00</strong>
-                    </td>
-                    <td class="del-goods-col">
-                      <a class="del-goods" href="javascript:;">&nbsp;</a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="goods-page-image">
-                      <a href="javascript:;"><img src="assets/pages/img/products/model4.jpg" alt="Berry Lace Dress"></a>
-                    </td>
-                    <td class="goods-page-description">
-                      <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                      <p><strong>Item 1</strong> - Color: Green; Size: S</p>
-                      <em>More info is here</em>
-                    </td>
-                    <td class="goods-page-ref-no">
-                      javc2133
-                    </td>
-                    <td class="goods-page-quantity">
-                      <div class="product-quantity">
-                          <input id="product-quantity2" type="text" value="1" readonly class="form-control input-sm">
-                      </div>
-                    </td>
-                    <td class="goods-page-price">
-                      <strong><span>$</span>47.00</strong>
-                    </td>
-                    <td class="goods-page-total">
-                      <strong><span>$</span>47.00</strong>
-                    </td>
-                    <td class="del-goods-col">
-                      <a class="del-goods" href="javascript:;">&nbsp;</a>
-                    </td>
-                  </tr>
-                </table>
-                </div>
+            <div class="col-md-12 col-sm-12">
+                <h1>Shopping cart</h1>
+                <div class="goods-page">
+                    <div class="goods-data clearfix">
+                        <div class="table-wrapper-responsive">
+                            <table summary="Shopping cart" id="cart-table">
+                                <thead>
+                                    <tr>
+                                        <th class="goods-page-image">Image</th>
+                                        <th class="goods-page-description">Description</th>
+                                        <th class="goods-page-ref-no">Sku</th>
+                                        <th class="goods-page-quantity">Quantity</th>
+                                        <th class="goods-page-price">Unit price</th>
+                                        <th class="goods-page-total" colspan="2">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-items-container">
+                                    </tbody>
+                            </table>
+                        </div>
 
-                <div class="shopping-total">
-                  <ul>
-                    <li>
-                      <em>Sub total</em>
-                      <strong class="price"><span>$</span>47.00</strong>
-                    </li>
-                    <li>
-                      <em>Shipping cost</em>
-                      <strong class="price"><span>$</span>3.00</strong>
-                    </li>
-                    <li class="shopping-total-price">
-                      <em>Total</em>
-                      <strong class="price"><span>$</span>50.00</strong>
-                    </li>
-                  </ul>
+                        <div class="shopping-total">
+                            <ul>
+                                <li><em>Sub total</em> <strong class="price"><span id="sub-total">$0.00</span></strong></li>
+                                <li><em>Shipping cost</em> <strong class="price"><span id="shipping-fee">$0.00</span></strong></li>
+                                <li class="shopping-total-price"><em>Total</em> <strong class="price"><span id="final-total">$0.00</span></strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="{{ url('/') }}" class="btn btn-default">
+                        Continue shopping <i class="fa fa-shopping-cart"></i>
+                    </a>
+
+                    <a href="{{ url('/checkout') }}" class="btn btn-primary" id="btn-checkout">
+                        Checkout <i class="fa fa-check"></i>
+                    </a>
                 </div>
-              </div>
-              <button class="btn btn-default" type="submit">Continue shopping <i class="fa fa-shopping-cart"></i></button>
-              <button class="btn btn-primary" type="submit">Checkout <i class="fa fa-check"></i></button>
             </div>
-          </div>
-          <!-- END CONTENT -->
-        </div>
-        <!-- END SIDEBAR & CONTENT -->
         </div>
     </div>
+</div>
+<div id="product-pop-up" style="display: none; width: 700px;">
+    <div class="product-page product-pop-up" style="min-height: auto; padding: 15px;">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-3">
+                <div class="product-main-image">
+                    <img id="modal-product-image" src="" style="width: 100%; height: 420px; object-fit: cover; object-position: top;">
+                </div>
+                <div class="product-other-images" id="modal-product-gallery">
+                    </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-9">
+                <h1 id="modal-product-name">Loading...</h1>
+                <div class="price-availability-block clearfix">
+                    <div class="price">
+                        <strong id="modal-product-price"></strong>
+                        <em id="modal-product-old-price"></em>
+                    </div>
+                    <div class="availability">
+                        Availability: <strong id="modal-product-status"></strong>
+                    </div>
+                </div>
+                <div class="description">
+                    <p id="modal-product-desc"></p>
+                </div>
+                <div class="product-page-options" id="modal-product-attributes">
+                    </div>
+                <div class="product-page-cart">
+                    <div class="product-quantity">
+                        <input id="modal-product-quantity" type="text" value="1" readonly class="form-control input-sm">
+                    </div>
+                    <button class="btn btn-primary" id="btn-modal-update-cart" data-item-id="">Update Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
     <!-- END BODY -->
 @push('extra_scripts')
-    <!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->
-    <script src="assets/plugins/fancybox/source/jquery.fancybox.pack.js" type="text/javascript"></script><!-- pop up -->
-    <script src="assets/plugins/owl.carousel/owl.carousel.min.js" type="text/javascript"></script><!-- slider for products -->
-    <script src='assets/plugins/zoom/jquery.zoom.min.js' type="text/javascript"></script><!-- product zoom -->
-    <script src="assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js" type="text/javascript"></script><!-- Quantity -->
-    <script src="assets/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
-    <script src="assets/plugins/rateit/src/jquery.rateit.js" type="text/javascript"></script>
-    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script><!-- for slider-range -->
-    <script src="assets/corporate/scripts/layout.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/fancybox/source/jquery.fancybox.pack.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/owl.carousel/owl.carousel.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/zoom/jquery.zoom.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/uniform/jquery.uniform.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/plugins/rateit/src/jquery.rateit.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('assets/corporate/scripts/layout.js') }}" type="text/javascript"></script>
 
-    <!-- JS Core) -->
+    <script src="{{ asset('assets/js/pages/cart/shoppingCart.js') }}" type="text/javascript"></script>
 
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            Layout.init();    
-            Layout.initOWL();
-            Layout.initTwitter();
-            Layout.initImageZoom();
-            Layout.initTouchspin();
-            Layout.initUniform();
-            Layout.initSliderRange();
+            // 1. Khởi tạo Giỏ hàng trước để lấy dữ liệu ngay lập tức
+            if (typeof ShoppingCart !== 'undefined') {
+                console.log("🚀 Gọi ShoppingCart.init()...");
+                ShoppingCart.init();
+            }
+
+            // 2. Khởi tạo Giao diện (Bọc try-catch để tránh lỗi UI làm chết code dữ liệu)
+            try {
+                Layout.init();    
+                Layout.initOWL();
+                Layout.initTwitter();
+                Layout.initImageZoom();
+                Layout.initTouchspin();
+                Layout.initUniform();
+                
+                // Chỉ chạy slider nếu thư viện jQuery UI được nạp thành công
+                if (typeof jQuery.ui !== 'undefined' && typeof jQuery.ui.slider !== 'undefined') {
+                    Layout.initSliderRange();
+                }
+            } catch (e) {
+                console.warn("⚠️ Cảnh báo UI:", e.message);
+            }
         });
     </script>
-    <!-- END PAGE LEVEL JAVASCRIPTS -->
 @endpush
