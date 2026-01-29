@@ -15,11 +15,6 @@
 @endsection
 
 @section('extra_plugins')
-  <link rel="shortcut icon" href="favicon.ico">
-
-  <!-- Fonts START -->
-  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|PT+Sans+Narrow|Source+Sans+Pro:200,300,400,600,700,900&amp;subset=all" rel="stylesheet" type="text/css"> 
-  <!-- Fonts END -->
 
   <!-- Page level plugin styles START -->
   <link href="assets/plugins/fancybox/source/jquery.fancybox.css" rel="stylesheet">
@@ -27,13 +22,7 @@
   <link href="assets/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css">
   <!-- Page level plugin styles END -->
 
-  <!-- Theme styles START -->
-  <link href="assets/pages/css/components.css" rel="stylesheet">
-  <link href="assets/corporate/css/style.css" rel="stylesheet">
-  <link href="assets/pages/css/style-shop.css" rel="stylesheet" type="text/css">
-  <link href="assets/corporate/css/style-responsive.css" rel="stylesheet">
-  <link href="assets/corporate/css/themes/red.css" rel="stylesheet" id="style-color">
-  <link href="assets/corporate/css/custom.css" rel="stylesheet">
+
   <!-- Theme styles END -->
 @endsection
 <!-- Head END -->
@@ -454,7 +443,7 @@
 </div>
 <div class="steps-block steps-block-red">
     </div>
-<div id="orderDetailModal" class="modal fade" role="dialog" aria-hidden="true" data-backdrop="static">
+<div id="orderDetailModal" class="modal fade" role="dialog"  data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-blue-hoki">
@@ -466,8 +455,9 @@
             <div class="modal-body" id="order-modal-body" style="background: #fdfdfd;">
                 </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default uppercase bold" onclick="window.location.href='/'">Tiếp tục mua sắm</button>
-                <button type="button" class="btn btn-primary uppercase bold" data-dismiss="modal">Đóng</button>
+                <a href="/" class="btn btn-primary btn-lg uppercase bold" style="width: 100%;">
+                    <i class="fa fa-home"></i> Hoàn tất & Tiếp tục mua sắm
+                </a>
             </div>
         </div>
     </div>

@@ -5,13 +5,21 @@ const QuickDeposit = {
         console.log("QuickDeposit Module Starting...");
         this.bindEvents();
 
-        // Xử lý số tiền từ URL nếu có
+        // 1. Lấy số tiền thiếu từ URL
         const params = new URLSearchParams(window.location.search);
         const urlAmount = parseInt(params.get('amount'));
-        if (urlAmount && urlAmount >= 10000) {
+        
+        if (urlAmount && urlAmount > 0) {
+            // Làm tròn lên hàng nghìn (ví dụ 10.200 -> 11.000) nếu cần, hoặc để nguyên
             this.amount = urlAmount;
-            // Nếu là số khác không nằm trong list button
-            if (!$(`.btn-money[data-amount="${urlAmount}"]`).length) {
+            
+            // Nếu số tiền này không có trong danh sách nút chọn sẵn, bơm vào ô input
+            const $existBtn = $(`.btn-money[data-amount="${urlAmount}"]`);
+            if ($existBtn.length) {
+                $('.btn-money').removeClass('active');
+                $existBtn.addClass('active');
+            } else {
+                $('.btn-money').removeClass('active');
                 $('#input-custom-amount').val(urlAmount);
             }
         }
@@ -68,26 +76,42 @@ const QuickDeposit = {
         }
 
         Swal.fire({
-            title: 'Đang kết nối ngân hàng...',
+            title: 'Đang khởi tạo giao dịch...',
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading()
         });
 
         try {
-            // Sử dụng window.api (instance axios của bạn)
             const res = await window.api.post('/api/v1/customer/wallet/deposit', {
                 amount: this.amount,
                 payment_method: $('input[name="payment_method"]:checked').val(),
-                description: "Nạp tiền nhanh đơn hàng"
+                description: "Nạp tiền nhanh để thanh toán đơn hàng"
             });
 
             if (res.data.status) {
-                Swal.fire('Thành công', 'Hệ thống đang xử lý giao dịch của bạn', 'success')
-                    .then(() => window.location.href = '/profile?tab=wallet');
+                // SỰ KIỆN MỚI: Cho người dùng lựa chọn sau khi nạp thành công
+                Swal.fire({
+                    title: 'Nạp tiền thành công!',
+                    text: `Số tiền ${new Intl.NumberFormat('vi-VN').format(this.amount)}đ đã được ghi nhận. Bạn muốn làm gì tiếp theo?`,
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#1fb5ad',
+                    confirmButtonText: '<i class="fa fa-shopping-cart"></i> Quay lại thanh toán',
+                    cancelButtonText: '<i class="fa fa-user"></i> Xem ví của tôi',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Quay lại trang checkout
+                        window.location.href = '/checkout';
+                    } else {
+                        // Về trang profile và mở tab wallet
+                        window.location.href = '/profile?tab=wallet';
+                    }
+                });
             }
         } catch (err) {
-            console.error("Deposit Error:", err);
-            Swal.fire('Lỗi', err.response?.data?.message || 'Không thể tạo yêu cầu nạp tiền', 'error');
+            Swal.fire('Lỗi', err.response?.data?.message || 'Không thể nạp tiền', 'error');
         }
     }
 };
