@@ -244,6 +244,30 @@
 
     /* Fancybox Fix */
     .fancybox-skin { padding: 0 !important; }
+
+    /* Tùy chỉnh thanh cuộn cho danh sách review */
+#modal-reviews-list::-webkit-scrollbar {
+    width: 5px;
+}
+#modal-reviews-list::-webkit-scrollbar-thumb {
+    background: #eee;
+    border-radius: 10px;
+}
+#modal-reviews-list::-webkit-scrollbar-thumb:hover {
+    background: #ddd;
+}
+
+.review-item:last-child {
+    border-bottom: none !important;
+}
+
+/* Sticker và giao diện chung của Siêu Modal */
+.product-reviews-section {
+    background: #fcfcfc;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 25px;
+}
 </style>
 
 <!-- END PRODUCT LIST -->
@@ -295,6 +319,14 @@
             </div>
         </div>
     </div>
+
+    <div class="product-reviews-section" style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+    <h4 class="bold" style="text-transform: uppercase; font-size: 14px; margin-bottom: 20px;">
+        Đánh giá từ khách hàng (<span id="modal-review-count">0</span>)
+    </h4>
+    <div id="modal-reviews-list" style="max-height: 300px; overflow-y: auto;">
+        </div>
+</div>
 </div>
     <!-- END fast view of a product -->
 @endsection

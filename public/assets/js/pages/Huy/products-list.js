@@ -425,6 +425,8 @@ class ProductList {
     const displayPrice = hasSale ? pricing.sale_price : pricing.original_price;
     const thumbnail = info.thumbnail || "assets/pages/img/products/model1.jpg";
 
+    
+
     // Chỉ trả về card, không bọc col-md ở đây vì Blade đã có container
     return `
     <div class="product-grid-item">
@@ -443,9 +445,8 @@ class ProductList {
             </div>
             
             <a href="javascript:void(0);" 
-               class="btn btn-default add2cart js-add-to-cart" 
-               data-id="${product.id}" 
-               ${!inventory.in_stock ? "disabled" : ""}>
+               class="btn btn-default add2cart quick-view" 
+               data-id="${product.id}">
                 <i class="fa fa-shopping-cart"></i> Add to cart
             </a>
 
@@ -461,43 +462,77 @@ class ProductList {
     initProductEvents() {
     const self = this;
 
-    // Sự kiện Quick View
-    $(document).off("click", ".quick-view").on("click", ".quick-view", function () {
+    $(document).off("click", ".quick-view").on("click", ".quick-view", function (e) {
+        e.preventDefault();
         const productId = $(this).data("id");
         self.showQuickView(productId);
     });
 
-    // Sự kiện Add to Cart ngoài danh sách
-    $(document).off("click", ".js-add-to-cart").on("click", ".js-add-to-cart", function (e) {
-        e.preventDefault();
-        const productId = $(this).data("id");
-
-        // 1. Tìm thông tin sản phẩm từ mảng dữ liệu đã lưu khi fetch
-        // Giả sử mảng sản phẩm của bạn là this.currentProducts
-        const product = self.currentProducts ? self.currentProducts.find(p => p.id == productId) : null;
-
-        let selectedOptions = {};
-
-        // 2. Nếu tìm thấy sản phẩm và có specifications, lấy giá trị đầu tiên của mỗi loại
-        if (product && product.specifications) {
-            Object.entries(product.specifications).forEach(([label, values]) => {
-                if (Array.isArray(values) && values.length > 0) {
-                    selectedOptions[label] = values[0];
-                }
-            });
-        }
-
-        // 3. Gọi hàm addToCart với đầy đủ params
-        self.addToCart(productId, {
-            quantity: 1,
-            options: selectedOptions,
-            event: e
-        });
-    });
-
-    // Fancybox
+    // Fancybox cho ảnh
     if (typeof $.fancybox !== "undefined") {
         $(".fancybox-button").fancybox();
+    }
+}
+
+async fetchReviews(productId) {
+    try {
+        const res = await window.api.get(`/api/v1/products/${productId}/reviews`);
+        const reviews = res.data.data; // Mảng reviews
+        const meta = res.data.meta;   // Thông tin phân trang
+        
+        const $list = $("#modal-reviews-list");
+        $("#modal-review-count").text(meta.total || 0);
+
+        if (!reviews || reviews.length === 0) {
+            $list.html(`
+                <div style="text-align: center; padding: 20px; color: #999;">
+                    <i class="fa fa-comments-o" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
+                    Sản phẩm chưa có đánh giá nào.
+                </div>`);
+            return;
+        }
+
+        let html = '';
+        reviews.forEach(rev => {
+            // Xử lý comment nếu bị null
+            const commentText = rev.comment ? rev.comment : '<span style="color:#bbb; font-style:italic;">Người dùng không để lại bình luận.</span>';
+            
+            // Xử lý Star Rating
+            const stars = Array(5).fill(0).map((_, i) => 
+                `<i class="fa fa-star${i < rev.rating ? '' : '-o'}" style="color: #ffb400;"></i>`
+            ).join('');
+
+            // Xử lý ảnh review (Nếu backend bổ sung trường 'images')
+            let imagesHtml = '';
+            if (rev.images && rev.images.length > 0) {
+                imagesHtml = `<div class="review-images" style="display: flex; gap: 5px; margin-top: 8px;">
+                    ${rev.images.map(img => `<img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; cursor: pointer;" class="fancybox-button">`).join('')}
+                </div>`;
+            }
+
+            html += `
+                <div class="review-item" style="border-bottom: 1px solid #f4f4f4; padding: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="display: flex; gap: 12px;">
+                            <img src="${rev.user.avatar_url}" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid #eee;">
+                            <div>
+                                <strong style="display: block; font-size: 14px; color: #333;">${rev.user.full_name}</strong>
+                                <div style="font-size: 11px; margin-bottom: 4px;">${stars}</div>
+                            </div>
+                        </div>
+                        <small style="color: #999; font-size: 11px;">${rev.human_time}</small>
+                    </div>
+                    <div style="padding-left: 47px;">
+                        <div style="font-size: 13px; color: #555; line-height: 1.5;">${commentText}</div>
+                        ${imagesHtml}
+                    </div>
+                </div>`;
+        });
+        
+        $list.html(html);
+    } catch (err) {
+        console.error("Lỗi nạp review:", err);
+        $("#modal-reviews-list").html('<p class="text-danger">Không thể tải đánh giá lúc này.</p>');
     }
 }
 
@@ -586,6 +621,8 @@ class ProductList {
         } else {
             $btnAddCart.prop('disabled', false).removeClass('disabled').text('Add To Cart');
         }
+
+        this.fetchReviews(productId);
 
         // 6. HIỂN THỊ MODAL (FANCYBOX)
         const self = this;
