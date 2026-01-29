@@ -132,17 +132,17 @@
             </div>
             <!-- BEGIN PRODUCT LIST -->
 
-<div class="row product-list" id="real-product-container">
-    <!-- JS sẽ render sản phẩm ở đây --> 
-</div>
-<div class="row">
-    <div class="col-md-4 col-sm-4 items-info" id="pagination-info" style="padding-top: 15px;">
-        </div>
-    <div class="col-md-8 col-sm-8">
-        <ul class="pagination pull-right" id="product-pagination">
-            </ul>
-    </div>
-</div>
+            <div class="row product-list" id="real-product-container">
+                <!-- JS sẽ render sản phẩm ở đây --> 
+            </div>
+            <div class="row">
+                <div class="col-md-4 col-sm-4 items-info" id="pagination-info" style="padding-top: 15px;">
+                    </div>
+                <div class="col-md-8 col-sm-8">
+                    <ul class="pagination pull-right" id="product-pagination">
+                        </ul>
+                </div>
+            </div>
 <style>
     /* 1. Thiết lập lưới 3 cột chuẩn */
     #real-product-container {
@@ -220,6 +220,32 @@
     #real-product-container .col-md-4:nth-child(3n+1) {
         clear: both !important;
     }
+    /* CSS cho Toast Thông báo */
+.cart-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 30px 50px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 9999;
+    display: none; /* Ẩn mặc định */
+}
+
+.cart-toast .icon-check {
+    background: #26bc94;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    margin: 0 auto 15px;
+}
     
 </style>
 
@@ -227,76 +253,80 @@
 
 
     <!-- BEGIN fast view of a product -->
-    <div id="product-pop-up" style="display: none; width: 700px;">
-            <div class="product-page product-pop-up"style="min-height: auto; padding: 15px;">
-              <div class="row">
-                <div class="col-md-6 col-sm-6 col-xs-3">
-                  <div class="product-main-image">
-                    <img src="assets/pages/img/products/model7.jpg" 
+<div id="product-pop-up" style="display: none; width: 700px;">
+    <div class="product-page product-pop-up" style="min-height: auto; padding: 15px;">
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-3">
+                <div class="product-main-image">
+                    <img src="assets/pages/img/products/model7.jpg" id="modal-main-img"
                          style="width: 100%; height: 420px; object-fit: cover; object-position: top; ">
-                  </div>
-                  <div class="product-other-images">
-    <a href="javascript:;" class="active change-main-image" data-image="assets/pages/img/products/model3.jpg">
-        <img alt="Thumb" src="assets/pages/img/products/model3.jpg">
-    </a>
-    <a href="javascript:;" class="change-main-image" data-image="assets/pages/img/products/model4.jpg">
-        <img alt="Thumb" src="assets/pages/img/products/model4.jpg">
-    </a>
-    <a href="javascript:;" class="change-main-image" data-image="assets/pages/img/products/model5.jpg">
-        <img alt="Thumb" src="assets/pages/img/products/model5.jpg">
-    </a>
-</div>
                 </div>
-                <div class="col-md-6 col-sm-6 col-xs-9">
-                  <h1>Cool green dress with red bell</h1>
-                  <div class="price-availability-block clearfix">
+                <div class="product-other-images">
+                    <a href="javascript:;" class="active change-main-image" data-image="assets/pages/img/products/model3.jpg">
+                        <img alt="Thumb" src="assets/pages/img/products/model3.jpg">
+                    </a>
+                    <a href="javascript:;" class="change-main-image" data-image="assets/pages/img/products/model4.jpg">
+                        <img alt="Thumb" src="assets/pages/img/products/model4.jpg">
+                    </a>
+                    <a href="javascript:;" class="change-main-image" data-image="assets/pages/img/products/model5.jpg">
+                        <img alt="Thumb" src="assets/pages/img/products/model5.jpg">
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-9">
+                <h1 id="modal-product-name">Cool green dress with red bell</h1>
+                <div class="price-availability-block clearfix">
                     <div class="price">
-                      <strong><span>$</span>47.00</strong>
-                      <em>$<span>62.00</span></em>
+                        <strong id="modal-product-price"><span>$</span>47.00</strong>
+                        <em id="modal-product-old-price">$<span>62.00</span></em>
                     </div>
                     <div class="availability">
-                      Availability: <strong>In Stock</strong>
+                        Availability: <strong>In Stock</strong>
                     </div>
-                  </div>
-                  <div class="description">
-                    <p>Lorem ipsum dolor ut sit ame dolore  adipiscing elit, sed nonumy nibh sed euismod laoreet dolore magna aliquarm erat volutpat 
-Nostrud duis molestie at dolore.</p>
-                  </div>
-                  <div class="product-page-options">
+                </div>
+                <div class="description">
+                    <p id="modal-product-desc">Lorem ipsum dolor ut sit ame dolore adipiscing elit...</p>
+                </div>
+                
+                <div class="product-page-options">
                     <div class="pull-left">
-                      <label class="control-label">Size:</label>
-                      <select class="form-control input-sm">
-                        <option>L</option>
-                        <option>M</option>
-                        <option>XL</option>
-                      </select>
+                        <label class="control-label">Size:</label>
+                        <select id="product-size" class="form-control input-sm">
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="XL">XL</option>
+                        </select>
                     </div>
                     <div class="pull-left">
-                      <label class="control-label">Color:</label>
-                      <select class="form-control input-sm">
-                        <option>Red</option>
-                        <option>Blue</option>
-                        <option>Black</option>
-                      </select>
+                        <label class="control-label">Color:</label>
+                        <select id="product-color" class="form-control input-sm">
+                            <option value="Red">Red</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Black">Black</option>
+                        </select>
                     </div>
-                  </div>
-                  <div class="product-page-cart">
+                </div>
+
+                <div class="product-page-cart">
                     <div class="product-quantity">
                         <input id="product-quantity" type="text" value="1" readonly name="product-quantity" class="form-control input-sm">
                     </div>
-                    <button class="btn btn-primary" type="submit">Add to cart</button>
-                  </div>
+                    <button class="btn btn-primary js-add-to-cart-modal" type="button">Add to cart</button>
                 </div>
-
-                <div class="sticker sticker-sale"></div>
-              </div>
             </div>
+
+            <div class="sticker sticker-sale"></div>
+        </div>
     </div>
+</div>
     </div>
    </div>
    </div> 
    </div>
-
+<div id="cart-success-toast" class="cart-toast">
+    <div class="icon-check">✓</div>
+    <p style="margin: 0; font-size: 16px;">Sản phẩm đã được thêm vào Giỏ hàng</p>
+</div>
     <!-- END fast view of a product -->
 @endsection
 
@@ -318,7 +348,6 @@ Nostrud duis molestie at dolore.</p>
     jQuery(document).ready(function() {
         // Kiểm tra dứt điểm để không bao giờ khởi tạo 2 lần
         if (typeof window.App === 'undefined') {
-            console.log("Khởi tạo App lần đầu và duy nhất");
             window.App = new ProductList();
             window.App.init();
         }

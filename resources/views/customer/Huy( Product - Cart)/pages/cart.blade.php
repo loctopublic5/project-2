@@ -57,43 +57,7 @@
             </div>
     </div>
 </div>
-<style>
-    /* Ép hiển thị hình tròn đỏ và dấu X trắng */
-    .header-navigation-content .cart-content-list .del-goods {
-        background-color: #E02222 !important; /* Màu đỏ */
-        background-image: none !important;    /* Bỏ ảnh nền lỗi của Metronic */
-        text-indent: 0 !important;            /* Hiện chữ */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 20px !important;
-        height: 20px !important;
-        border-radius: 50% !important;
-        position: absolute !important;
-        right: 10px !important;
-        top: 15px !important;
-        color: #ffffff !important;
-        text-decoration: none !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        z-index: 999;
-    }
 
-    .header-navigation-content .cart-content-list .del-goods::after {
-        content: '×' !important; /* Dấu X */
-        font-family: Arial, sans-serif !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        color: #fff !important;
-        line-height: 1;
-    }
-
-    /* Đảm bảo danh sách li có chỗ trống cho nút X */
-    .header-navigation-content .cart-content-list li {
-        position: relative !important;
-        padding-right: 35px !important;
-    }
-</style>
 @endsection
 
 @push('extra_scripts')
