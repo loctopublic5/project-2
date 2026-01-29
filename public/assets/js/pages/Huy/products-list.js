@@ -46,7 +46,6 @@ class ProductList {
         const container = $("#sidebar-categories");
         let html = "";
 
-        // categories ở đây chính là mảng 2 phần tử cha mà Huy thấy trong console
         categories.forEach((cat) => {
             const hasChild = cat.children && cat.children.length > 0;
 
@@ -117,7 +116,7 @@ class ProductList {
             .off("change", ".list-view-sorting select:eq(1)")
             .on("change", ".list-view-sorting select:eq(1)", function () {
                 const val = $(this).val();
-                // Logic lọc của Huy giữ nguyên nhưng thêm .off() để chặn lặp
+
                 if (val.includes("p.price&order=ASC")) {
                     self.sort = { field: "price", order: "asc" };
                 } else if (val.includes("p.price&order=DESC")) {
@@ -207,7 +206,7 @@ class ProductList {
     }
 
     async loadProducts(page = 1) {
-        console.log(`--- Huy đang gọi request trang: ${page} ---`);
+        console.log(`--- đang gọi request trang: ${page} ---`);
         if (this.loading) return;
         this.loading = true;
 
@@ -226,8 +225,6 @@ class ProductList {
                         ? `price_${this.sort.order}`
                         : "latest",
             };
-
-            console.log("Huy gửi params này lên Server:", params);
 
             const response = await window.api.get("/api/v1/products", {
                 params,
@@ -252,7 +249,7 @@ class ProductList {
         } finally {
             // QUAN TRỌNG NHẤT: Phải có dòng này thì lần sau mới click được tiếp
             this.loading = false;
-            console.log("Đã mở khóa loading cho Huy!");
+            console.log("Đã mở khóa loading!");
         }
     }
     async loadCategories() {
@@ -357,19 +354,26 @@ class ProductList {
         const token = localStorage.getItem("admin_token");
         console.log("Check data:", options);
         if (!token) {
-            alert("Huy ơi, bạn cần đăng nhập để mua hàng!");
+            alert("Bạn cần đăng nhập để mua hàng!");
             window.location.href = "/login";
             return;
         }
 
-        // Lấy dữ liệu từ options hoặc mặc định
+        // 1. CHUẨN HÓA DỮ LIỆU
+        const inputQty = $(".js-product-quantity").val();
+        const finalQuantity = options.quantity || parseInt(inputQty) || 1;
+
+        // CHUẨN HÓA: Chỉ lấy đúng size và color nếu có
+        // Nếu không có (trang ngoài), cleanOptions sẽ là {}
+        let cleanOptions = {};
+        if (options.size) cleanOptions.size = options.size;
+        if (options.color) cleanOptions.color = options.color;
+
         const bodyData = {
-            product_id: productId,
-            quantity: options.quantity || 1,
-            options: {
-                size: options.size || null,
-                color: options.color || null,
-            },
+            product_id: parseInt(productId),
+            quantity: parseInt(finalQuantity),
+            // KHÔNG GỬI MẢNG RỖNG [], hãy gửi Object {} đồng nhất
+            options: cleanOptions,
         };
 
         // Hiệu ứng Loading cho nút (nếu có btn truyền vào)
@@ -387,9 +391,32 @@ class ProductList {
         window.api
             .post("/api/v1/customer/cart", bodyData) // Dùng bodyData Huy đã tạo ở trên
             .then((res) => {
-                alert("Đã thêm vào giỏ hàng thành công!");
-                window.dispatchEvent(new Event("cart:updated"));
+                // 1. Đóng Modal nhanh
                 if ($.fancybox) $.fancybox.close();
+
+                // 2. Hiện thông báo "xịn" thay vì alert
+                const $toast = $("#cart-success-toast");
+                $toast.fadeIn(300); // Hiện lên mượt mà
+
+                // 3. Tự động ẩn sau 2 giây
+                setTimeout(() => {
+                    $toast.fadeOut(300);
+                }, 2000);
+
+                // 4. Kích hoạt cập nhật lại số lượng giỏ hàng trên Header
+                window.dispatchEvent(new Event("cart:updated"));
+            })
+            .catch((err) => {
+                // CẦN THIẾT: Bắt lỗi 400 để thông báo cho người dùng
+                console.error("Lỗi 400:", err.response?.data);
+                alert(
+                    err.response?.data?.message ||
+                        "Lỗi dữ liệu, kiểm tra lại sản phẩm nhé!",
+                );
+            })
+            .finally(() => {
+                // CẦN THIẾT: Mở lại nút bấm dù thành công hay thất bại
+                $btn.html(originalText).prop("disabled", false);
             });
     }
 
@@ -425,11 +452,11 @@ class ProductList {
                 </div>
                 
                 <a href="javascript:void(0);" 
-   class="btn btn-default add2cart js-add-to-cart" 
-   data-id="${product.id}" 
-   ${!inventory.in_stock ? "disabled" : ""}>
-    <i class="fa fa-shopping-cart"></i> Add to cart
-</a>
+                class="btn btn-default add2cart js-add-to-cart" 
+                data-id="${product.id}" 
+                ${!inventory.in_stock ? "disabled" : ""}>
+                    <i class="fa fa-shopping-cart"></i> Add to cart
+                </a>
 
                 ${hasSale ? `<div class="sticker sticker-sale"></div>` : ""}
                 
@@ -598,7 +625,6 @@ class ProductList {
 }
 
 // Khởi tạo
-// Cuối file products-list.js
 $(document).ready(() => {
     // Đảm bảo chỉ khởi tạo 1 lần
     if (!window.huyProductApp) {

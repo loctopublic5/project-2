@@ -132,17 +132,17 @@
             </div>
             <!-- BEGIN PRODUCT LIST -->
 
-<div class="row product-list" id="real-product-container">
-    <!-- JS sẽ render sản phẩm ở đây --> 
-</div>
-<div class="row">
-    <div class="col-md-4 col-sm-4 items-info" id="pagination-info" style="padding-top: 15px;">
-        </div>
-    <div class="col-md-8 col-sm-8">
-        <ul class="pagination pull-right" id="product-pagination">
-            </ul>
-    </div>
-</div>
+            <div class="row product-list" id="real-product-container">
+                <!-- JS sẽ render sản phẩm ở đây --> 
+            </div>
+            <div class="row">
+                <div class="col-md-4 col-sm-4 items-info" id="pagination-info" style="padding-top: 15px;">
+                    </div>
+                <div class="col-md-8 col-sm-8">
+                    <ul class="pagination pull-right" id="product-pagination">
+                        </ul>
+                </div>
+            </div>
 <style>
     /* 1. Thiết lập lưới 3 cột chuẩn */
     #real-product-container {
@@ -220,6 +220,32 @@
     #real-product-container .col-md-4:nth-child(3n+1) {
         clear: both !important;
     }
+    /* CSS cho Toast Thông báo */
+.cart-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 30px 50px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 9999;
+    display: none; /* Ẩn mặc định */
+}
+
+.cart-toast .icon-check {
+    background: #26bc94;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    margin: 0 auto 15px;
+}
     
 </style>
 
@@ -297,7 +323,10 @@
    </div>
    </div> 
    </div>
-
+<div id="cart-success-toast" class="cart-toast">
+    <div class="icon-check">✓</div>
+    <p style="margin: 0; font-size: 16px;">Sản phẩm đã được thêm vào Giỏ hàng</p>
+</div>
     <!-- END fast view of a product -->
 @endsection
 
@@ -319,7 +348,6 @@
     jQuery(document).ready(function() {
         // Kiểm tra dứt điểm để không bao giờ khởi tạo 2 lần
         if (typeof window.App === 'undefined') {
-            console.log("Khởi tạo App lần đầu và duy nhất");
             window.App = new ProductList();
             window.App.init();
         }
