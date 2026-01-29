@@ -64,40 +64,66 @@ Checkout.OrderReview = (function () {
         },
 
         placeOrder: async function () {
-            const $btn = $('#button-confirm');
-            
-            // Validate lần cuối
-            if (!Checkout.data.selectedAddressId || !Checkout.data.payment_method) {
-                return Swal.fire('Lỗi', 'Vui lòng hoàn thành các bước trên.', 'error');
-            }
+    const $btn = $('#button-confirm');
+    const $actionContainer = $('.confirm-order-actions'); // Container chứa 2 nút
+    
+    // Validate dữ liệu
+    if (!Checkout.data.selectedAddressId || !$('input[name="payment_method"]:checked').val()) {
+        return Swal.fire('Lỗi', 'Vui lòng hoàn thành đầy đủ thông tin thanh toán.', 'error');
+    }
 
-            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang tạo đơn hàng...');
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...');
 
-            try {
-                const payload = {
-                    address_id: Checkout.data.selectedAddressId,
-                    payment_method: Checkout.data.payment_method,
-                    note: $('#delivery-payment-method').val(), // Ghi chú từ Step 3
-                };
+    try {
+        const payload = {
+            address_id: Checkout.data.selectedAddressId,
+            payment_method: $('input[name="payment_method"]:checked').val(),
+            note: $('#delivery-payment-method').val(),
+        };
 
-                const response = await window.api.post('/api/v1/customer/orders', payload);
+        const response = await window.api.post('/api/v1/customer/orders', payload);
 
-                if (response.data.status) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công!',
-                        text: 'Đơn hàng của bạn đã được tiếp nhận.',
-                        confirmButtonText: 'Xem đơn hàng'
-                    }).then(() => {
-                        window.location.href = '/customer/orders/' + response.data.data.id;
-                    });
+        if (response.data.status) {
+            const orderId = response.data.data.id;
+
+            // --- THAY ĐỔI GIAO DIỆN NÚT BẤM ĐỂ TỐI ƯU UX ---
+            $actionContainer.html(`
+                <button type="button" class="btn btn-default" onclick="window.location.href='/'">
+                    <i class="fa fa-shopping-cart"></i> TIẾP TỤC MUA SẮM
+                </button>
+                <button type="button" class="btn btn-primary" onclick="OrderModule.showOrderDetail(${orderId})">
+                    <i class="fa fa-eye"></i> XEM CHI TIẾT ĐƠN HÀNG
+                </button>
+            `);
+
+            // Thông báo thành công
+            Swal.fire({
+                title: '🎉 Đặt hàng thành công!',
+                text: "Cảm ơn bạn đã tin dùng dịch vụ của chúng tôi.",
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa fa-eye"></i> Xem đơn hàng',
+                cancelButtonText: '<i class="fa fa-home"></i> Tiếp tục mua sắm',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    setTimeout(() => {
+                        OrderModule.showOrderDetail(orderId);
+                    }, 300);
+                } else {
+                    window.location.href = '/';
                 }
-            } catch (err) {
-                $btn.prop('disabled', false).text('Xác nhận đơn hàng');
-                const errMsg = err.response?.data?.message || 'Giao dịch thất bại, vui lòng thử lại.';
-                Swal.fire('Lỗi đặt hàng', errMsg, 'error');
-            }
+            });
+
+            // Làm mới giỏ hàng mini trên header
+            if (window.AppCart) window.AppCart.refresh();
         }
+    } catch (err) {
+        $btn.prop('disabled', false).text('XÁC NHẬN ĐẶT HÀNG');
+        const errMsg = err.response?.data?.message || 'Giao dịch thất bại, vui lòng thử lại.';
+        Swal.fire('Lỗi đặt hàng', errMsg, 'error');
+    }
+}
     };
 })();
 // 1. Cập nhật hàm placeOrder trong module hiện tại của bạn

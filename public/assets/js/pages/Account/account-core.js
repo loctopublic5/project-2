@@ -1,10 +1,16 @@
 const AppAccount = {
     // 1. Khởi tạo Dashboard
     init: async function() {
-        await this.loadDashboardData();
+    await this.loadDashboardData();
+    this.bindEvents();
 
-        this.bindEvents();
-    },
+    // TỰ ĐỘNG CHUYỂN TAB TỪ URL
+    const params = new URLSearchParams(window.location.search);
+    const targetTab = params.get('tab');
+    if (targetTab) {
+        this.switchTab(targetTab);
+    }
+},
 
     // 2. Load dữ liệu tổng hợp
     loadDashboardData: async function() {
