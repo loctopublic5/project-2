@@ -2,8 +2,20 @@
 
 Tài liệu hướng dẫn quy trình phát triển, cài đặt và cấu trúc dự án.
 **Quy trình luồng dữ liệu (Data Flow) bắt buộc:**
-1.  **Input:** Route (Modular) -> Request (Validation) -> Controller -> Service (Logic) -> DB.
-2.  **Output:** DB -> Service -> Controller -> Resource (Transform JSON) -> View (Blade/JSON Response).
+1.  **Input:** Route (API) -> Request (Validation) -> Controller -> Service (Logic) -> DB.
+2.  **Output:** DB -> Service -> Controller -> Resource (Transform JSON) -> JS -> View (Blade/JSON Response) -> Route (Web) -> UI.
+
+
+1. Update Gemini CLi
+npm install -g @google/gemini-cli@latest
+2. run version 2.5
+gemini -m gemini-2.5-flash
+3. LocalTunel ( domain)
+npm install -g localtunnel
+4. ngrok run (đang chạy)
+d:\Download\APPS\ngrok.exe http 8000
+5. cloudflare (run domain)
+d:\Download\APPS\cloudflared-windows-amd64.exe tunnel --url http://localhost:8000
 -------------------------------------------------------------------------------------------------------
 
 ## 🛠 1. Cài đặt dự án (Cho thành viên mới)

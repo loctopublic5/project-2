@@ -15,11 +15,16 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // 1. Logic xử lý Thumbnail (Ảnh đại diện)
-        // Lấy ảnh đầu tiên làm thumbnail nếu danh sách ảnh đã được load và không rỗng
-        $thumbnail = null;
-        if ($this->relationLoaded('images') && $this->images->isNotEmpty()){
-            $thumbnail = Storage::url($this->images->first()->path);
+        $rawAttributes = $this->resource->attributes; 
+
+        // 2. Decode nếu nó là String
+        $specifications = $rawAttributes;
+        if (is_string($rawAttributes)) {
+            $specifications = json_decode($rawAttributes, true);
+        }
+        // Đảm bảo luôn là object/array rỗng nếu null
+        if (!$specifications) {
+            $specifications = [];
         }
         return [
             'id'   => $this->id,
@@ -30,7 +35,15 @@ class ProductResource extends JsonResource
                 'sku'  => $this->sku,
                 'slug' => $this->slug,
                 'description' => $this->description,
-                'thumbnail'   => $thumbnail,
+                'thumbnail'   => $this->thumbnail_url, 
+            
+                // Trả về gallery cho JS xử lý renderExistingGalleryItem
+                'images'      => $this->whenLoaded('images', function() {
+                    return $this->images->map(fn($file) => [
+                        'id'  => $file->id,
+                        'url' => Storage::url($file->path)
+                    ]);
+                }),
             ],
 
             // Danh mục (Chỉ hiện khi đã load để tối ưu performance)
@@ -40,17 +53,6 @@ class ProductResource extends JsonResource
                     'name' => $this->category->name,
                     'slug' => $this->category->slug,
                 ];
-            }),
-
-            // Trả về danh sách URL tuyệt đối cho Frontend
-            'images' => $this->whenLoaded('images', function(){
-                return $this->images->map(function($files){
-                    return [
-                        'id'  => $files->id,
-                        'url' => Storage::url($files->path)
-                    ];
-
-                });
             }),
 
             // Giá cả (Logic Pricing Service đính kèm)
@@ -69,7 +71,7 @@ class ProductResource extends JsonResource
             ],
 
             // Attributes (JSON) - Luôn trả về Object, tránh null
-            'specifications' => $this->attributes ?? (object)[], 
+            'specifications' => $specifications, 
 
             // Meta
             'is_active'  => (bool) $this->is_active,

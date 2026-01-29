@@ -37,9 +37,20 @@ class SaveProductRequest extends BaseFormRequest
 
             'attributes'  => ['nullable', 'array'],
             // 'attributes.*' nghĩa là duyệt qua từng phần tử trong mảng attributes
-            'attributes.*' => ['nullable', 'string', 'max:255'],
-            //Nếu muốn bắt buộc phải có key cụ thể (VD: material)
-            // 'attributes.material' => ['required', 'string'],
+            'attributes.*.name'  => ['required_with:attributes', 'string', 'max:255'],
+            'attributes.*.value' => ['required_with:attributes', 'string', 'max:255'],
+
+            'image' => [
+                $isUpdate ? 'nullable' : 'required', // Tạo mới thì bắt buộc, update thì không
+                'image', 
+                'mimes:jpeg,png,jpg,gif', 
+                'max:2048'
+            ],
+            // Cập nhật Rule cho Gallery (Mảng ảnh)
+            'gallery'   => ['nullable', 'array'],
+            'gallery.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        
+            'deleted_images' => ['nullable', 'string'], // Chuỗi JSON chứa ID các ảnh gallery cần xóa
         ];
     }
 
@@ -76,8 +87,8 @@ class SaveProductRequest extends BaseFormRequest
 
             // Attributes (JSON)
             'attributes.array'    => 'Thuộc tính mở rộng phải là định dạng JSON Object hợp lệ.',
-            'attributes.*.string' => 'Giá trị của thuộc tính phải là dạng chuỗi (không hỗ trợ mảng con).',
-            'attributes.*.max'    => 'Giá trị thuộc tính quá dài (tối đa 255 ký tự).',
+            'attributes.*.name.required_with' => 'Tên thuộc tính không được để trống.',
+            'attributes.*.value.required_with'=> 'Giá trị thuộc tính không được để trống.',
         ];
     }
 

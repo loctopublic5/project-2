@@ -180,7 +180,7 @@ class WalletService{
 
         // Tạo mã nạp tiền (DEP-XXXX)
         // Lưu ý: Sửa GenerateUniqueCode -> generateUniqueCode (camelCase)
-        $depositCode = $this->generateUniqueCode('reference_id', 'DEP', 8);
+        $depositCode = $this->generateUniqueCode(WalletTransaction::class, 'reference_id', 'DEP', 8);
 
         // FIX: Đổi 'code' thành 'reference_id' và sửa typo 'descrption'
         $transaction = WalletTransaction::create([

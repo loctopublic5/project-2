@@ -13,6 +13,10 @@ class UserResource extends JsonResource
             'full_name' => $this->full_name,
             'email' => $this->email,
             'phone' => $this->phone,
+
+            'avatar_url' => $this->avatar_url 
+                ? asset('storage/' . $this->avatar_url) 
+                : asset('admin_assets/assets/compiled/jpg/1.jpg'),
             
             // Nhóm thông tin VIP/Tài chính
             'vip_info' => [
@@ -26,7 +30,9 @@ class UserResource extends JsonResource
             
             // Lấy trực tiếp từ quan hệ roles() đã định nghĩa trong Model
             // pluck('name') sẽ lấy cột name trong bảng roles trả về mảng ['admin', 'manager']
-            'roles' => $this->roles->pluck('name'), 
+            'roles' => $this->whenLoaded('roles', function() {
+                return $this->roles->pluck('name');
+            }), 
 
             'joined_at' => $this->created_at->format('d/m/Y H:i'),
 
@@ -37,9 +43,9 @@ class UserResource extends JsonResource
     }
 
     private function calculateRank($spending) {
-        if ($spending > 50000000) return 'Diamond';
-        if ($spending > 20000000) return 'Gold';
-        if ($spending > 5000000) return 'Silver';
+        if ($spending > 1000000000) return 'Diamond';
+        if ($spending > 400000000) return 'Gold';
+        if ($spending > 10000000) return 'Silver';
         return 'Member';
     }
 }

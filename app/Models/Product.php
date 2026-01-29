@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+
 class Product extends Model
 {
     use SoftDeletes, HasSlug, HasUniqueCode, HasFactory;
@@ -21,6 +22,7 @@ class Product extends Model
         'category_id',
         'name',
         'sku',
+        'thumbnail',
         'slug',
         'price',
         'sale_price',
@@ -58,9 +60,28 @@ class Product extends Model
             // Nếu Admin không nhập SKU -> Tự sinh mã ngẫu nhiên (VD: SP-X8L9P)
             if (empty($product->sku)) {
                 // generateUniqueCode(cột, tiền tố, độ dài)
-                $product->sku = $product->generateUniqueCode('sku', 'SP', 6);
+                $product->sku = $product->generateUniqueCode(self::class,'sku', 'SP', 6);
             }
         });
+    }
+
+    /**
+     * Accessor: Tự động tạo URL đầy đủ cho thumbnail
+     * Giúp code ở Resource hoặc Controller sạch hơn
+     */
+    public function getThumbnailUrlAttribute()
+    {
+        if (!$this->thumbnail) {
+            return null; // Hoặc return một link ảnh default "no-image.png"
+        }
+
+        // Nếu path lưu dưới dạng link tuyệt đối (http...) thì trả về luôn
+        if (filter_var($this->thumbnail, FILTER_VALIDATE_URL)) {
+            return $this->thumbnail;
+        }
+
+        // Mặc định dùng Storage disk public
+        return \Illuminate\Support\Facades\Storage::url($this->thumbnail);
     }
 
     /**
@@ -73,7 +94,7 @@ class Product extends Model
 
     public function images(): MorphMany
     {
-        return $this->morphMany(File::class, 'target');
+        return $this->morphMany(File::class, 'target')->orderBy('id', 'desc');
     }
 
     public function orderItem(): HasMany{
@@ -85,7 +106,7 @@ class Product extends Model
     }
 
     public function scopeActive($query){
-        return $this->where('is_active', true);
+        return $query->where('is_active', true);
     }
 
     // Quan hệ này ít dùng trực tiếp, nhưng hữu ích khi muốn check:
@@ -94,5 +115,7 @@ class Product extends Model
     {
         return $this->hasMany(CartItem::class);
     }
+
+
 
 }

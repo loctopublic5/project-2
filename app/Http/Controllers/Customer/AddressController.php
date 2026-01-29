@@ -107,4 +107,23 @@ class AddressController extends Controller
             return $this->error($e->getMessage());
         }
     }
+    
+    /**
+ * GET /api/v1/customer/addresses/{id}
+ * Lấy chi tiết một địa chỉ
+ */
+public function show(Request $request, $id)
+{
+    try {
+        $userId = $request->user()->id;
+        
+        // Gọi service để lấy chi tiết và check quyền sở hữu
+        $address = $this->addressService->getAddressDetail($userId, $id);
+
+        return $this->success(new UserAddressResource($address), 'Lấy chi tiết thành công.');
+    } catch (Exception $e) {
+        // Trả về lỗi 404 nếu không tìm thấy hoặc không có quyền
+        return $this->error($e->getMessage(), 404);
+    }
+}
 }

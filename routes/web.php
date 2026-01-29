@@ -18,9 +18,9 @@ Route::group([], function () {
     }
 });
 
-// 1. Trang chủ (Trả về view home chứ không phải layout app)
-Route::get('/', function () {
-    return view('pages.home'); 
+// Chắc chắn rằng dòng này thay thế cho route '/' cũ
+Route::get('/', function(){
+    return view('customer.Huy( Product - Cart).pages.products-list');
 })->name('home');
 
 

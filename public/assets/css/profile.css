@@ -1,0 +1,354 @@
+
+        /* Tùy chỉnh để Dashboard hiện đại hơn trong nền Metronic */
+        .stat-card { padding: 20px; border: 1px solid #eee; margin-bottom: 20px; border-radius: 4px; transition: all 0.3s; }
+        .stat-card:hover { border-color: #E02222; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-card i { font-size: 24px; float: right; color: #E02222; opacity: 0.3; }
+        .stat-card .number { font-size: 20px; font-weight: 700; display: block; margin-top: 5px; }
+        .stat-card .title { font-size: 12px; text-transform: uppercase; color: #777; }
+        .sidebar-menu li.active a { color: #E02222 !important; font-weight: bold; background: #f9f9f9; }
+        .sidebar-menu li i { margin-right: 8px; }
+        .label-sm {
+    padding: 3px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.label-info { background-color: #44b6ae; } /* Màu Teal đặc trưng Metronic */
+.label-warning { background-color: #f2784b; } /* Màu Orange */
+
+/* Metronic Badge Colors */
+    .status-badge {
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        border-radius: 2px !important;
+        display: inline-block;
+        min-width: 90px;
+        text-align: center;
+    }
+    .badge-pending { background-color: #F1C40F; color: #fff; }   /* Vàng - Chờ xử lý */
+    .badge-confirmed { background-color: #3498DB; color: #fff; } /* Xanh dương - Đã duyệt */
+    .badge-shipping { background-color: #8E44AD; color: #fff; }  /* Tím - Đang giao */
+    .badge-completed { background-color: #2ECC71; color: #fff; } /* Xanh lá - Hoàn thành */
+    .badge-cancelled { background-color: #E74C3C; color: #fff; } /* Đỏ - Đã hủy */
+    .badge-unpaid { border: 1px solid #E74C3C; color: #E74C3C; background: transparent; }
+    .badge-paid { border: 1px solid #2ECC71; color: #2ECC71; background: transparent; }
+    .account-tab-content {
+    min-height: 400px;
+}
+/* Layout cho các ô chọn tiền */
+.deposit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+.amount-item {
+    border: 1px solid #ddd;
+    padding: 12px 5px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+.amount-item:hover { border-color: #e02222; color: #e02222; }
+.amount-item.active {
+    background: #fff5f5;
+    border-color: #e02222;
+    color: #e02222;
+    position: relative;
+}
+.input-blank {
+    border: none;
+    width: 100%;
+    text-align: center;
+    outline: none;
+    background: transparent;
+}
+
+/* Giao diện phương thức thanh toán */
+.payment-methods { display: flex; flex-direction: column; gap: 10px; }
+.method-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+}
+.method-item input[type="radio"] { display: none; }
+.method-content { display: flex; align-items: center; gap: 15px; flex: 1; }
+.method-content i { font-size: 20px; width: 25px; }
+.check-icon { color: #e02222; display: none; }
+.method-item input:checked + .method-content + .check-icon { display: block; }
+.method-item has-input:checked { border-color: #e02222; }
+
+.address-card {
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.3s;
+    position: relative;
+}
+.address-card.default {
+    border-color: #337ab7;
+    background: #f9fcff;
+}
+.address-card .name {
+    font-size: 16px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+.address-card .address-body p {
+    margin: 5px 0;
+    color: #666;
+}
+.address-card .badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+/* Container Grid */
+#address-list-grid {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+/* Base Card Style */
+.address-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.address-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #337ab7;
+}
+
+/* Trạng thái mặc định */
+.address-card.default {
+    border: 2px solid #337ab7;
+    background-color: #f0f7ff;
+}
+
+/* Header: Tên & Badge */
+.address-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-right: 70px; /* Chừa chỗ cho badge */
+}
+
+.address-header .name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+}
+
+.address-card .badge-default-addr {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #337ab7;
+    color: #fff;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+/* Body: Thông tin liên lạc */
+.address-body {
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.address-body p {
+    margin: 4px 0;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: baseline;
+}
+
+.address-body i {
+    width: 20px;
+    color: #888;
+    font-size: 13px;
+}
+
+.address-body .text-muted {
+    font-size: 13px;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+/* Footer: Nút bấm */
+.address-footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Tối ưu cho Mobile (Dưới 768px) */
+@media (max-width: 767px) {
+    .address-card {
+        padding: 15px;
+        min-height: auto;
+    }
+
+    .address-footer {
+        flex-direction: row; /* Giữ nút trên 1 hàng nhưng dàn đều */
+        justify-content: space-between;
+    }
+
+    .address-footer .btn {
+        flex: 1; /* Nút to hơn dễ bấm */
+        padding: 8px 5px;
+        font-size: 12px;
+    }
+
+    .address-header .name {
+        font-size: 15px;
+    }
+}
+
+/* Star Rating Style */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+.star-rating input { display: none; }
+.star-rating label {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-right: 5px;
+}
+/* Khi hover hoặc check thì đổi màu sao */
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffca08; /* Màu vàng Shopee */
+}
+.review-product-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+.review-product-item:last-child { border-bottom: none; }
+
+/* Style cho Rank User */
+.rank-badge {
+    padding: 5px 12px;
+    border-radius: 20px !important;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.rank-diamond { background: #e1f5fe; color: #0288d1; border: 1px solid #0288d1; } /* Xanh kim cương */
+.rank-gold { background: #fff8e1; color: #ff8f00; border: 1px solid #ff8f00; }    /* Vàng */
+.rank-silver { background: #f5f5f5; color: #616161; border: 1px solid #bdbdbd; } /* Bạc */
+.rank-member { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; } /* Thành viên */
+
+/* Style cho Trạng thái đơn hàng */
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 4px !important;
+    font-size: 12px;
+    font-weight: 500;
+}
+.status-completed { background-color: #c6f6d5; color: #22543d; } /* Hoàn thành - Xanh lá */
+.status-pending { background-color: #fefcbf; color: #744210; }   /* Chờ - Vàng */
+.status-shipping { background-color: #bee3f8; color: #2a4365; }  /* Đang giao - Xanh dương */
+.status-cancelled { background-color: #fed7d7; color: #822727; } /* Hủy - Đỏ */
+
+/* Nhãn Mặc định cho địa chỉ */
+.badge-default { background: #6c757d; color: #fff; padding: 2px 5px; font-size: 9px; border-radius: 3px !important; }
+
+/* Dashboard Rank Style */
+#db-rank {
+    font-weight: bold;
+}
+.text-rank-diamond { color: #0288d1; }
+.text-rank-gold { color: #ff8f00; }
+.text-rank-silver { color: #757575; }
+.text-rank-member { color: #2e7d32; }
+
+.stat-card {
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px !important;
+    text-align: center;
+    border: 1px solid #eee;
+}
+.clickable-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.clickable-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #E02222; /* Màu chủ đạo của bạn */
+}
+
+/* CSS chuyên biệt cho Avatar Profile */
+    #avatar-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50% !important;
+        overflow: hidden;
+        border: 3px solid #eee;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+    #detail-avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .avatar-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: all 0.3s ease;
+        border-radius: 50%;
+    }
+    #avatar-wrapper:hover .avatar-overlay { opacity: 1; }
+    .btn-avatar-action {
+        background: #fff;
+        color: #333;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50% !important;
+        margin: 0 5px;
+        transition: transform 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-avatar-action:hover { transform: scale(1.1); color: #e02222; }
+    .btn-avatar-action i { font-size: 16px; }

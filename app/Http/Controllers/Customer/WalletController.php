@@ -73,7 +73,7 @@ class WalletController
         ];
 
         // 4. Trả về
-        RETURN $this->success($responseData, "Lấy thông tin ví thành công");
+        return $this->success($responseData, "Lấy thông tin ví thành công");
 
     }catch (Exception $e){
         return $this->error($e->getMessage());

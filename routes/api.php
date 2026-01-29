@@ -5,13 +5,13 @@ use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\System\AuthController;
 use App\Http\Controllers\System\FileController;
 use App\Http\Controllers\Customer\CartController;
-
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Customer\WalletController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\Admin\AdminWalletController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -76,31 +76,32 @@ Route::prefix('v1')->group(function () {
         3. CUSTOMER MODULE (Yêu cầu Login)
         URL: /api/v1/customer/...
     ================================================================= */
-    Route::prefix('customer')->group(function(){
+    Route::prefix('customer')->middleware(['auth:sanctum', 'role:customer'])->group(function(){
         // ORDER ROUTES (Role: Customer)
-        Route::prefix('orders')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('orders')->group(function(){
             Route::post('/', [OrderController::class, 'store']);
             // Order History
             Route::get('/', [OrderHistoryController::class, 'index']);
             Route::get('/{id}', [OrderHistoryController::class, 'show']);
+            Route::patch('/{id}/confirm',[OrderHistoryController::class, 'confirm']);
             Route::put('/{id}/cancel', [OrderHistoryController::class, 'cancel']);
         });
             
         //------------------------------------------------------------------------------------------------------------
         // NHÓM 1: USER ROUTES (Khách hàng dùng)
-        Route::prefix('wallet')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('wallet')->group(function(){
             // GET /api/wallet/me -> Xem số dư & lịch sử
             Route::get('/', [WalletController::class, 'getMe']);
             // POST /api/wallet/deposit -> Nạp tiền (Auto-approve)
             Route::post('/deposit', [WalletController::class, 'deposit']);
         });
 
-        Route::prefix('payment')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('payment')->group(function(){
             Route::post( '/',[PaymentController::class, 'payByWallet']);
         });
 
         // ADDRESS ROUTES
-        Route::prefix('addresses')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('addresses')->group(function(){
             Route::get('/', [AddressController::class, 'index']);
             Route::post('/', [AddressController::class, 'store']);
             Route::get('/{id}', [AddressController::class, 'show']);
@@ -112,7 +113,7 @@ Route::prefix('v1')->group(function () {
     });
 
         // CART ROUTES (Role: Customer)
-        Route::prefix('cart')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('cart')->group(function(){
             Route::get('/', [CartController::class, 'index']);      
             Route::post('/', [CartController::class, 'store']);     
             Route::put('/{id}', [CartController::class, 'update']); 
@@ -122,12 +123,23 @@ Route::prefix('v1')->group(function () {
 
         // PRODUCT REVIEW ROUTES (Role: Customer)
         Route::post('/products/{id}/reviews', [ProductReviewController::class, 'store']);
+        Route::get('products/{id}/reviews', [ProductReviewController::class, 'index']);
 
         // Notification Routes
-        Route::prefix('notifications')->middleware('auth:sanctum')->group(function(){
+        Route::prefix('notifications')->group(function(){
             Route::get('/', [NotificationController::class, 'index']);
             Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
             Route::patch('/read-all', [NotificationController::class, 'markAllRead']);
+        });
+
+        // User detail show
+        Route::get('/user/{id}',[AdminUserController::class, 'show']);
+
+        //Profile
+        Route::prefix('profile')->group(function(){
+        Route::put('/avatar/{id}', [ProfileController::class, 'updateAvatar']);
+        Route::put('/update-info/{id}', [ProfileController::class, 'updateInfo']);
+        Route::post('/trigger-reset-password',[ProfileController::class, 'triggerResetPassword']);
         });
     });
 
@@ -142,6 +154,12 @@ Route::prefix('v1')->group(function () {
     
         // 2. ADMIN API (Dùng AdminProductController)
         Route::prefix('products')->group(function() {
+            // GET /api/v1/admin/products
+            Route::get('/', [AdminProductController::class, 'index']); 
+        
+            // GET /api/v1/admin/products/{id}
+            Route::get('/{id}', [AdminProductController::class, 'show']);
+            
             Route::post('/', [AdminProductController::class, 'store']);
             /* Lách luật bằng kỹ thuật Method Spoofing:
             Client (Frontend/Postman): Vẫn gửi Request là POST (để PHP đọc được file).
@@ -185,8 +203,10 @@ Route::prefix('v1')->group(function () {
     /* =================================================================
     6. ADMIN ORDER ROUTES (Role: Admin/Warehouse)
     ================================================================= */
-    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin')->group(function() {
-        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
+    Route::middleware(['auth:sanctum', 'role:admin,warehouse'])->prefix('admin/orders')->group(function() {
+        Route::patch('/{id}/status', [AdminOrderController::class, 'updateStatus']);
+        Route::get('/',[AdminOrderController::class, 'index'] );
+        Route::get('/{id}', [AdminOrderController::class, 'show']);
     });
 });
 

@@ -100,30 +100,51 @@ const renderDashboard = (data) => {
     }
 };
 
-// 4. Hàm Main: Khởi chạy
+// 4. Hàm gắn sự kiện Click cho Widget (MỚI THÊM)
+const setupWidgetEvents = () => {
+    // A. Widget Chờ xử lý -> Trỏ sang đơn hàng + filter pending
+    const pendingWidget = document.getElementById('stat-pending');
+    if (pendingWidget) {
+        pendingWidget.addEventListener('click', () => {
+            // Chuyển hướng kèm Query Param
+            window.location.href = '/admin/orders?status=pending'; 
+        });
+    }
+
+    // B. Widget Khách hàng -> Trỏ sang danh sách khách
+    const customerWidget = document.getElementById('stat-customers');
+    if (customerWidget) {
+        customerWidget.addEventListener('click', () => {
+            window.location.href = '/admin/users';
+        });
+    }
+
+    // C. Widget Doanh thu -> Trỏ sang đơn hàng (để xem tất cả)
+    const revenueWidget = document.getElementById('widget-revenue'); // Giả sử bạn đã đặt ID này
+    if (revenueWidget) {
+        revenueWidget.addEventListener('click', () => {
+            window.location.href = '/admin/orders';
+        });
+    }
+};
+
+// 5. Hàm Main: Khởi chạy (CẬP NHẬT)
 const initDashboard = async (apiUrl) => {
-    // Khởi tạo Chart rỗng trước
+    // Render Chart rỗng
     revenueChart = new ApexCharts(document.querySelector("#revenue-chart"), chartOptions);
     revenueChart.render();
 
+    setupWidgetEvents(); 
+
     try {
-        console.log("🚀 Đang gọi API bằng window.api...");
-        
-        if (!window.api) {
-            throw new Error("Lỗi: window.api chưa được khởi tạo. Kiểm tra lại axios-config.js");
-        }
+        if (!window.api) throw new Error("Window.api chưa khởi tạo");
 
         const response = await window.api.get(apiUrl);
         const result = response.data;
 
-        if (result.status || result.success) { // Kiểm tra linh hoạt cả status và success
-            // Backend trả về structure: { status: true, data: { overview:..., top_products:... } }
-            // Nên truyền result.data vào hàm render
+        if (result.status || result.success) {
             renderDashboard(result.data);
-        } else {
-            console.error("API trả về logic false:", result);
         }
-
     } catch (error) {
         console.error("❌ Lỗi tải Dashboard:", error);
     }

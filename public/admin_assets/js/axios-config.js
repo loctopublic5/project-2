@@ -16,7 +16,8 @@
     const api = window.axios.create({
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     });
 
@@ -49,7 +50,7 @@
                     alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
                     localStorage.removeItem('admin_token');
                     localStorage.removeItem('admin_user');
-                    window.location.href = '/admin/login';
+                    window.location.href = '/login';
                 }
             }
             return Promise.reject(error);

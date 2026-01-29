@@ -46,6 +46,14 @@
                         <span>Danh mục</span>
                     </a>
                 </li>
+                {{-- 👇 2. SẢN PHẨM (THÊM MỚI TẠI ĐÂY) 👇 --}}
+                <li class="sidebar-item role-admin d-none {{ request()->is('admin/products*') ? 'active' : '' }}">
+                    <a href="{{ url('/admin/products') }}" class='sidebar-link'>
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                </li>
+                {{-- 👆 ------------------------------- 👆 --}}
 
                 {{-- Sửa: Thêm role-admin và logic active cho Users --}}
                 <li class="sidebar-item role-admin d-none {{ request()->is('admin/users*') ? 'active' : '' }}">
@@ -58,10 +66,10 @@
                 {{-- NHÓM VẬN HÀNH --}}
                 <li class="sidebar-title role-operation d-none">Vận hành</li>
 
-                <li class="sidebar-item role-operation d-none {{ request()->is('admin/orders*') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
+                <li class="sidebar-item role-admin role-operation d-none {{ request()->is('admin/orders*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.orders.index') }}" class='sidebar-link'>
                         <i class="bi bi-cart-check-fill"></i>
-                        <span>Đơn hàng</span>
+                        <span>Vận đơn</span>
                     </a>
                 </li>
 

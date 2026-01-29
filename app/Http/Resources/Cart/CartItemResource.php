@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Cart;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CartItemResource extends JsonResource
@@ -55,9 +56,8 @@ class CartItemResource extends JsonResource
             'product_info' => [
                 'name'   => $product->name,
                 'slug'   => $product->slug,
-                // Đảm bảo avatar luôn là chuỗi (hoặc null), tránh lỗi nếu DB null
-                'avatar' => $product->avatar ?? '', 
                 'sku'    => $product->sku,
+                'avatar' => $this->getAvatarUrl($product),
             ],
 
             'price'        => $realPrice,
@@ -78,4 +78,13 @@ class CartItemResource extends JsonResource
             'max_qty'       => (int) $product->stock_qty,
         ];
     }
+    private function getAvatarUrl($product) {
+    // Eager load quan hệ 'images' để lấy file
+    $image = $product->images->first(); 
+    if ($image && $image->path) {
+        // Trả về URL đầy đủ. Theo ERD lưu tại public/storage/upload 
+        return asset('storage/' . $image->path);
+    }
+    return asset('admin_assets/assets/compiled/jpg/1.jpg');
+}
 }

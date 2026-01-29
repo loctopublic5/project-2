@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use Exception;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Services\Product\ProductService;
 use App\Http\Resources\Product\ProductResource;
@@ -26,7 +25,7 @@ class AdminProductController extends Controller
     
     public function store(SaveProductRequest $request){
         try{
-            $data = $request->validated();
+            $data = $request->validated(); 
 
             $product = $this->productService->createProduct($data);
 
@@ -38,7 +37,8 @@ class AdminProductController extends Controller
 
     public function update(SaveProductRequest $request, $id){
             try{
-                $data = $request->validated();
+                $data = $request->validated(); 
+
                 $product = $this->productService->updateProduct($id, $data);
                 return $this->success(new ProductResource($product), 'Cập nhật thông tin sản phẩm thành công !');
             }catch(Exception $e){
@@ -52,6 +52,46 @@ class AdminProductController extends Controller
             return $this->success(null, 'Xóa sản phẩm thành công');
         } catch (Exception $e) {
             return $this->error($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * 1. Lấy danh sách sản phẩm (Filter, Sort, Paginate)
+     */
+    public function index(Request $request)
+    {
+        try{
+        // Lấy các tham số filter từ request
+        $filters = $request->all();
+
+        // Gọi Service xử lý query
+        // LƯU Ý: Service của bạn đang dùng Product::active(). 
+        // Admin cần thấy cả sản phẩm ẩn. Bạn nên sửa Service bỏ active() hoặc tạo hàm listForAdmin().
+        $products = $this->productService->listAdmin($filters);
+
+        // Trả về dữ liệu đã qua Resource format
+        // Resource::collection sẽ tự động bọc trong key "data" và giữ nguyên meta pagination
+        $data = ProductResource::collection($products);
+        return $this->success($data, 'Lấy danh sách thành công');
+        }catch(Exception $e){
+            return $this->error($e->getMessage());
+        }
+    }
+
+    /**
+     * 2. Lấy chi tiết sản phẩm (Để hiển thị form Edit)
+     */
+    public function show($id)
+    {
+        try {
+            // Gọi Service lấy detail
+            $product = $this->productService->getProductDetail($id);
+
+            // Trả về 1 object resource
+            return $this->success(new ProductResource($product),'Lấy thông tin sản phẩm thành công');
+
+        } catch (Exception $e) {
+            return $this->error($e->getMessage());
         }
     }
 }

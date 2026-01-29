@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Product;
 
 use Exception;
-use App\Models\Product;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
