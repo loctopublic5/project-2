@@ -79,22 +79,22 @@
     <div class="main">
       <div class="container">
         <ul class="breadcrumb">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="">Home</a></li>
             <li><a href="">Store</a></li>
             <li class="active">Men category</li>
         </ul>
         <!-- BEGIN SIDEBAR & CONTENT -->
         <div class="row margin-bottom-40">
           <!-- BEGIN SIDEBAR -->
-<div class="sidebar col-md-3 col-sm-5">
-    <ul class="list-group margin-bottom-25 sidebar-menu" id="sidebar-categories">
-        <li class="list-group-item">Đang tải danh mục...</li>
-    </ul>
+        <div class="sidebar col-md-3 col-sm-5">
+            <ul class="list-group margin-bottom-25 sidebar-menu" id="sidebar-categories">
+                <li class="list-group-item">Đang tải danh mục...</li>
+            </ul>
 
-    <div class="sidebar-products clearfix" id="bestseller-container">
-        <h2>Bestsellers</h2>
+            <div class="sidebar-products clearfix" id="bestseller-container">
+                <h2>Bestsellers</h2>
+                </div>
         </div>
-</div>
           <!-- END SIDEBAR -->
           <!-- BEGIN CONTENT -->
           <div class="col-md-9 col-sm-7">
@@ -328,6 +328,10 @@
         </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+
     <!-- END fast view of a product -->
 @endsection
 
