@@ -360,6 +360,32 @@ class ProductList {
         return;
     }
 
+    // --- PHẦN KIỂM TRA GIỚI HẠN 10 SẢN PHẨM ---
+    const MAX_QTY = 10;
+    const requestedQty = parseInt(options.quantity || 1);
+    
+    // Lấy số lượng hiện tại đang có trong giỏ hàng từ window.cartApp (nếu có)
+    let currentInCart = 0;
+    if (window.cartApp && window.cartApp.items) {
+        const itemInCart = window.cartApp.items.find(item => 
+            item.product_id === parseInt(productId) || item.product?.id === parseInt(productId)
+        );
+        if (itemInCart) {
+            currentInCart = parseInt(itemInCart.quantity);
+        }
+    }
+
+    if (currentInCart + requestedQty > MAX_QTY) {
+        Swal.fire({
+            title: 'Giới hạn số lượng',
+            text: `Bạn đã có ${currentInCart} sản phẩm này trong giỏ. Mỗi đơn hàng chỉ được mua tối đa ${MAX_QTY} sản phẩm.`,
+            icon: 'warning',
+            confirmButtonColor: '#e84d1c'
+        });
+        return; // Dừng xử lý, không gửi API
+    }
+    // ------------------------------------------
+
     const bodyData = {
         product_id: parseInt(productId),
         quantity: parseInt(options.quantity || 1),
@@ -466,6 +492,24 @@ class ProductList {
         e.preventDefault();
         const productId = $(this).data("id");
         self.showQuickView(productId);
+    });
+
+    // Xử lý nhập số lượng từ bàn phím (cho cả Modal và List)
+    $(document).off('change keyup', '#modal-product-quantity, .js-product-qty-input').on('change keyup', '#modal-product-quantity, .js-product-qty-input', function() {
+        let val = parseInt($(this).val());
+        const MAX = 10;
+        
+        if (isNaN(val) || val < 1) {
+            $(this).val(1);
+        } else if (val > MAX) {
+            Swal.fire({
+                title: 'Thông báo',
+                text: `Số lượng tối đa cho mỗi sản phẩm là ${MAX}`,
+                icon: 'warning',
+                confirmButtonColor: '#e84d1c'
+            });
+            $(this).val(MAX);
+        }
     });
 
     // Fancybox cho ảnh
