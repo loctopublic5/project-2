@@ -304,13 +304,18 @@
                         <div id="modal-product-attributes"></div>
                     </div>
 
-                    <div class="product-page-cart">
-                        <div class="qty-wrapper">
-                            <label>Số lượng</label>
-                            <div class="product-quantity">
-                                <input id="modal-product-quantity" type="text" value="1" readonly class="form-control">
-                            </div>
-                        </div>
+<div class="product-page-cart">
+    <div class="qty-wrapper">
+        <label>Số lượng</label>
+        <div class="product-quantity">
+            <input id="modal-product-quantity" 
+                    type="number" 
+                    value="1" 
+                    min="1" 
+                    max="10" 
+                    class="form-control input-sm">
+        </div>
+    </div>
                         <button class="btn btn-primary btn-add-cart-lg" id="btn-modal-add-to-cart">
                             <i class="fa fa-shopping-cart"></i> Add To Cart
                         </button>

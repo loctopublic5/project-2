@@ -43,12 +43,12 @@ class SaveProductRequest extends BaseFormRequest
             'image' => [
                 $isUpdate ? 'nullable' : 'required', // Tạo mới thì bắt buộc, update thì không
                 'image', 
-                'mimes:jpeg,png,jpg,gif', 
+                'mimes:jpeg,png,jpg,gif,webp', 
                 'max:2048'
             ],
             // Cập nhật Rule cho Gallery (Mảng ảnh)
             'gallery'   => ['nullable', 'array'],
-            'gallery.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'gallery.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         
             'deleted_images' => ['nullable', 'string'], // Chuỗi JSON chứa ID các ảnh gallery cần xóa
         ];

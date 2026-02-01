@@ -1,7 +1,31 @@
 const WalletModule = {
+    CONFIG: {
+        MIN_DEPOSIT: 10000,
+        MAX_DEPOSIT: 50000000, // 50 triệu đồng cho 1 lần nạp
+    },
+
     init: function() {
         this.loadWalletInfo();
         // Bạn có thể đăng ký sự kiện click tại đây nếu không muốn dùng onclick trong HTML
+    },
+
+    initEventListeners: function() {
+        // Lắng nghe sự kiện nhập liệu để valid real-time
+        const amountInput = document.getElementById('deposit-amount');
+        if (amountInput) {
+            amountInput.addEventListener('input', (e) => {
+                // Chỉ cho phép nhập số
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                
+                const val = parseInt(e.target.value) || 0;
+                if (val > this.CONFIG.MAX_DEPOSIT) {
+                    e.target.value = this.CONFIG.MAX_DEPOSIT;
+                    this.updateDisplayTotal(this.CONFIG.MAX_DEPOSIT);
+                } else {
+                    this.updateDisplayTotal(val);
+                }
+            });
+        }
     },
 
     loadWalletInfo: async function() {
@@ -51,17 +75,27 @@ const WalletModule = {
         const amountInput = document.getElementById('deposit-amount');
         const amount = parseInt(amountInput.value);
         
-        // 1. Kiểm tra nhập liệu cơ bản (Client-side validation)
-        if (isNaN(amount) || amount < 10000) {
+        // 1. Kiểm tra giới hạn TỐI THIỂU
+        if (isNaN(amount) || amount < this.CONFIG.MIN_DEPOSIT) {
             return Swal.fire({
-                icon: 'error',
-                title: 'Số tiền không hợp lệ',
-                text: 'Vui lòng nhập số tiền nạp tối thiểu là 10.000 đ',
+                icon: 'warning',
+                title: 'Số tiền quá nhỏ',
+                text: `Số tiền nạp tối thiểu là ${AppHelpers.formatCurrency(this.CONFIG.MIN_DEPOSIT)}`,
                 confirmButtonColor: '#E02222'
             });
         }
 
-        // 2. Xác nhận nạp tiền
+        // 2. Kiểm tra giới hạn TỐI ĐA (Quan trọng để bảo vệ Server)
+        if (amount > this.CONFIG.MAX_DEPOSIT) {
+            return Swal.fire({
+                icon: 'error',
+                title: 'Vượt hạn mức',
+                text: `Mỗi giao dịch nạp tiền không được quá ${AppHelpers.formatCurrency(this.CONFIG.MAX_DEPOSIT)}. Vui lòng chia nhỏ giao dịch hoặc liên hệ hỗ trợ.`,
+                confirmButtonColor: '#E02222'
+            });
+        }
+
+        // 3. Xác nhận nạp tiền
         Swal.fire({
             title: 'Xác nhận nạp tiền?',
             text: `Hệ thống sẽ nạp ${AppHelpers.formatCurrency(amount)} vào ví của bạn.`,

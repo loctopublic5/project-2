@@ -1,19 +1,24 @@
 const QuickDeposit = {
     amount: 50000,
+    // Cấu hình hạn mức đồng bộ với hệ thống
+    CONFIG: {
+        MIN: 10000,
+        MAX: 50000000,
+    },
 
     init: function() {
         console.log("QuickDeposit Module Starting...");
         this.bindEvents();
 
-        // 1. Lấy số tiền thiếu từ URL
         const params = new URLSearchParams(window.location.search);
-        const urlAmount = parseInt(params.get('amount'));
+        let urlAmount = parseInt(params.get('amount'));
         
         if (urlAmount && urlAmount > 0) {
-            // Làm tròn lên hàng nghìn (ví dụ 10.200 -> 11.000) nếu cần, hoặc để nguyên
+            // Kiểm tra giới hạn ngay cả với số tiền truyền từ URL (ví dụ từ trang thanh toán sang)
+            if (urlAmount > this.CONFIG.MAX) urlAmount = this.CONFIG.MAX;
+            
             this.amount = urlAmount;
             
-            // Nếu số tiền này không có trong danh sách nút chọn sẵn, bơm vào ô input
             const $existBtn = $(`.btn-money[data-amount="${urlAmount}"]`);
             if ($existBtn.length) {
                 $('.btn-money').removeClass('active');
@@ -31,48 +36,75 @@ const QuickDeposit = {
         const self = this;
         const $body = $('body');
 
-        // 1. Lắng nghe click chọn số tiền (Dùng class .btn-money)
+        // 1. Click chọn nút số tiền cố định
         $body.off('click', '.btn-money').on('click', '.btn-money', function(e) {
             e.preventDefault();
-            console.log("Btn money clicked:", $(this).data('amount'));
-            
             $('.btn-money').removeClass('active');
             $(this).addClass('active');
-            $('#input-custom-amount').val(''); // Xóa ô nhập tay
+            $('#input-custom-amount').val(''); 
             
             self.amount = parseInt($(this).data('amount'));
             self.updateUI();
         });
 
-        // 2. Lắng nghe nhập tiền tay (Dùng ID #input-custom-amount)
+        // 2. Nhập số tiền tay - Bổ sung logic chặn ký tự và giới hạn Max real-time
         $body.off('input', '#input-custom-amount').on('input', '#input-custom-amount', function() {
-            console.log("Custom amount inputting...");
+            // Chỉ cho phép nhập số
+            let valStr = $(this).val().replace(/[^0-9]/g, '');
+            let val = parseInt(valStr) || 0;
+
+            if (val > self.CONFIG.MAX) {
+                val = self.CONFIG.MAX;
+                $(this).val(val);
+                // Thông báo nhẹ bằng Toast nếu nhập quá 50tr
+                console.warn("Đã đạt hạn mức nạp tối đa");
+            } else {
+                $(this).val(valStr);
+            }
+
             $('.btn-money').removeClass('active');
-            self.amount = parseInt($(this).val()) || 0;
+            self.amount = val;
             self.updateUI();
         });
 
-        // 3. Lắng nghe nút xác nhận (Dùng ID #btn-submit-deposit)
+        // 3. Nút xác nhận
         $body.off('click', '#btn-submit-deposit').on('click', '#btn-submit-deposit', function(e) {
             e.preventDefault();
-            console.log("Submit button clicked, current amount:", self.amount);
             self.handleDeposit();
         });
     },
 
     updateUI: function() {
         const formatted = new Intl.NumberFormat('vi-VN').format(this.amount) + 'đ';
-        // Cập nhật vào ID #final-amount
         $('#final-amount').text(formatted);
         
-        // Đồng bộ trạng thái active của nút
-        $('.btn-money').removeClass('active');
-        $(`.btn-money[data-amount="${this.amount}"]`).addClass('active');
+        // Cảnh báo nếu số tiền đang nhỏ hơn mức tối thiểu (để user biết trước khi bấm nút)
+        if (this.amount > 0 && this.amount < this.CONFIG.MIN) {
+            $('#final-amount').css('color', '#e74c3c');
+        } else {
+            $('#final-amount').css('color', '#1fb5ad');
+        }
     },
 
     handleDeposit: async function() {
-        if (this.amount < 10000) {
-            return Swal.fire('Thông báo', 'Số tiền nạp tối thiểu là 10.000đ', 'warning');
+        // Kiểm tra Tối thiểu
+        if (this.amount < this.CONFIG.MIN) {
+            return Swal.fire({
+                title: 'Số tiền không đủ',
+                text: `Số tiền nạp tối thiểu là ${new Intl.NumberFormat('vi-VN').format(this.CONFIG.MIN)}đ`,
+                icon: 'warning',
+                confirmButtonColor: '#E02222'
+            });
+        }
+
+        // Kiểm tra Tối đa
+        if (this.amount > this.CONFIG.MAX) {
+            return Swal.fire({
+                title: 'Vượt quá hạn mức',
+                text: `Bạn không thể nạp quá ${new Intl.NumberFormat('vi-VN').format(this.CONFIG.MAX)}đ mỗi lần.`,
+                icon: 'error',
+                confirmButtonColor: '#E02222'
+            });
         }
 
         Swal.fire({
@@ -84,15 +116,14 @@ const QuickDeposit = {
         try {
             const res = await window.api.post('/api/v1/customer/wallet/deposit', {
                 amount: this.amount,
-                payment_method: $('input[name="payment_method"]:checked').val(),
+                payment_method: $('input[name="payment_method"]:checked').val() || 'manual',
                 description: "Nạp tiền nhanh để thanh toán đơn hàng"
             });
 
             if (res.data.status) {
-                // SỰ KIỆN MỚI: Cho người dùng lựa chọn sau khi nạp thành công
                 Swal.fire({
                     title: 'Nạp tiền thành công!',
-                    text: `Số tiền ${new Intl.NumberFormat('vi-VN').format(this.amount)}đ đã được ghi nhận. Bạn muốn làm gì tiếp theo?`,
+                    text: `Số tiền ${new Intl.NumberFormat('vi-VN').format(this.amount)}đ đã được ghi nhận vào ví.`,
                     icon: 'success',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -102,16 +133,15 @@ const QuickDeposit = {
                     allowOutsideClick: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Quay lại trang checkout
                         window.location.href = '/checkout';
                     } else {
-                        // Về trang profile và mở tab wallet
                         window.location.href = '/profile?tab=wallet';
                     }
                 });
             }
         } catch (err) {
-            Swal.fire('Lỗi', err.response?.data?.message || 'Không thể nạp tiền', 'error');
+            console.error(err);
+            Swal.fire('Lỗi', err.response?.data?.message || 'Không thể nạp tiền. Vui lòng thử lại sau.', 'error');
         }
     }
 };

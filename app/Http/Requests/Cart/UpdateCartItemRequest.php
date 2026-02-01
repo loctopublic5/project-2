@@ -10,7 +10,7 @@ class UpdateCartItemRequest extends BaseFormRequest
     {
         return [
             // Dùng 'sometimes' để linh động: Chỉ validate nếu field đó có trong request
-            'quantity' => ['sometimes', 'integer', 'min:1'],
+            'quantity' => ['sometimes', 'integer', 'min:1','max:10'],
             
             'options'  => ['sometimes', 'nullable', 'array'],
         ];
@@ -19,6 +19,7 @@ class UpdateCartItemRequest extends BaseFormRequest
     {
         return [
             'quantity.min' => 'Số lượng phải lớn hơn 0.',
+            'quantity.max' => 'Số lượng phải nhỏ hơn 10',
         ];
     }
 }
