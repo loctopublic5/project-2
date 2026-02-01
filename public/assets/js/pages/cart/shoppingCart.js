@@ -155,16 +155,44 @@ const ShoppingCart = {
     },
 
     updateQuantity: async function(itemId, quantity) {
-        try {
-            const response = await window.api.put(`${this.apiBase}/${itemId}`, { quantity });
-            if (response.data.status) {
-                this.loadCart();
-                this.refreshMiniCart();
-            }
-        } catch (error) {
+    const MAX_QTY = 10;
+    const newQty = parseInt(quantity);
+
+    // 1. Kiểm tra nếu người dùng nhập quá 10
+    if (newQty > MAX_QTY) {
+        Swal.fire({
+            title: 'Thông báo',
+            text: `Số lượng tối đa cho mỗi sản phẩm là ${MAX_QTY}.`,
+            icon: 'warning',
+            confirmButtonColor: '#e84d1c'
+        });
+        
+        // Load lại giỏ hàng để trả số lượng hiển thị về giá trị cũ trong DB
+        this.loadCart(); 
+        return;
+    }
+
+    // 2. Kiểm tra nếu số lượng không hợp lệ (nhỏ hơn 1)
+    if (newQty < 1) {
+        this.handleDelete(itemId); // Nếu hạ xuống 0 thì hỏi xóa luôn cho tiện
+        return;
+    }
+
+    try {
+        const response = await window.api.put(`${this.apiBase}/${itemId}`, { quantity: newQty });
+        if (response.data.status) {
             this.loadCart();
+            this.refreshMiniCart();
         }
-    },
+    } catch (error) {
+        console.error("Lỗi cập nhật số lượng:", error);
+        // Nếu Server trả về lỗi (ví dụ hết hàng), load lại để đồng bộ UI
+        this.loadCart();
+        
+        const errorMsg = error.response?.data?.message || "Không thể cập nhật số lượng.";
+        Swal.fire('Lỗi', errorMsg, 'error');
+    }
+},
 
     handleDelete: function(itemId) {
         Swal.fire({
